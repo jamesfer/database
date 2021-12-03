@@ -1,13 +1,10 @@
 import { KeyValueResources } from '../stores/key-value/resources';
+import { SortedArrayResources } from '../stores/sorted-array/resources';
 
 interface ResourceHKT {
   keyValue: KeyValueResources;
+  sortedArray: SortedArrayResources;
 }
-
-// interface ResourceDictionary {
-//   keyValue: { [k: string]: KeyValueResources };
-// }
-
 
 interface ResourceDictionary<K extends keyof ResourceHKT> {
   [i: string]: ResourceHKT[K];
@@ -16,8 +13,6 @@ interface ResourceDictionary<K extends keyof ResourceHKT> {
 type ResourceStorage = {
   [K in keyof ResourceHKT]: ResourceDictionary<K>;
 }
-
-
 
 export class ResourceRegistry {
   private readonly resources: ResourceStorage = { keyValue: {} };

@@ -1,47 +1,38 @@
-import { ConnectableObservable, Observable, Subject, Subscription } from 'rxjs';
-import { publishBehavior, scan } from 'rxjs/operators';
+import { Observable, timer } from 'rxjs';
 import { Config, ConfigEntry } from '../../types/config';
+import { Resource } from '../../utils/resource';
+import { runGossip } from './gossip/gossip';
+import { SocketMessageServer } from './sockets/socket-message-server';
+import { StateChange } from './types/state-change';
 
 /**
  * Publishes changes to the config state and consumes updates from gossip.
  */
 export class MetadataState {
-  private readonly events$: Subject<ConfigEntry> = new Subject<ConfigEntry>();
+  private readonly triggerGossip$: Observable<unknown> = timer(3000, 3000);
 
-  private readonly coldInternalConfig$: Observable<Config> = this.events$.pipe(
-    scan(MetadataState.updateConfig, new Config({})),
-  );
+  private readonly intermediateState$: Observable<[Config, StateChange[]]>;
 
-  private readonly hotInternalConfig$: ConnectableObservable<Config> = publishBehavior<Config>(
-    new Config({}),
-  )(
-    this.coldInternalConfig$,
-  );
+  private constructor(
+    private readonly peers$: Observable<string[]>,
+    private readonly socketMessageServer: SocketMessageServer,
+  ) {}
 
-  private hotConfigSubscription: undefined | Subscription;
-
-  start(): () => void {
-    const hotSubscription = this.hotConfigSubscription ?? this.hotInternalConfig$.connect();
-    this.hotConfigSubscription = hotSubscription;
-    return () => {
-      if (!hotSubscription.closed) {
-        hotSubscription.unsubscribe();
-      }
-    };
+  static create(socketPort: number, peers$: Observable<string[]>): Resource<MetadataState> {
+    SocketMessageServer.create(socketPort)
+      .flatMap<MetadataState>(messageServer => new Resource<MetadataState>(() => {
+        const state = new MetadataState(peers$, messageServer);
+        return [state, () => {}];
+      }))
   }
 
   publish(event: ConfigEntry) {
-    this.events$.next(event);
   }
   
   get config$(): Observable<Config> {
-    return this.hotInternalConfig$;
   }
 
-  private static updateConfig(existingConfig: Config, newEntry: ConfigEntry): Config {
-    return new Config({
-      ...existingConfig.entries,
-      [newEntry.id.join('/')]: newEntry,
-    });
+  private manageGossip(): Observable<string> {
+    return runGossip(this.peers$, this.triggerGossip$, this.intermediateState$);
   }
 }

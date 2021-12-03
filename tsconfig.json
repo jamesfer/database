@@ -6,14 +6,22 @@
     "esModuleInterop": true,
     "importHelpers": true,
     "lib": [
-      "es2020",
+      "es2020"
     ],
-    "module": "es6",
+    "module": "commonjs",
     "moduleResolution": "node",
     "noImplicitAny": true,
     "noImplicitThis": true,
     "sourceMap": true,
     "strict": true,
-    "target": "es6"
-  }
+    "target": "es6",
+    "typeRoots": [
+      "./typings",
+      "./node_modules/@types"
+    ]
+  },
+  "include": [
+    "src/**/*.ts",
+    "proto/**/*"
+  ]
 }

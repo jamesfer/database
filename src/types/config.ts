@@ -13,6 +13,12 @@ export class KeyValueDataset implements BaseConfigEntry {
   ) {}
 }
 
+export class SortedArrayDataset implements BaseConfigEntry {
+  constructor(
+    public readonly id: FullyQualifiedPath,
+  ) {}
+}
+
 export class RestApi implements BaseConfigEntry {
   constructor(
     public readonly id: FullyQualifiedPath,
@@ -28,6 +34,7 @@ export class FolderEntry implements BaseConfigEntry {
 
 export type ConfigEntry =
   | KeyValueDataset
+  | SortedArrayDataset
   | RestApi
   | FolderEntry;
 

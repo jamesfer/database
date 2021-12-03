@@ -1,0 +1,3 @@
+message GossipStateRequest {
+  required bytes bloomFilter = 16;
+}

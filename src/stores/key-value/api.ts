@@ -1,7 +1,7 @@
-import { ResourceRegistry } from '../../../core';
-import { KeyValueDataset } from '../../../types/config';
-import { KeyValueResources } from '../resources';
-import { KeyValueStore } from '../store';
+import { ResourceRegistry } from '../../core';
+import { KeyValueDataset } from '../../types/config';
+import { KeyValueResources } from './resources';
+import { KeyValueStore } from './store';
 
 export async function putEntry(
   config: KeyValueDataset,

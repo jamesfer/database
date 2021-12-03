@@ -1,6 +1,7 @@
 import { startRestApi } from '../apis/rest';
 import { MetadataState } from '../core/metadata-state/metadata-state';
 import { ResourceRegistry } from '../core';
+import { Peers } from '../core/peers';
 
 interface MainOptions {
   port: number;
@@ -9,6 +10,9 @@ interface MainOptions {
 export async function main(mainOptions: MainOptions): Promise<() => Promise<void>> {
   // Create resource registry
   const resources = new ResourceRegistry();
+
+  // Manage peer nodes
+  const peers = new Peers();
 
   // Start gossip protocol
   const metadataState = new MetadataState();
