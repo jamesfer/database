@@ -1,5 +1,5 @@
 import { Response as ExpressResponse } from 'express';
-import { DataResponse, FailureResponse, FailureType, OkResponse, Response } from '../../core/responses/response';
+import { DataResponse, FailureResponse, FailureType, OkResponse, Response } from '../../core';
 import { assertNever } from '../../utils/assert-never';
 
 export function handleResponse(expressResponse: ExpressResponse, genericResponse: Response): void {

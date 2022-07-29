@@ -1,6 +1,6 @@
-import { ConnectableObservable, Observable, Subject, Subscription } from 'rxjs';
+import { BehaviorSubject, ConnectableObservable, Observable, Subject, Subscription } from 'rxjs';
 import { publishBehavior, scan } from 'rxjs/operators';
-import { Config, ConfigEntry } from '../../types/config';
+import { Config, ConfigEntry, FullyQualifiedPath } from '../../types/config';
 
 /**
  * Publishes changes to the config state and consumes updates from gossip.
@@ -12,16 +12,35 @@ export class MetadataState {
     scan(MetadataState.updateConfig, new Config({})),
   );
 
-  private readonly hotInternalConfig$: ConnectableObservable<Config> = publishBehavior<Config>(
-    new Config({}),
-  )(
-    this.coldInternalConfig$,
-  );
+  private readonly internalConfigBehaviourSubject$: BehaviorSubject<Config>
+    = new BehaviorSubject<Config>(new Config({}));
+
+  // private readonly hotInternalConfig$: ConnectableObservable<Config> =
+  //   publish(this.internalConfigBehaviourSubject$)(this.coldInternalConfig$)
+
+  //   publishBehavior<Config>(
+  //   new Config({}),
+  // )(
+  //   this.coldInternalConfig$,
+  // );
 
   private hotConfigSubscription: undefined | Subscription;
 
+  get config$(): Observable<Config> {
+    return this.internalConfigBehaviourSubject$.asObservable();
+  }
+
+  get currentConfig(): Config {
+    return this.internalConfigBehaviourSubject$.value;
+  }
+
+  configEntryAt(path: FullyQualifiedPath): ConfigEntry | undefined {
+    return this.internalConfigBehaviourSubject$.value.entries[path.join('/')];
+  }
+
   start(): () => void {
-    const hotSubscription = this.hotConfigSubscription ?? this.hotInternalConfig$.connect();
+    const hotSubscription = this.hotConfigSubscription
+      ?? this.coldInternalConfig$.subscribe(this.internalConfigBehaviourSubject$);
     this.hotConfigSubscription = hotSubscription;
     return () => {
       if (!hotSubscription.closed) {
@@ -32,10 +51,6 @@ export class MetadataState {
 
   publish(event: ConfigEntry) {
     this.events$.next(event);
-  }
-  
-  get config$(): Observable<Config> {
-    return this.hotInternalConfig$;
   }
 
   private static updateConfig(existingConfig: Config, newEntry: ConfigEntry): Config {

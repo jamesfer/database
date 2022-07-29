@@ -15,3 +15,6 @@ export async function runCommandLine() {
 
   await cleanup();
 }
+
+runCommandLine()
+  .catch(error => console.log('Error occurred', error));

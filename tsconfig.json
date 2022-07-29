@@ -8,12 +8,15 @@
     "lib": [
       "es2020",
     ],
-    "module": "es6",
+    "module": "CommonJS",
     "moduleResolution": "node",
     "noImplicitAny": true,
     "noImplicitThis": true,
     "sourceMap": true,
     "strict": true,
     "target": "es6"
-  }
+  },
+  "include": [
+    "src/**/*.ts"
+  ]
 }

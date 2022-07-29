@@ -1,5 +1,5 @@
 import { Request as ExpressRequest } from 'express';
-import { Request } from '../../core/requests/request';
+import { Request } from '../../core';
 
 export class ExpressRequestAdaptor implements Request {
   constructor(private readonly expressRequest: ExpressRequest) {}

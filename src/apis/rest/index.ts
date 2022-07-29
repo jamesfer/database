@@ -1,6 +1,5 @@
 import * as http from 'http';
-import { MetadataState } from '../../core/metadata-state/metadata-state';
-import { ResourceRegistry } from '../../core';
+import { MetadataState, ResourceRegistry } from '../../core';
 import { createRestApi } from './api';
 
 export interface RestApiConfig {

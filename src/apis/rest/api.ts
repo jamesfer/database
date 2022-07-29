@@ -1,11 +1,9 @@
 import { default as express, Express, json, raw } from 'express';
 import { Subscription } from 'rxjs';
-import { MetadataState } from '../../core/metadata-state/metadata-state';
-import { ResourceRegistry } from '../../core';
 import { createAccessApiRoutes } from './access-api/access-api-routes';
 import { createCoreRoutes } from './core/core-routes';
 
-export function createRestApi(metadata: MetadataState, resourceRegistry: ResourceRegistry): [Express, () => void] {
+export function createRestApi(): [Express, () => void] {
   const subscriptions = new Subscription();
   const app: Express = express();
 

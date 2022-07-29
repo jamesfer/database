@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
-import { ResourceRegistry } from '../../../core';
-import { MetadataState } from '../../../core/metadata-state/metadata-state';
+import { MetadataState, ResourceRegistry } from '../../../core';
 import { putEntry as corePutEntry } from '../../../core/operations/put-entry';
 import {
   ConfigEntry,
@@ -8,9 +7,8 @@ import {
   KeyValueDataset,
   RestApi,
 } from '../../../types/config';
-import { keyValueApi } from '../../../stores/key-value/index';
 
-function parseEntry(id: FullyQualifiedPath, request: Request, response: Response): ConfigEntry | string {
+function parseEntry(id: FullyQualifiedPath, request: Request): ConfigEntry | string {
   switch (request.body.type) {
     case 'RestApi': {
       const dataset: string | undefined = request.body.dataset;
@@ -28,22 +26,18 @@ function parseEntry(id: FullyQualifiedPath, request: Request, response: Response
 }
 
 export const putEntry = (metadata: MetadataState, resourceRegistry: ResourceRegistry) => (request: Request, response: Response): void => {
-  const entry: string | undefined = request.params.entry;
-  if (!entry) {
+  const entryPath: string | undefined = request.params.entry;
+  if (!entryPath) {
     response.status(400).json({ error: 'Missing route parameter entry' });
     return;
   }
 
-  const newEntry = parseEntry(entry.split('/'), request, response);
+  const newEntry = parseEntry(entryPath.split('/'), request);
   if (typeof newEntry === 'string') {
     response.status(400).json({ error: newEntry });
     return;
   }
 
-  corePutEntry(metadata, newEntry);
-  if (newEntry instanceof KeyValueDataset) {
-    keyValueApi.putEntry(newEntry, resourceRegistry);
-  }
-
+  corePutEntry(metadata, resourceRegistry, newEntry);
   response.sendStatus(200);
 }

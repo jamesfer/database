@@ -46,5 +46,8 @@ node_modules/
 .yarn/install-state.gz
 .pnp.*
 
+# Mac
+.DS_Store
+
 # IntelliJ
 .idea/
