@@ -1,10 +1,10 @@
 import { ResourceRegistry } from '../../../core';
-import { KeyValueDataset } from '../../../types/config';
+import { SimpleMemoryKeyValueEntry } from '../../../types/config';
 import { KeyValueResources } from '../resources';
 import { KeyValueStore } from '../store';
 
 export async function putEntry(
-  config: KeyValueDataset,
+  config: SimpleMemoryKeyValueEntry,
   resourceRegistry: ResourceRegistry,
 ): Promise<void> {
   resourceRegistry.registerResources('keyValue', config.id.join('/'), {
@@ -13,7 +13,7 @@ export async function putEntry(
 }
 
 export async function put(
-  config: KeyValueDataset,
+  config: SimpleMemoryKeyValueEntry,
   resources: KeyValueResources,
   key: string,
   body: ArrayBuffer,
@@ -22,7 +22,7 @@ export async function put(
 }
 
 export async function get(
-  config: KeyValueDataset,
+  config: SimpleMemoryKeyValueEntry,
   resources: KeyValueResources,
   key: string,
 ): Promise<ArrayBuffer> {
@@ -34,7 +34,7 @@ export async function get(
 }
 
 export async function drop(
-  config: KeyValueDataset,
+  config: SimpleMemoryKeyValueEntry,
   resources: KeyValueResources,
   key: string,
 ): Promise<void> {

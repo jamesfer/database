@@ -8,7 +8,7 @@ export class CoreApi {
     nodeId: string,
     processManager: ProcessManager,
     // metadataManager: MetadataManager,
-  ) {
+  ): Promise<CoreApi> {
     return new CoreApi(nodeId, processManager);
   }
 

@@ -31,7 +31,7 @@ const filterRelevantChanges = (isLeader: boolean, nodeId: string) => (configEntr
   return configEntries$.pipe(
     map(entries => (
       // TODO add path based filtering if it is a leader
-      Object.fromEntries(Object.entries(entries).filter(([key]) => key.startsWith(nodeId)))
+      Object.fromEntries(Object.entries(entries).filter(([key]) => isLeader || key.startsWith(nodeId)))
     )),
   )
 };
@@ -39,9 +39,25 @@ const filterRelevantChanges = (isLeader: boolean, nodeId: string) => (configEntr
 function detectChanges(configEntries$: Observable<{ [k: string]: ConfigEntry }>): Observable<ConfigChange> {
   return configEntries$.pipe(
     pairwise(),
-    concatMap(([previous, next]) => {
-      // TODO
-      return [];
+    concatMap(function * ([previous, next]): Iterable<ConfigChange> {
+      // Find all new and changed entries
+      for (const [key, entry] of Object.entries(next)) {
+        if (key in previous) {
+          const previousEntry = previous[key];
+          if (previousEntry.name !== entry.name || !previousEntry.equals(entry as any)) {
+            yield { key, entry, type: 'update' };
+          }
+        } else {
+          yield { key, entry, type: 'create' };
+        }
+      }
+
+      // Find all deleted entries
+      for (const [key, previousEntry] of Object.entries(previous)) {
+        if (!(key in next)) {
+          yield { key, entry: previousEntry, type: 'delete' };
+        }
+      }
     }),
   );
 }

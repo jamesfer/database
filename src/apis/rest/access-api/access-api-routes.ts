@@ -2,7 +2,7 @@ import { Request, Response, Router } from 'express';
 import { Subject, Subscription } from 'rxjs';
 import { withLatestFrom } from 'rxjs/operators';
 import { MetadataState, ResourceRegistry } from '../../../core';
-import { Config, ConfigEntry, RestApi } from '../../../types/config';
+import { Config, ConfigEntry, RestApiEntry } from '../../../types/config';
 import { drop } from './drop';
 import { get } from './get';
 import { insert } from './insert';
@@ -14,7 +14,7 @@ const createHandler = (
     request: Request,
     response: Response,
     config: Config,
-    restApiConfig: RestApi,
+    restApiConfig: RestApiEntry,
     datasetConfig: ConfigEntry,
   ) => Promise<void>,
 ) => {
@@ -29,7 +29,7 @@ const createHandler = (
     }
 
     const restApiEntry = config.entries[restApiEntryName];
-    if (!(restApiEntry && restApiEntry instanceof RestApi)) {
+    if (!(restApiEntry && restApiEntry instanceof RestApiEntry)) {
       response.status(400).json({ error: `Rest api entry with name ${restApiEntryName} does not exist` });
       return;
     }

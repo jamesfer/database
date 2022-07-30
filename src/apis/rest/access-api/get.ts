@@ -1,16 +1,16 @@
 import { Request, Response } from 'express';
 import { ResourceRegistry } from '../../../core';
-import { Config, ConfigEntry, KeyValueDataset, RestApi } from '../../../types/config';
+import { Config, ConfigEntry, SimpleMemoryKeyValueEntry, RestApiEntry } from '../../../types/config';
 import { keyValueApi } from '../../../stores/key-value';
 
 export const get = (resourceRegistry: ResourceRegistry) => async (
   request: Request,
   response: Response,
   config: Config,
-  restApiEntry: RestApi,
+  restApiEntry: RestApiEntry,
   datasetEntry: ConfigEntry,
 ): Promise<void> => {
-  if (datasetEntry instanceof KeyValueDataset) {
+  if (datasetEntry instanceof SimpleMemoryKeyValueEntry) {
     const key = request.query.key;
     if (typeof key !== 'string') {
       response.status(400).json({ error: 'Missing key query parameter' });

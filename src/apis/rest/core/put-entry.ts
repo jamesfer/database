@@ -4,8 +4,8 @@ import { putEntry as corePutEntry } from '../../../core/operations/put-entry';
 import {
   ConfigEntry,
   FullyQualifiedPath,
-  KeyValueDataset,
-  RestApi,
+  SimpleMemoryKeyValueEntry,
+  RestApiEntry,
 } from '../../../types/config';
 
 function parseEntry(id: FullyQualifiedPath, request: Request): ConfigEntry | string {
@@ -16,10 +16,10 @@ function parseEntry(id: FullyQualifiedPath, request: Request): ConfigEntry | str
         return 'Missing body parameter dataset'
       }
 
-      return new RestApi(id, dataset.split('/'));
+      return new RestApiEntry(id, dataset.split('/'));
     }
     case 'KeyValue':
-      return new KeyValueDataset(id);
+      return new SimpleMemoryKeyValueEntry(id);
     default:
       return `Unknown entry type: ${request.body.type}`;
   }

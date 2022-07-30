@@ -1,5 +1,4 @@
-import { FacadeFlagMap } from './scaffolding/facade-flag-map';
-import { FACADE_FLAGS, WithFacadeFlag } from './scaffolding/base-facade';
+import { WithFacadeFlag } from './scaffolding/base-facade';
 
 export const KEY_VALUE_DATASTORE_FLAG: unique symbol = Symbol("KEY_VALUE_DATASTORE_FLAG")
 
@@ -11,4 +10,8 @@ declare module '../facades/scaffolding/facade-flag-map' {
   }
 }
 
-export interface KeyValueDatastore extends WithFacadeFlag<KEY_VALUE_DATASTORE_FLAG> {}
+export interface KeyValueDatastore extends WithFacadeFlag<KEY_VALUE_DATASTORE_FLAG> {
+  put(key: string, value: ArrayBuffer): Promise<void>;
+  get(key: string): Promise<ArrayBuffer>;
+  drop(key: string): Promise<void>;
+}
