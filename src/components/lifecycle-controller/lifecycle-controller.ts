@@ -18,12 +18,12 @@ export class LifecycleController implements BaseFacade, StreamingDatastore {
     id: string,
     configState$: BehaviorSubject<LifecycleControllerConfigEntry>,
   ): Promise<LifecycleController> {
-    const initialStorage = registry.getProcessByPathAs(configState$.value.initialStorage, STREAMING_DATASTORE_FLAG);
+    const initialStorage = registry.getProcessByIdAs(configState$.value.initialStorage, STREAMING_DATASTORE_FLAG);
     if (!initialStorage) {
       throw new Error('Initial storage does not support StreamingDatastore facade');
     }
 
-    const secondaryStorage = registry.getProcessByPathAs(configState$.value.secondaryStorage, STREAMING_DATASTORE_FLAG);
+    const secondaryStorage = registry.getProcessByIdAs(configState$.value.secondaryStorage, STREAMING_DATASTORE_FLAG);
     if (!secondaryStorage) {
       throw new Error('Secondary storage does not support StreamingDatastore facade');
     }

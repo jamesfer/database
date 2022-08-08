@@ -2,6 +2,7 @@ import { ConfigEntry, FullyQualifiedPath } from '../../types/config';
 import { ProcessManager } from '../process-manager';
 import { MetadataDispatcher } from '../metadata-state/metadata-dispatcher';
 import { METADATA_DISPATCHER_FACADE_FLAG } from '../../facades/metadata-dispatcher-facade';
+import { uniqueId } from 'lodash';
 
 export class CoreApi {
   public static async initialize(
@@ -18,7 +19,7 @@ export class CoreApi {
     // private readonly metadataManager: MetadataManager,
   ) {}
 
-  public async bootstrapMetadataCluster(): Promise<void> {
+  public async bootstrapMetadataCluster(): Promise<string> {
     const path: FullyQualifiedPath = [];
     const metadataDispatcher = await MetadataDispatcher.initialize(
       this.nodeId,
@@ -26,7 +27,11 @@ export class CoreApi {
       this.processManager,
       true,
     );
-    this.processManager.register(path, metadataDispatcher);
+
+    const dispatcherId = uniqueId('metadataClusterLeader');
+    this.processManager.register(dispatcherId, metadataDispatcher);
+
+    return dispatcherId;
   }
 
   public async joinMetadataCluster(path: FullyQualifiedPath): Promise<void> {
@@ -36,7 +41,7 @@ export class CoreApi {
       this.processManager,
       false,
     );
-    this.processManager.register(path, metadataDispatcher);
+    this.processManager.register(uniqueId('metadataClusterMember'), metadataDispatcher);
   }
 
   public async getEntry(path: FullyQualifiedPath): Promise<ConfigEntry | undefined> {

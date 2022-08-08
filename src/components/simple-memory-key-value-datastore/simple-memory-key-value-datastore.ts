@@ -12,27 +12,27 @@ export class SimpleMemoryKeyValueDatastore implements BaseFacade, KeyValueDatast
     [KEY_VALUE_DATASTORE_FLAG]: this,
   };
 
-  static async initialize(
-    key: string,
-    config$: Observable<SimpleMemoryKeyValueEntry>,
-  ): Promise<SimpleMemoryKeyValueDatastore> {
-    return new SimpleMemoryKeyValueDatastore(key, config$);
-  }
+  // static async initialize(
+  //   key: string,
+  //   config$: Observable<SimpleMemoryKeyValueEntry>,
+  // ): Promise<SimpleMemoryKeyValueDatastore> {
+  //   return new SimpleMemoryKeyValueDatastore(key, config$);
+  // }
 
   private readonly storage: Map<string, ArrayBuffer> = new Map();
 
-  private readonly subscription = this.config$.pipe(
-    finalize(() => {
-      // Clean up resources
-      // This is pretty pointless, but it represents what we would actually do
-      // with real resources at this point.
-      this.storage.clear();
-    }),
-  ).subscribe();
+  // private readonly subscription = this.config$.pipe(
+  //   finalize(() => {
+  //     // Clean up resources
+  //     // This is pretty pointless, but it represents what we would actually do
+  //     // with real resources at this point.
+  //     this.storage.clear();
+  //   }),
+  // ).subscribe();
 
-  private constructor(
+  constructor(
     private readonly key: string,
-    private readonly config$: Observable<SimpleMemoryKeyValueEntry>,
+    // private readonly config$: Observable<SimpleMemoryKeyValueEntry>,
   ) {}
 
   async put(key: string, value: ArrayBuffer): Promise<void> {
@@ -54,7 +54,7 @@ export class SimpleMemoryKeyValueDatastore implements BaseFacade, KeyValueDatast
     }
   }
 
-  async cleanup() {
-    this.subscription.unsubscribe();
-  }
+  // async cleanup() {
+  //   this.subscription.unsubscribe();
+  // }
 }

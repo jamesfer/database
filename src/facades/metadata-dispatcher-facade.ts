@@ -16,4 +16,5 @@ export interface MetadataDispatcherFacade extends WithFacadeFlag<METADATA_DISPAT
   ownsPath(path: FullyQualifiedPath): boolean;
   getEntry(path: FullyQualifiedPath): Promise<ConfigEntry | undefined>;
   putEntry(entry: ConfigEntry): Promise<void>;
+  // getProcessId(path: FullyQualifiedPath): string | undefined;
 }

@@ -3,6 +3,8 @@ import { ProcessManager } from '../src/core/process-manager';
 import { CoreApi } from '../src/core/api/core-api';
 import { SimpleMemoryKeyValueEntry } from '../src/types/config';
 import { KeyValueApi } from '../src/core/api/key-value-api';
+import { METADATA_DISPATCHER_FACADE_FLAG, MetadataDispatcherFacade } from '../src/facades/metadata-dispatcher-facade';
+import { MetadataDispatcher } from '../src/core/metadata-state/metadata-dispatcher';
 
 describe('database', () => {
   async function successfulFetch(url: RequestInfo, init?: RequestInit): Promise<Response> {
@@ -56,10 +58,14 @@ describe('database', () => {
     const nodeId = 'node-1';
     const processManager = await ProcessManager.initialize();
     const coreApi = await CoreApi.initialize(nodeId, processManager);
-    const keyValueApi = await KeyValueApi.initialize(nodeId, processManager);
 
     // Bootstrap a new cluster
-    await coreApi.bootstrapMetadataCluster();
+    const dispatcherId = await coreApi.bootstrapMetadataCluster();
+    const dispatcher = processManager.getProcessByIdAs(dispatcherId, METADATA_DISPATCHER_FACADE_FLAG)!;
+    expect(dispatcher).toBeInstanceOf(MetadataDispatcher);
+
+    // Create the api
+    const keyValueApi = await KeyValueApi.initialize(nodeId, dispatcher, processManager);
 
     // Create an entry
     const keyValueDatasetPath = ['dataset1'];

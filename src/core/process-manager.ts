@@ -1,6 +1,5 @@
-import { FullyQualifiedPath } from '../types/config';
 import { FacadeFlagMap, FacadeFlagMapKey } from '../facades/scaffolding/facade-flag-map';
-import { BaseFacade, FACADE_FLAGS } from '../facades/scaffolding/base-facade';
+import { BaseFacade } from '../facades/scaffolding/base-facade';
 import { castFacade } from '../facades/scaffolding/cast-facade';
 
 export class ProcessManager {
@@ -12,24 +11,24 @@ export class ProcessManager {
 
   private constructor() {}
 
-  register(id: FullyQualifiedPath, component: BaseFacade): void {
-    if (this.getProcessByPath(id)) {
-      throw new Error(`A component has already been registered with the id: ${id.join('/')}`);
+  register(id: string, component: BaseFacade): void {
+    if (this.getProcessById(id)) {
+      throw new Error(`A component has already been registered with the id: ${id}`);
     }
 
-    this.processes[id.join('/')] = component;
+    this.processes[id] = component;
   }
 
-  deregister(id: FullyQualifiedPath): void {
-    delete this.processes[id.join('/')];
+  deregister(id: string): void {
+    delete this.processes[id];
   }
 
-  getProcessByPath(id: FullyQualifiedPath): BaseFacade | undefined {
-    return this.processes[id.join('/')];
+  getProcessById(id: string): BaseFacade | undefined {
+    return this.processes[id];
   }
 
-  getProcessByPathAs<F extends FacadeFlagMapKey>(id: FullyQualifiedPath, flag: F): FacadeFlagMap[F] | undefined {
-    const instance = this.getProcessByPath(id);
+  getProcessByIdAs<F extends FacadeFlagMapKey>(id: string, flag: F): FacadeFlagMap[F] | undefined {
+    const instance = this.getProcessById(id);
     if (instance) {
       return castFacade(instance, flag);
     }

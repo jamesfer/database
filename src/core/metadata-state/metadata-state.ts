@@ -1,6 +1,12 @@
-import { BehaviorSubject, ConnectableObservable, Observable, Subject, Subscription } from 'rxjs';
-import { publishBehavior, scan } from 'rxjs/operators';
-import { Config, ConfigEntry, FullyQualifiedPath } from '../../types/config';
+import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs';
+import { scan } from 'rxjs/operators';
+import {
+  Config,
+  ConfigEntry,
+  ConfigFolder,
+  ConfigFolderItem,
+  FullyQualifiedPath
+} from '../../types/config';
 
 /**
  * Publishes changes to the config state and consumes updates from gossip.
@@ -9,11 +15,11 @@ export class MetadataState {
   private readonly events$: Subject<ConfigEntry> = new Subject<ConfigEntry>();
 
   private readonly coldInternalConfig$: Observable<Config> = this.events$.pipe(
-    scan(MetadataState.updateConfig, new Config({})),
+    scan(MetadataState.updateConfig, Config.empty()),
   );
 
   private readonly internalConfigBehaviourSubject$: BehaviorSubject<Config>
-    = new BehaviorSubject<Config>(new Config({}));
+    = new BehaviorSubject<Config>(Config.empty());
 
   // private readonly hotInternalConfig$: ConnectableObservable<Config> =
   //   publish(this.internalConfigBehaviourSubject$)(this.coldInternalConfig$)
@@ -34,9 +40,9 @@ export class MetadataState {
     return this.internalConfigBehaviourSubject$.value;
   }
 
-  configEntryAt(path: FullyQualifiedPath): ConfigEntry | undefined {
-    return this.internalConfigBehaviourSubject$.value.entries[path.join('/')];
-  }
+  // configEntryAt(path: FullyQualifiedPath): ConfigEntry | undefined {
+  //   return this.internalConfigBehaviourSubject$.value.entries[path.join('/')];
+  // }
 
   start(): () => void {
     const hotSubscription = this.hotConfigSubscription
@@ -54,9 +60,61 @@ export class MetadataState {
   }
 
   private static updateConfig(existingConfig: Config, newEntry: ConfigEntry): Config {
-    return new Config({
-      ...existingConfig.entries,
-      [newEntry.id.join('/')]: newEntry,
-    });
+    const [nextPathSegment, ...remainingPath] = newEntry.id;
+    if (!nextPathSegment) {
+      throw new Error('Cannot update the root entry of the config');
+    }
+
+    return new Config(MetadataState.updateConfigFolder(
+      existingConfig.rootFolder,
+      nextPathSegment,
+      remainingPath,
+      newEntry,
+    ));
+  }
+
+  private static updateConfigFolder(
+    existingFolder: ConfigFolder,
+    pathSegment: string,
+    remainingPath: FullyQualifiedPath,
+    newEntry: ConfigEntry,
+  ): ConfigFolder {
+    return new ConfigFolder({
+      ...existingFolder.entries,
+      [pathSegment]: this.updateConfigFolderItem(existingFolder.entries[pathSegment], remainingPath, newEntry),
+    })
+  }
+
+  private static updateConfigFolderItem(
+    existingFolderItem: ConfigFolderItem | undefined,
+    path: FullyQualifiedPath,
+    newEntry: ConfigEntry,
+  ): ConfigFolderItem {
+    const [nextPathSegment, ...remainingPath] = path;
+
+    if (!existingFolderItem) {
+      if (nextPathSegment) {
+        throw new Error('Cannot create a config entry inside a folder that does not exist');
+      }
+
+      return new ConfigFolderItem(newEntry, new ConfigFolder({}));
+    }
+
+    if (nextPathSegment) {
+      return new ConfigFolderItem(
+        existingFolderItem.item,
+        this.updateConfigFolder(
+          existingFolderItem.children,
+          nextPathSegment,
+          remainingPath,
+          newEntry,
+        ),
+      );
+    }
+
+    return new ConfigFolderItem(
+      newEntry,
+      existingFolderItem.children,
+    );
   }
 }

@@ -2,19 +2,13 @@ export type FullyQualifiedPath = string[];
 
 export enum ConfigEntryName {
   SimpleMemoryKeyValue = 'SimpleMemoryKeyValue',
+  SimpleMemoryKeyValueInternal = 'SimpleMemoryKeyValueInternal',
   RestApi = 'RestApi',
   Folder = 'Folder',
   MetadataGroup = 'MetadataGroup',
 }
 
 export abstract class BaseConfigEntry<T extends ConfigEntryName> {
-  // readonly name: T;
-  //
-  // /**
-  //  * Fully qualified path of the entry
-  //  */
-  // readonly id: FullyQualifiedPath;
-
   protected constructor(
     public readonly name: T,
     public readonly id: FullyQualifiedPath,
@@ -30,6 +24,19 @@ export class SimpleMemoryKeyValueEntry extends BaseConfigEntry<ConfigEntryName.S
 
   equals(other: this): boolean {
     return this.id.join('/') === other.id.join('/')
+  }
+}
+
+export class SimpleMemoryKeyValueInternalEntry extends BaseConfigEntry<ConfigEntryName.SimpleMemoryKeyValueInternal> {
+  constructor(
+    id: FullyQualifiedPath,
+    public readonly processId: string | undefined,
+  ) {
+    super(ConfigEntryName.SimpleMemoryKeyValueInternal, id);
+  }
+
+  equals(other: this): boolean {
+    return this.id.join('/') === other.id.join('/') && this.processId === other.processId;
   }
 }
 
@@ -75,6 +82,7 @@ export class MetadataGroupEntry extends BaseConfigEntry<ConfigEntryName.Metadata
 
 export type ConfigEntry =
   | SimpleMemoryKeyValueEntry
+  | SimpleMemoryKeyValueInternalEntry
   | RestApiEntry
   | FolderEntry
   | MetadataGroupEntry;
@@ -83,6 +91,25 @@ type Refine<T, U> = T extends U ? T : never;
 
 export type SelectConfigEntry<T extends ConfigEntryName> = Refine<ConfigEntry, { name: T }>;
 
+export class ConfigFolderItem {
+  constructor(
+    public readonly item: ConfigEntry,
+    public readonly children: ConfigFolder,
+  ) {}
+}
+
+export class ConfigFolder {
+  constructor(
+    public readonly entries: { [k: string]: ConfigFolderItem },
+  ) {}
+}
+
 export class Config {
-  constructor(public readonly entries: { [k: string]: ConfigEntry }) {}
+  public static empty(): Config {
+    return new Config(new ConfigFolder({}));
+  }
+
+  constructor(
+    public readonly rootFolder: ConfigFolder,
+  ) {}
 }
