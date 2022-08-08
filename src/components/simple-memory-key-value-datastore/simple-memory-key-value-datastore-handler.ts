@@ -35,7 +35,7 @@ export function simpleMemoryKeyValueDatastoreHandler(
       if (!internalConfig.processId) {
         // Create the main process for storing the keys and values
         const processId = uniqueId('simpleMemoryKeyValueDatastore');
-        processManager.register(processId, new SimpleMemoryKeyValueDatastore(config.id.join('/')));
+        processManager.register(processId, await SimpleMemoryKeyValueDatastore.initialize(config.id.join('/')));
 
         internalConfig = new SimpleMemoryKeyValueInternalEntry(internalConfigPath, processId);
         await metadataManager.putEntry(internalConfig);
