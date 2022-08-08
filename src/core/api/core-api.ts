@@ -3,45 +3,51 @@ import { ProcessManager } from '../process-manager';
 import { MetadataDispatcher } from '../metadata-state/metadata-dispatcher';
 import { METADATA_DISPATCHER_FACADE_FLAG } from '../../facades/metadata-dispatcher-facade';
 import { uniqueId } from 'lodash';
+import { DistributedMetadataFactory } from '../../types/distributed-metadata-factory';
 
 export class CoreApi {
   public static async initialize(
     nodeId: string,
     processManager: ProcessManager,
     // metadataManager: MetadataManager,
+    distributedMetadataFactory: DistributedMetadataFactory,
   ): Promise<CoreApi> {
-    return new CoreApi(nodeId, processManager);
+    return new CoreApi(nodeId, processManager, distributedMetadataFactory);
   }
 
   private constructor(
     private readonly nodeId: string,
     private readonly processManager: ProcessManager,
+    private readonly distributedMetadataFactory: DistributedMetadataFactory,
     // private readonly metadataManager: MetadataManager,
   ) {}
 
-  public async bootstrapMetadataCluster(): Promise<string> {
-    const path: FullyQualifiedPath = [];
+  // public async bootstrapMetadataCluster(): Promise<string> {
+  //   const path: FullyQualifiedPath = [];
+  //   const distributedMetadata = await this.distributedMetadataFactory.createDistributedMetadata(this.nodeId)
+  //   const metadataDispatcher = await MetadataDispatcher.initialize(
+  //     path,
+  //     this.processManager,
+  //     distributedMetadata,
+  //   );
+  //
+  //   const dispatcherProcessId = uniqueId('metadataClusterLeader');
+  //   this.processManager.register(dispatcherProcessId, metadataDispatcher);
+  //
+  //   return dispatcherProcessId;
+  // }
+
+  public async joinMetadataCluster(path: FullyQualifiedPath): Promise<string> {
+    const distributedMetadata = await this.distributedMetadataFactory.createDistributedMetadata(this.nodeId)
     const metadataDispatcher = await MetadataDispatcher.initialize(
       this.nodeId,
       path,
       this.processManager,
-      true,
+      distributedMetadata,
     );
-
-    const dispatcherId = uniqueId('metadataClusterLeader');
-    this.processManager.register(dispatcherId, metadataDispatcher);
-
-    return dispatcherId;
-  }
-
-  public async joinMetadataCluster(path: FullyQualifiedPath): Promise<void> {
-    const metadataDispatcher = await MetadataDispatcher.initialize(
-      this.nodeId,
-      path,
-      this.processManager,
-      false,
-    );
-    this.processManager.register(uniqueId('metadataClusterMember'), metadataDispatcher);
+    const dispatcherProcessId = uniqueId('metadataClusterMember');
+    this.processManager.register(dispatcherProcessId, metadataDispatcher);
+    return dispatcherProcessId;
   }
 
   public async getEntry(path: FullyQualifiedPath): Promise<ConfigEntry | undefined> {

@@ -5,6 +5,9 @@ import { SimpleMemoryKeyValueEntry } from '../src/types/config';
 import { KeyValueApi } from '../src/core/api/key-value-api';
 import { METADATA_DISPATCHER_FACADE_FLAG, MetadataDispatcherFacade } from '../src/facades/metadata-dispatcher-facade';
 import { MetadataDispatcher } from '../src/core/metadata-state/metadata-dispatcher';
+import { InMemoryDistributedMetadata, InMemoryDistributedMetadataHub } from './scaffolding/in-memory-distributed-metadata';
+import { range } from 'lodash';
+import { DistributedMetadataFactory } from '../src/types/distributed-metadata-factory';
 
 describe('database', () => {
   async function successfulFetch(url: RequestInfo, init?: RequestInit): Promise<Response> {
@@ -55,33 +58,44 @@ describe('database', () => {
   // });
 
   it('works', async () => {
-    const nodeId = 'node-1';
-    const processManager = await ProcessManager.initialize();
-    const coreApi = await CoreApi.initialize(nodeId, processManager);
+    const distributedMetadataHub = new InMemoryDistributedMetadataHub('node0');
+    const distributedMetadataFactory: DistributedMetadataFactory = {
+      async createDistributedMetadata(nodeId: string): Promise<InMemoryDistributedMetadata> {
+        return new InMemoryDistributedMetadata(nodeId, distributedMetadataHub);
+      }
+    }
 
-    // Bootstrap a new cluster
-    const dispatcherId = await coreApi.bootstrapMetadataCluster();
-    const dispatcher = processManager.getProcessByIdAs(dispatcherId, METADATA_DISPATCHER_FACADE_FLAG)!;
-    expect(dispatcher).toBeInstanceOf(MetadataDispatcher);
+    const nodes = await Promise.all(range(3).map(async (index) => {
+      const nodeId = `node${index}`;
+      const processManager = await ProcessManager.initialize();
+      const coreApi = await CoreApi.initialize(nodeId, processManager, distributedMetadataFactory);
 
-    // Create the api
-    const keyValueApi = await KeyValueApi.initialize(nodeId, dispatcher, processManager);
+      // Bootstrap a new cluster
+      const dispatcherId = await coreApi.joinMetadataCluster([]);
+      const dispatcher = processManager.getProcessByIdAs(dispatcherId, METADATA_DISPATCHER_FACADE_FLAG)!;
+      expect(dispatcher).toBeInstanceOf(MetadataDispatcher);
 
-    // Create an entry
+      // Create the api
+      const keyValueApi = await KeyValueApi.initialize(nodeId, dispatcher, processManager);
+
+      return { nodeId, processManager, coreApi, dispatcher, keyValueApi };
+    }));
+
+    // Create a key value data store
     const keyValueDatasetPath = ['dataset1'];
     const keyValueDataset = new SimpleMemoryKeyValueEntry(keyValueDatasetPath);
-    await coreApi.putEntry(keyValueDataset);
+    await nodes[0].coreApi.putEntry(keyValueDataset);
 
-    // Fetch the entry
-    const retrievedEntry = await coreApi.getEntry(keyValueDatasetPath);
+    // Fetch the entry from a different node
+    const retrievedEntry = await nodes[1].coreApi.getEntry(keyValueDatasetPath);
     expect(retrievedEntry).toEqual(keyValueDataset)
 
     // Write something to the datastore
     const value = Buffer.from('hello');
-    await keyValueApi.put(keyValueDatasetPath, 'a', Buffer.from(value));
+    await nodes[0].keyValueApi.put(keyValueDatasetPath, 'a', Buffer.from(value));
 
     // Get something from the datastore
-    const actual = await keyValueApi.get(keyValueDatasetPath, 'a');
+    const actual = await nodes[0].keyValueApi.get(keyValueDatasetPath, 'a');
     expect(actual).toEqual(value);
   });
 });

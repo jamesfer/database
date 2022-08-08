@@ -5,7 +5,7 @@ import {
 import { BaseFacade, FACADE_FLAGS } from '../../facades/scaffolding/base-facade';
 
 export class SimpleMemoryKeyValueDatastore implements BaseFacade, KeyValueDatastoreFacade {
-  readonly [FACADE_FLAGS]: KeyValueDatastoreFacade[typeof FACADE_FLAGS] = {
+  readonly [FACADE_FLAGS]: KeyValueDatastoreFacade[FACADE_FLAGS] = {
     [KEY_VALUE_DATASTORE_FLAG]: this,
   };
 

@@ -5,7 +5,6 @@ import {
   SimpleMemoryKeyValueInternalEntry
 } from '../../types/config';
 import { concatMap } from 'rxjs/operators';
-import { MetadataChangeHandler } from '../../types/metadata-change-handler';
 import { ProcessManager } from '../../core/process-manager';
 import { MetadataDispatcher } from '../../core/metadata-state/metadata-dispatcher';
 import { uniqueId } from 'lodash';

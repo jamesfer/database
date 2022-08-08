@@ -1,11 +1,23 @@
-import { concat, Observable, Subject } from 'rxjs';
-import { concatMap, ignoreElements, map, mergeMap, pairwise, startWith } from 'rxjs/operators';
+import { BehaviorSubject, concat, Observable, Subject, Subscription } from 'rxjs';
+import {
+  concatMap,
+  filter,
+  ignoreElements,
+  map,
+  mergeMap,
+  pairwise,
+  startWith,
+  tap,
+  withLatestFrom
+} from 'rxjs/operators';
 import { ProcessManager } from '../process-manager';
 import { Config, ConfigEntry, ConfigEntryName, ConfigFolder, FullyQualifiedPath } from '../../types/config';
 import { MetadataServer } from './metadata-server';
 import { componentInitializers } from '../../components/components';
 import { BaseFacade, FACADE_FLAGS } from '../../facades/scaffolding/base-facade';
 import { METADATA_DISPATCHER_FACADE_FLAG, MetadataDispatcherFacade } from '../../facades/metadata-dispatcher-facade';
+import { DistributedMetadataFacade } from '../../facades/distributed-metadata-facade';
+import { reduceConfigEntriesToConfig } from './utils/reduce-config-entries-to-config';
 
 interface ConfigCreate {
   type: 'create';
@@ -27,13 +39,22 @@ interface ConfigDelete {
 
 type ConfigChange = ConfigCreate | ConfigUpdate | ConfigDelete;
 
-// const filterRelevantChanges = (isLeader: boolean, nodeId: string) => (configEntries$: Observable<ConfigFolder>): Observable<{ [k: string]: ConfigFolderItem }> => {
+// const filterRelevantChanges = (
+//   nodeId: string,
+//   isLeader$: Observable<boolean>,
+// ) => (
+//   configEntries$: Observable<ConfigFolder>,
+// ): Observable<ConfigFolder> => {
 //   return configEntries$.pipe(
-//     map(folder => (
-//       isLeader ? folder.entries
-//       // TODO add path based filtering if it is a leader
-//       Object.fromEntries(Object.entries(folder.entries).filter(([key]) => isLeader || key.startsWith(nodeId)))
-//     )),
+//     withLatestFrom(isLeader$),
+//     tap(([folder, isLeader]) => console.log(`[node:${nodeId}] isLeader: ${isLeader}, folder: ${JSON.stringify(folder)}`)),
+//     filter(([, isLeader]) => isLeader),
+//     map(([folder]) => folder),
+//     // map(folder => (
+//     //   isLeader ? folder.entries
+//     //   // TODO add path based filtering if it is a leader
+//     //   Object.fromEntries(Object.entries(folder.entries).filter(([key]) => isLeader || key.startsWith(nodeId)))
+//     // )),
 //   )
 // };
 
@@ -70,10 +91,15 @@ function * compareFolders(
   }
 }
 
-function detectChanges(rootConfigFolder: Observable<ConfigFolder>): Observable<ConfigChange> {
+const detectChanges = (isLeader$: Observable<boolean>) => (rootConfigFolder: Observable<ConfigFolder>): Observable<ConfigChange> => {
   return rootConfigFolder.pipe(
     pairwise(),
-    concatMap(function * ([previous, next]): Iterable<ConfigChange> {
+    withLatestFrom(isLeader$),
+    concatMap(function * ([[previous, next], isLeader]): Iterable<ConfigChange> {
+      if (!isLeader) {
+        return;
+      }
+
       yield * compareFolders(previous, next, []);
     }),
   );
@@ -132,8 +158,6 @@ const mapEventsToLifecycle = (
   );
 }
 
-// type Folder = Map<string, Folder | string>;
-
 const dispatchChangeToHandlers = (
   processManager: ProcessManager,
   metadataDispatcher: MetadataDispatcher,
@@ -158,34 +182,44 @@ export class MetadataDispatcher implements BaseFacade, MetadataDispatcherFacade 
     path: FullyQualifiedPath,
     processManager: ProcessManager,
     // nodeList$: Observable<string[]>,
-    isLeader: boolean,
-    // metadataManager: MetadataManager,
+    distributedMetadata: DistributedMetadataFacade,
   ): Promise<MetadataDispatcher> {
-    const server = await MetadataServer.initialize();
-    return new MetadataDispatcher(nodeId, path, processManager, server, isLeader);
+    // const server = await MetadataServer.initialize();
+    return new MetadataDispatcher(nodeId, path, processManager, distributedMetadata);
   }
 
-  // Subscribe to the config and start child processes
-  private readonly subscription = this.server.config$.pipe(
-    map(config => config.rootFolder),
-    // Compare the new state to the previous. Only include creates, updates or deletions
-    detectChanges,
-    // Store an internal state of each config entry
-    mapEventsToLifecycle,
-    // Emit the changes to each state entry to a configured handler based on the entry type
-    dispatchChangeToHandlers(this.processManager, this),
-  ).subscribe();
+  private readonly allSubscriptions = new Subscription();
 
-  // private readonly rootFolder = new Map<string, string>();
+  private readonly isLeader$ = new BehaviorSubject(false);
+
+  private readonly currentConfig$ = new BehaviorSubject(Config.empty());
 
   private constructor(
-    // Node id is used in the filtering logic to determine what changes this dispatcher needs to react to
     private readonly nodeId: string,
     private readonly path: FullyQualifiedPath,
     private readonly processManager: ProcessManager,
-    private readonly server: MetadataServer,
-    private readonly isLeader: boolean,
-  ) {}
+    private readonly distributedMetadata: DistributedMetadataFacade,
+    // private readonly server: MetadataServer,
+    // private readonly isLeader: boolean,
+  ) {
+    this.distributedMetadata.commits$.pipe(
+      reduceConfigEntriesToConfig,
+    ).subscribe(this.currentConfig$);
+
+    // Subscribe to the config and start child processes
+    this.allSubscriptions.add(this.currentConfig$.pipe(
+      map(config => config.rootFolder),
+      // filterRelevantChanges(this.nodeId, this.isLeader$),
+      // Compare the new state to the previous. Only include creates, updates or deletions
+      detectChanges(this.isLeader$),
+      // Store an internal state of each config entry
+      mapEventsToLifecycle,
+      // Emit the changes to each state entry to a configured handler based on the entry type
+      dispatchChangeToHandlers(this.processManager, this),
+    ).subscribe());
+
+    this.allSubscriptions.add(this.distributedMetadata.isLeader$.subscribe(this.isLeader$));
+  }
 
   containsPath(path: FullyQualifiedPath): boolean {
     const firstHalf = path.slice(0, this.path.length);
@@ -199,31 +233,28 @@ export class MetadataDispatcher implements BaseFacade, MetadataDispatcherFacade 
       return true;
     }
 
-    const configParent = MetadataDispatcher.findEntry(this.server.currentConfig, pathToDirectory);
+    const configParent = this.findEntry(pathToDirectory);
     return (configParent !== undefined && configParent.name !== ConfigEntryName.MetadataGroup);
   }
 
   ownsPath(path: FullyQualifiedPath): boolean {
-    return this.isLeader && this.containsPath(path);
+    return this.isLeader$.getValue() && this.containsPath(path);
   }
 
   async getEntry(path: FullyQualifiedPath): Promise<ConfigEntry | undefined> {
-    return MetadataDispatcher.findEntry(this.server.currentConfig, path);
+    return this.findEntry(path);
   }
 
   async putEntry(entry: ConfigEntry): Promise<void> {
-    return this.server.publish(entry);
+    return this.distributedMetadata.write(entry);
   }
-
-  // getProcessId(path: FullyQualifiedPath): string | undefined {
-  //   return this.rootFolder.get(path.join('/'));
-  // }
 
   async cleanup() {
-    this.subscription.unsubscribe();
+    this.allSubscriptions.unsubscribe();
   }
 
-  private static findEntry(config: Config, path: FullyQualifiedPath): ConfigEntry | undefined {
+  private findEntry(path: FullyQualifiedPath): ConfigEntry | undefined {
+    const config = this.currentConfig$.getValue()
     let [nextPathSegment, ...remainingPath] = path;
     if (!nextPathSegment) {
       // The given path points to this exact metadata group
@@ -247,28 +278,3 @@ export class MetadataDispatcher implements BaseFacade, MetadataDispatcherFacade 
     }
   }
 }
-
-// export function startMetadataDispatcher(
-//   // nodeList$: Observable<string[]>,
-//   nodeId: string,
-//   processManager: ProcessManager,
-// ): () => void {
-//   const [config$, stopMetadataServer] = startMetadataServer();
-//
-//   // Subscribe to the config and start child processes
-//   const subscription = config$.pipe(
-//     map(config => config.entries),
-//     // Only include entries that are assigned to this node
-//     filterRelevantChanges(nodeId),
-//     // Compare the new state to the previous. Only include changes or deletions
-//     detectChanges,
-//     // Start a specific process or trigger an update on an existing one
-//     dispatchChangeToHandlers(processManager),
-//   ).subscribe();
-//
-//
-//   return () => {
-//     stopMetadataServer();
-//     subscription.unsubscribe();
-//   };
-// }
