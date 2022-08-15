@@ -1,23 +1,22 @@
-import { BehaviorSubject, concat, Observable, Subject, Subscription } from 'rxjs';
-import {
-  concatMap,
-  filter,
-  ignoreElements,
-  map,
-  mergeMap,
-  pairwise,
-  startWith,
-  tap,
-  withLatestFrom
-} from 'rxjs/operators';
+import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs';
+import { concatMap, ignoreElements, map, mergeMap, pairwise, startWith, withLatestFrom } from 'rxjs/operators';
 import { ProcessManager } from '../process-manager';
-import { Config, ConfigEntry, ConfigEntryName, ConfigFolder, FullyQualifiedPath } from '../../types/config';
-import { MetadataServer } from './metadata-server';
-import { componentInitializers } from '../../components/components';
+import {
+  Config,
+  ConfigEntry,
+  ConfigEntryName,
+  ConfigFolder,
+  FullyQualifiedPath,
+  SelectConfigEntry
+} from '../../types/config';
 import { BaseFacade, FACADE_FLAGS } from '../../facades/scaffolding/base-facade';
 import { METADATA_DISPATCHER_FACADE_FLAG, MetadataDispatcherFacade } from '../../facades/metadata-dispatcher-facade';
 import { DistributedMetadataFacade } from '../../facades/distributed-metadata-facade';
 import { reduceConfigEntriesToConfig } from './utils/reduce-config-entries-to-config';
+import { allComponentOperator } from '../../components/all-component-operator';
+import { AnyConfigLifecycle } from '../../components/component-operator';
+import { RPCInterface } from '../../types/rpc-interface';
+import { AnyRequest } from '../routers/all-router';
 
 interface ConfigCreate {
   type: 'create';
@@ -109,17 +108,12 @@ function lookup<T>(map: { [k: string]: T }, key: string): T | undefined {
   return map[key];
 }
 
-interface ConfigLifecycle<T extends ConfigEntry> {
-  name: T['name'];
-  events$: Observable<T>;
-}
-
 const mapEventsToLifecycle = (
   changes$: Observable<ConfigChange>,
-): Observable<ConfigLifecycle<ConfigEntry>> => {
+): Observable<AnyConfigLifecycle> => {
   const storage: { [k: string]: [ConfigEntry['name'], Subject<ConfigEntry>] } = {};
   return changes$.pipe(
-    concatMap((configChange): [ConfigLifecycle<ConfigEntry>] | [] => {
+    concatMap((configChange): [AnyConfigLifecycle] | [] => {
       const configChangeId = configChange.path.join('/');
       const existing = lookup(storage, configChangeId);
       if (!existing) {
@@ -159,15 +153,14 @@ const mapEventsToLifecycle = (
 }
 
 const dispatchChangeToHandlers = (
+  nodeId: string,
   processManager: ProcessManager,
   metadataDispatcher: MetadataDispatcher,
-) => (lifecycles$: Observable<ConfigLifecycle<ConfigEntry>>): Observable<never> => {
+  rpcInterface: RPCInterface<AnyRequest>,
+  nodes$: Observable<string[]>,
+) => (lifecycles$: Observable<AnyConfigLifecycle>): Observable<never> => {
   return lifecycles$.pipe(
-    mergeMap(lifecycle => componentInitializers[lifecycle.name](
-      processManager,
-      metadataDispatcher,
-      lifecycle.events$ as Observable<any>,
-    )),
+    mergeMap(allComponentOperator(nodeId, processManager, metadataDispatcher, rpcInterface, nodes$)),
     ignoreElements(),
   );
 };
@@ -183,9 +176,11 @@ export class MetadataDispatcher implements BaseFacade, MetadataDispatcherFacade 
     processManager: ProcessManager,
     // nodeList$: Observable<string[]>,
     distributedMetadata: DistributedMetadataFacade,
+    rpcInterface: RPCInterface<AnyRequest>,
+    nodes$: Observable<string[]>,
   ): Promise<MetadataDispatcher> {
     // const server = await MetadataServer.initialize();
-    return new MetadataDispatcher(nodeId, path, processManager, distributedMetadata);
+    return new MetadataDispatcher(nodeId, path, processManager, distributedMetadata, rpcInterface, nodes$);
   }
 
   private readonly allSubscriptions = new Subscription();
@@ -199,6 +194,8 @@ export class MetadataDispatcher implements BaseFacade, MetadataDispatcherFacade 
     private readonly path: FullyQualifiedPath,
     private readonly processManager: ProcessManager,
     private readonly distributedMetadata: DistributedMetadataFacade,
+    private readonly rpcInterface: RPCInterface<AnyRequest>,
+    private readonly nodes$: Observable<string[]>,
     // private readonly server: MetadataServer,
     // private readonly isLeader: boolean,
   ) {
@@ -209,13 +206,14 @@ export class MetadataDispatcher implements BaseFacade, MetadataDispatcherFacade 
     // Subscribe to the config and start child processes
     this.allSubscriptions.add(this.currentConfig$.pipe(
       map(config => config.rootFolder),
+      // TODO only select entries that this node is a leader of, or they are assigned with @nodeId
       // filterRelevantChanges(this.nodeId, this.isLeader$),
       // Compare the new state to the previous. Only include creates, updates or deletions
       detectChanges(this.isLeader$),
       // Store an internal state of each config entry
       mapEventsToLifecycle,
       // Emit the changes to each state entry to a configured handler based on the entry type
-      dispatchChangeToHandlers(this.processManager, this),
+      dispatchChangeToHandlers(this.nodeId, this.processManager, this, this.rpcInterface, this.nodes$),
     ).subscribe());
 
     this.allSubscriptions.add(this.distributedMetadata.isLeader$.subscribe(this.isLeader$));
@@ -243,6 +241,20 @@ export class MetadataDispatcher implements BaseFacade, MetadataDispatcherFacade 
 
   async getEntry(path: FullyQualifiedPath): Promise<ConfigEntry | undefined> {
     return this.findEntry(path);
+  }
+
+  async getEntryAs<N extends ConfigEntryName>(path: FullyQualifiedPath, name: N): Promise<SelectConfigEntry<N>> {
+    const entry = await this.getEntry(path);
+    if (!entry) {
+      throw new Error(`Could not find config entry at path: ${path.join('/')}`)
+    }
+
+    if (entry.name !== name) {
+      throw new Error(`Tried to get a config entry as the incorrect type. Config type: ${entry.name}, expected type: ${name}`);
+    }
+
+    // We have to use a cast here because Typescript can't correctly infer the type with a generic parameter
+    return entry as SelectConfigEntry<N>;
   }
 
   async putEntry(entry: ConfigEntry): Promise<void> {

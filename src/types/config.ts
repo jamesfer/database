@@ -1,8 +1,11 @@
+import { Refine } from './refine';
+
 export type FullyQualifiedPath = string[];
 
 export enum ConfigEntryName {
   SimpleMemoryKeyValue = 'SimpleMemoryKeyValue',
   SimpleMemoryKeyValueInternal = 'SimpleMemoryKeyValueInternal',
+  SimpleMemoryKeyValueInstance = 'SimpleMemoryKeyValueInstance',
   RestApi = 'RestApi',
   Folder = 'Folder',
   MetadataGroup = 'MetadataGroup',
@@ -30,9 +33,24 @@ export class SimpleMemoryKeyValueEntry extends BaseConfigEntry<ConfigEntryName.S
 export class SimpleMemoryKeyValueInternalEntry extends BaseConfigEntry<ConfigEntryName.SimpleMemoryKeyValueInternal> {
   constructor(
     id: FullyQualifiedPath,
-    public readonly processId: string | undefined,
+    public readonly remoteProcess: { nodeId: string, processId: string } | undefined,
   ) {
     super(ConfigEntryName.SimpleMemoryKeyValueInternal, id);
+  }
+
+  equals(other: this): boolean {
+    return this.id.join('/') === other.id.join('/')
+      && this.remoteProcess?.nodeId === other.remoteProcess?.nodeId
+      && this.remoteProcess?.processId == other.remoteProcess?.processId;
+  }
+}
+
+export class SimpleMemoryKeyValueInstanceEntry extends BaseConfigEntry<ConfigEntryName.SimpleMemoryKeyValueInstance> {
+  constructor(
+    id: FullyQualifiedPath,
+    public readonly processId: string | undefined,
+  ) {
+    super(ConfigEntryName.SimpleMemoryKeyValueInstance, id);
   }
 
   equals(other: this): boolean {
@@ -83,11 +101,10 @@ export class MetadataGroupEntry extends BaseConfigEntry<ConfigEntryName.Metadata
 export type ConfigEntry =
   | SimpleMemoryKeyValueEntry
   | SimpleMemoryKeyValueInternalEntry
+  | SimpleMemoryKeyValueInstanceEntry
   | RestApiEntry
   | FolderEntry
   | MetadataGroupEntry;
-
-type Refine<T, U> = T extends U ? T : never;
 
 export type SelectConfigEntry<T extends ConfigEntryName> = Refine<ConfigEntry, { name: T }>;
 

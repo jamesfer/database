@@ -1,5 +1,5 @@
 import { WithFacadeFlag } from './scaffolding/base-facade';
-import { ConfigEntry, FullyQualifiedPath } from '../types/config';
+import { ConfigEntry, ConfigEntryName, FullyQualifiedPath, SelectConfigEntry } from '../types/config';
 
 export const METADATA_DISPATCHER_FACADE_FLAG: unique symbol = Symbol('METADATA_DISPATCHER_FACADE_FLAG');
 
@@ -15,6 +15,6 @@ export interface MetadataDispatcherFacade extends WithFacadeFlag<METADATA_DISPAT
   containsPath(path: FullyQualifiedPath): boolean;
   ownsPath(path: FullyQualifiedPath): boolean;
   getEntry(path: FullyQualifiedPath): Promise<ConfigEntry | undefined>;
+  getEntryAs<N extends ConfigEntryName>(path: FullyQualifiedPath, name: N): Promise<SelectConfigEntry<N>>;
   putEntry(entry: ConfigEntry): Promise<void>;
-  // getProcessId(path: FullyQualifiedPath): string | undefined;
 }

@@ -3,7 +3,7 @@ import {
   DISTRIBUTED_METADATA_FACADE_FLAG,
   DistributedMetadataFacade
 } from '../../src/facades/distributed-metadata-facade';
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 import { ConfigEntry } from '../../src/types/config';
 import { map } from 'rxjs/operators';
 

@@ -4,22 +4,18 @@ import {
 } from '../../facades/key-value-datastore';
 import { BaseFacade, FACADE_FLAGS } from '../../facades/scaffolding/base-facade';
 
-export class SimpleMemoryKeyValueDatastore implements BaseFacade, KeyValueDatastoreFacade {
+export class SimpleMemoryKeyValueDatastoreProcess implements BaseFacade, KeyValueDatastoreFacade {
   readonly [FACADE_FLAGS]: KeyValueDatastoreFacade[FACADE_FLAGS] = {
     [KEY_VALUE_DATASTORE_FLAG]: this,
   };
 
-  static async initialize(
-    key: string,
-  ): Promise<SimpleMemoryKeyValueDatastore> {
-    return new SimpleMemoryKeyValueDatastore(key);
+  static async initialize(): Promise<SimpleMemoryKeyValueDatastoreProcess> {
+    return new SimpleMemoryKeyValueDatastoreProcess();
   }
 
   private readonly storage: Map<string, ArrayBuffer> = new Map();
 
-  private constructor(
-    private readonly key: string,
-  ) {}
+  private constructor() {}
 
   async put(key: string, value: ArrayBuffer): Promise<void> {
     this.storage.set(key, value);

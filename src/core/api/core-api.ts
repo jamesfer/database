@@ -4,6 +4,9 @@ import { MetadataDispatcher } from '../metadata-state/metadata-dispatcher';
 import { METADATA_DISPATCHER_FACADE_FLAG } from '../../facades/metadata-dispatcher-facade';
 import { uniqueId } from 'lodash';
 import { DistributedMetadataFactory } from '../../types/distributed-metadata-factory';
+import { RPCInterface } from '../../types/rpc-interface';
+import { AnyRequest } from '../routers/all-router';
+import { Observable } from 'rxjs';
 
 export class CoreApi {
   public static async initialize(
@@ -11,14 +14,18 @@ export class CoreApi {
     processManager: ProcessManager,
     // metadataManager: MetadataManager,
     distributedMetadataFactory: DistributedMetadataFactory,
+    rpcInterface: RPCInterface<AnyRequest>,
+    nodes$: Observable<string[]>,
   ): Promise<CoreApi> {
-    return new CoreApi(nodeId, processManager, distributedMetadataFactory);
+    return new CoreApi(nodeId, processManager, distributedMetadataFactory, rpcInterface, nodes$);
   }
 
   private constructor(
     private readonly nodeId: string,
     private readonly processManager: ProcessManager,
     private readonly distributedMetadataFactory: DistributedMetadataFactory,
+    private readonly rpcInterface: RPCInterface<AnyRequest>,
+    private readonly nodes$: Observable<string[]>,
     // private readonly metadataManager: MetadataManager,
   ) {}
 
@@ -38,12 +45,14 @@ export class CoreApi {
   // }
 
   public async joinMetadataCluster(path: FullyQualifiedPath): Promise<string> {
-    const distributedMetadata = await this.distributedMetadataFactory.createDistributedMetadata(this.nodeId)
+    const distributedMetadata = await this.distributedMetadataFactory.createDistributedMetadata(this.nodeId);
     const metadataDispatcher = await MetadataDispatcher.initialize(
       this.nodeId,
       path,
       this.processManager,
       distributedMetadata,
+      this.rpcInterface,
+      this.nodes$,
     );
     const dispatcherProcessId = uniqueId('metadataClusterMember');
     this.processManager.register(dispatcherProcessId, metadataDispatcher);
