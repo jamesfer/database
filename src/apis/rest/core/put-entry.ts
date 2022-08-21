@@ -3,10 +3,10 @@ import { MetadataState, ResourceRegistry } from '../../../core';
 import { putEntry as corePutEntry } from '../../../core/operations/put-entry';
 import {
   ConfigEntry,
-  FullyQualifiedPath,
-  SimpleMemoryKeyValueEntry,
   RestApiEntry,
 } from '../../../types/config';
+import { FullyQualifiedPath } from '../../../config/scaffolding/config';
+import { SimpleMemoryKeyValueEntry } from '../../../components/simple-memory-key-value-datastore/simple-memory-key-value-entry';
 
 function parseEntry(id: FullyQualifiedPath, request: Request): ConfigEntry | string {
   switch (request.body.type) {

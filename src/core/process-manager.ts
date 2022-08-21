@@ -1,4 +1,4 @@
-import { FacadeFlagMap, FacadeFlagMapKey } from '../facades/scaffolding/facade-flag-map';
+import { FacadeDictionary, FacadeDictionaryKey } from '../facades/scaffolding/facade-dictionary';
 import { BaseFacade } from '../facades/scaffolding/base-facade';
 import { castFacade } from '../facades/scaffolding/cast-facade';
 
@@ -27,14 +27,14 @@ export class ProcessManager {
     return this.processes[id];
   }
 
-  getProcessByIdAs<F extends FacadeFlagMapKey>(id: string, flag: F): FacadeFlagMap[F] | undefined {
+  getProcessByIdAs<F extends FacadeDictionaryKey>(id: string, flag: F): FacadeDictionary[F] | undefined {
     const instance = this.getProcessById(id);
     if (instance) {
       return castFacade(instance, flag);
     }
   }
 
-  getAllProcessesByFlag<F extends FacadeFlagMapKey>(flag: F): FacadeFlagMap[F][] {
+  getAllProcessesByFlag<F extends FacadeDictionaryKey>(flag: F): FacadeDictionary[F][] {
     return Object.values(this.processes)
       .map(instance => castFacade(instance, flag))
       .flatMap(instance => instance ? [instance] : []);

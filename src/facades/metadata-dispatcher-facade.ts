@@ -1,12 +1,13 @@
 import { WithFacadeFlag } from './scaffolding/base-facade';
-import { ConfigEntry, ConfigEntryName, FullyQualifiedPath, SelectConfigEntry } from '../types/config';
+import { ConfigEntry, SelectConfigEntry } from '../types/config';
+import { ConfigEntryName, FullyQualifiedPath } from '../config/scaffolding/config';
 
 export const METADATA_DISPATCHER_FACADE_FLAG: unique symbol = Symbol('METADATA_DISPATCHER_FACADE_FLAG');
 
 export type METADATA_DISPATCHER_FACADE_FLAG = typeof METADATA_DISPATCHER_FACADE_FLAG;
 
-declare module './scaffolding/facade-flag-map' {
-  interface FacadeFlagMap {
+declare module './scaffolding/facade-dictionary' {
+  interface FacadeDictionary {
     readonly [METADATA_DISPATCHER_FACADE_FLAG]: MetadataDispatcherFacade
   }
 }

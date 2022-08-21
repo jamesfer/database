@@ -1,5 +1,5 @@
 import { BehaviorSubject } from 'rxjs';
-import { FullyQualifiedPath } from '../../types/config';
+import { FullyQualifiedPath } from '../../config/scaffolding/config';
 
 export default class LifecycleControllerInternalState {
   constructor(

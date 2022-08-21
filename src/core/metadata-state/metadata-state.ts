@@ -4,9 +4,9 @@ import {
   Config,
   ConfigEntry,
   ConfigFolder,
-  ConfigFolderItem,
-  FullyQualifiedPath
+  ConfigFolderItem
 } from '../../types/config';
+import { FullyQualifiedPath } from '../../config/scaffolding/config';
 
 /**
  * Publishes changes to the config state and consumes updates from gossip.

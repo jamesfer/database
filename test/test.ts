@@ -1,7 +1,6 @@
 import fetch, { RequestInfo, RequestInit, Response } from 'node-fetch';
 import { ProcessManager } from '../src/core/process-manager';
 import { CoreApi } from '../src/core/api/core-api';
-import { SimpleMemoryKeyValueEntry } from '../src/types/config';
 import { METADATA_DISPATCHER_FACADE_FLAG } from '../src/facades/metadata-dispatcher-facade';
 import { MetadataDispatcher } from '../src/core/metadata-state/metadata-dispatcher';
 import {
@@ -10,65 +9,19 @@ import {
 } from './scaffolding/in-memory-distributed-metadata';
 import { range } from 'lodash';
 import { DistributedMetadataFactory } from '../src/types/distributed-metadata-factory';
-import { allRouter, AnyRequest } from '../src/core/routers/all-router';
+import { combinedRouter, AnyRequest } from '../src/core/routers/combined-router';
 import { InMemoryRpcInterface } from './scaffolding/in-memory-rpc-interface';
-import { AllRouterCategories } from '../src/core/routers/all-router-categories';
-import { RequestType } from '../src/core/routers/scaffolding/request';
+import { RequestCategory } from '../src/core/routers/scaffolding/request-category';
 import {
   KeyValueConfigAction,
   KeyValueConfigGetRequest,
   KeyValueConfigPutRequest
-} from '../src/core/routers/key-value-config-router';
+} from '../src/core/routers/key-value-config-request';
 import { BehaviorSubject } from 'rxjs';
+import { SimpleMemoryKeyValueEntry } from '../src/components/simple-memory-key-value-datastore/simple-memory-key-value-entry';
+import { ConfigActionGroupName } from '../src/core/routers/scaffolding/base-config-action-request';
 
 describe('database', () => {
-  async function successfulFetch(url: RequestInfo, init?: RequestInit): Promise<Response> {
-    const response = await fetch(url, init);
-    if (response.status >= 300) {
-      throw new Error(`Fetch failed. Status: ${response.status}, body: ${await response.text()}`);
-    }
-    return response;
-  }
-
-  // it('works', async () => {
-  //   const cleanup = await main({ port: 3000 });
-  //
-  //   // Create dataset
-  //   await successfulFetch('http://localhost:3000/a/b/dataset', {
-  //     method: 'PUT',
-  //     headers: { 'Content-Type': 'application/json' },
-  //     body: JSON.stringify({
-  //       type: 'KeyValue',
-  //     }),
-  //   });
-  //
-  //   // Create api
-  //   await successfulFetch('http://localhost:3000/a/b/api', {
-  //     method: 'PUT',
-  //     headers: { 'Content-Type': 'application/json' },
-  //     body: JSON.stringify({
-  //       type: 'RestApi',
-  //       dataset: 'a/b/dataset',
-  //     }),
-  //   });
-  //
-  //   // Write to dataset
-  //   await successfulFetch('http://localhost:3000/a/b/api/data?key=testKey', {
-  //     method: 'POST',
-  //     headers: { 'Content-Type': 'application/octet-stream' },
-  //     body: Buffer.from('hello'),
-  //   });
-  //
-  //
-  //   // Read from dataset
-  //   const response = await successfulFetch('http://localhost:3000/a/b/api/data?key=testKey');
-  //   const value = await response.buffer();
-  //
-  //   expect(value).toEqual(Buffer.from('hello'));
-  //
-  //   await cleanup();
-  // });
-
   it('works', async () => {
     // Create test specific in memory components
     const distributedMetadataHub = new InMemoryDistributedMetadataHub('node0');
@@ -77,7 +30,7 @@ describe('database', () => {
         return new InMemoryDistributedMetadata(nodeId, distributedMetadataHub);
       }
     }
-    const rpcInterface = new InMemoryRpcInterface<AnyRequest>();
+    const rpcInterface = new InMemoryRpcInterface();
     const nodes$ = new BehaviorSubject<string[]>([]);
 
     // Create 3 nodes
@@ -92,7 +45,7 @@ describe('database', () => {
       expect(dispatcher).toBeInstanceOf(MetadataDispatcher);
 
       // Create the router
-      const router = allRouter(
+      const router = combinedRouter(
         nodeId,
         rpcInterface,
         dispatcher,
@@ -120,11 +73,9 @@ describe('database', () => {
     // Write something to the key value datastore
     const value = Buffer.from('hello');
     const putRequest: KeyValueConfigPutRequest = {
-      category: AllRouterCategories.KeyValueConfig,
-      target: {
-        type: RequestType.Path,
-        path: keyValueDatasetPath,
-      },
+      category: RequestCategory.ConfigAction,
+      group: ConfigActionGroupName.KeyValue,
+      target: keyValueDatasetPath,
       action: KeyValueConfigAction.Put,
       key: 'a',
       value: Buffer.from(value),
@@ -133,11 +84,9 @@ describe('database', () => {
 
     // Get the key from the same node
     const getRequest: KeyValueConfigGetRequest = {
-      category: AllRouterCategories.KeyValueConfig,
-      target: {
-        type: RequestType.Path,
-        path: keyValueDatasetPath,
-      },
+      category: RequestCategory.ConfigAction,
+      group: ConfigActionGroupName.KeyValue,
+      target: keyValueDatasetPath,
       action: KeyValueConfigAction.Get,
       key: 'a',
     };

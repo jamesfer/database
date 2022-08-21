@@ -1,13 +1,15 @@
-import { FacadeFlagMap, FacadeFlagMapKey } from './facade-flag-map';
+import { FacadeDictionary, FacadeDictionaryKey } from './facade-dictionary';
 
-export const FACADE_FLAGS: unique symbol = Symbol('FACADE_FLAGS');
+export const FACADES_KEY: unique symbol = Symbol('FACADES_KEY');
 
-export type FACADE_FLAGS = typeof FACADE_FLAGS;
+export type FACADES_KEY = typeof FACADES_KEY;
 
 export interface BaseFacade {
-  readonly [FACADE_FLAGS]: Partial<FacadeFlagMap>;
+  readonly [FACADES_KEY]: Partial<FacadeDictionary>;
 }
 
-export interface WithFacadeFlag<T extends FacadeFlagMapKey> {
-  readonly [FACADE_FLAGS]: Pick<FacadeFlagMap, T>;
+export type PickFacades<T extends FacadeDictionaryKey> = Pick<FacadeDictionary, T>;
+
+export interface WithFacadeFlag<T extends FacadeDictionaryKey> {
+  readonly [FACADES_KEY]: PickFacades<T>;
 }

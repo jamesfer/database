@@ -1,4 +1,4 @@
-import { BaseFacade, FACADE_FLAGS } from '../../src/facades/scaffolding/base-facade';
+import { BaseFacade, FACADES_KEY } from '../../src/facades/scaffolding/base-facade';
 import {
   DISTRIBUTED_METADATA_FACADE_FLAG,
   DistributedMetadataFacade
@@ -17,7 +17,7 @@ export class InMemoryDistributedMetadataHub {
 }
 
 export class InMemoryDistributedMetadata implements BaseFacade, DistributedMetadataFacade {
-  readonly [FACADE_FLAGS]: DistributedMetadataFacade[FACADE_FLAGS] = {
+  readonly [FACADES_KEY]: DistributedMetadataFacade[FACADES_KEY] = {
     [DISTRIBUTED_METADATA_FACADE_FLAG]: this,
   };
 

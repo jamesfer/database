@@ -1,4 +1,4 @@
-import { ConfigEntry, ConfigEntryName } from '../types/config';
+import { ConfigEntry} from '../types/config';
 import { EMPTY, NEVER, Observable } from 'rxjs';
 import { ProcessManager } from '../core/process-manager';
 import {
@@ -8,7 +8,8 @@ import { switchFunctionOnKey } from '../utils/switch-function-on-key';
 import { MetadataDispatcherFacade } from '../facades/metadata-dispatcher-facade';
 import { AnyConfigLifecycle, ComponentOperator } from './component-operator';
 import { RPCInterface } from '../types/rpc-interface';
-import { AnyRequest } from '../core/routers/all-router';
+import { AnyRequest } from '../core/routers/combined-router';
+import { ConfigEntryName } from '../config/scaffolding/config';
 
 export const emptyComponentInitializer: ComponentOperator<any> = () => NEVER;
 

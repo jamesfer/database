@@ -1,8 +1,8 @@
 import { ProcessManager } from '../process-manager';
-import { ConfigEntryName, FullyQualifiedPath } from '../../types/config';
 import { KEY_VALUE_DATASTORE_FLAG } from '../../facades/key-value-datastore';
 import { MetadataDispatcherFacade } from '../../facades/metadata-dispatcher-facade';
 import { RPCInterface } from '../../types/rpc-interface';
+import { ConfigEntryName, FullyQualifiedPath } from '../../config/scaffolding/config';
 
 export class KeyValueApi {
   public static async initialize(

@@ -1,9 +1,4 @@
-import {
-  ConfigEntry,
-  ConfigEntryName,
-  SimpleMemoryKeyValueInstanceEntry,
-  SimpleMemoryKeyValueInternalEntry
-} from '../../types/config';
+import { ConfigEntry, SimpleMemoryKeyValueInstanceEntry, SimpleMemoryKeyValueInternalEntry } from '../../types/config';
 import { concatMap, withLatestFrom } from 'rxjs/operators';
 import { ProcessManager } from '../../core/process-manager';
 import { sample } from 'lodash';
@@ -11,10 +6,10 @@ import { Observable } from 'rxjs';
 import { MetadataDispatcherFacade } from '../../facades/metadata-dispatcher-facade';
 import { ComponentOperator } from '../component-operator';
 import { RPCInterface } from '../../types/rpc-interface';
-import { AnyRequest } from '../../core/routers/all-router';
+import { AnyRequest } from '../../core/routers/combined-router';
 import { ProcessControlRequestAction, SpawnProcessRequest } from '../../core/routers/process-control-router';
-import { AllRouterCategories } from '../../core/routers/all-router-categories';
-import { RequestType } from '../../core/routers/scaffolding/request';
+import { RequestCategory } from '../../core/routers/scaffolding/request-category';
+import { ConfigEntryName } from '../../config/scaffolding/config';
 
 export const simpleMemoryKeyValueDatastoreOperator = (
   processManager: ProcessManager,
@@ -55,9 +50,9 @@ export const simpleMemoryKeyValueDatastoreOperator = (
 
         // Send a spawn process request
         const spawnProcessRequest: SpawnProcessRequest = {
-          target: { type: RequestType.Node, nodeId: chosenNode },
-          category: AllRouterCategories.ProcessControl,
+          category: RequestCategory.ProcessControl,
           action: ProcessControlRequestAction.Spawn,
+          targetNodeId: chosenNode,
           payload: { processClass: 'SimpleMemoryKeyValueDatastore' },
         }
         const newProcessId = await rpcInterface.makeRequest(spawnProcessRequest);

@@ -4,19 +4,18 @@ import { ProcessManager } from '../process-manager';
 import {
   Config,
   ConfigEntry,
-  ConfigEntryName,
   ConfigFolder,
-  FullyQualifiedPath,
   SelectConfigEntry
 } from '../../types/config';
-import { BaseFacade, FACADE_FLAGS } from '../../facades/scaffolding/base-facade';
+import { BaseFacade, FACADES_KEY } from '../../facades/scaffolding/base-facade';
 import { METADATA_DISPATCHER_FACADE_FLAG, MetadataDispatcherFacade } from '../../facades/metadata-dispatcher-facade';
 import { DistributedMetadataFacade } from '../../facades/distributed-metadata-facade';
 import { reduceConfigEntriesToConfig } from './utils/reduce-config-entries-to-config';
 import { allComponentOperator } from '../../components/all-component-operator';
 import { AnyConfigLifecycle } from '../../components/component-operator';
 import { RPCInterface } from '../../types/rpc-interface';
-import { AnyRequest } from '../routers/all-router';
+import { AnyRequest } from '../routers/combined-router';
+import { ConfigEntryName, FullyQualifiedPath } from '../../config/scaffolding/config';
 
 interface ConfigCreate {
   type: 'create';
@@ -166,7 +165,7 @@ const dispatchChangeToHandlers = (
 };
 
 export class MetadataDispatcher implements BaseFacade, MetadataDispatcherFacade {
-  public readonly [FACADE_FLAGS]: MetadataDispatcherFacade[typeof FACADE_FLAGS] = {
+  public readonly [FACADES_KEY]: MetadataDispatcherFacade[typeof FACADES_KEY] = {
     [METADATA_DISPATCHER_FACADE_FLAG]: this
   };
 

@@ -1,4 +1,4 @@
-import { Request } from '../core/routers/scaffolding/request';
+import { Request } from '../core/routers/scaffolding/base-request';
 import { Response } from '../core/routers/scaffolding/response';
 
 export interface RPCInterface<R extends Request> {

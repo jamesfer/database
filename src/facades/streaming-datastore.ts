@@ -4,8 +4,8 @@ export const STREAMING_DATASTORE_FLAG: unique symbol = Symbol("STREAMING_DATASTO
 
 export type STREAMING_DATASTORE_FLAG = typeof STREAMING_DATASTORE_FLAG;
 
-declare module '../facades/scaffolding/facade-flag-map' {
-  interface FacadeFlagMap {
+declare module './scaffolding/facade-dictionary' {
+  interface FacadeDictionary {
     readonly [STREAMING_DATASTORE_FLAG]: StreamingDatastore;
   }
 }

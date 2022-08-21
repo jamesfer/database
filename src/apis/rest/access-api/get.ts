@@ -1,7 +1,8 @@
 import { Request, Response } from 'express';
 import { ResourceRegistry } from '../../../core';
-import { Config, ConfigEntry, SimpleMemoryKeyValueEntry, RestApiEntry } from '../../../types/config';
+import { Config, ConfigEntry, RestApiEntry } from '../../../types/config';
 import { keyValueApi } from '../../../stores/key-value';
+import { SimpleMemoryKeyValueEntry } from '../../../components/simple-memory-key-value-datastore/simple-memory-key-value-entry';
 
 export const get = (resourceRegistry: ResourceRegistry) => async (
   request: Request,

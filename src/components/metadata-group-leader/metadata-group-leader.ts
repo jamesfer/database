@@ -1,12 +1,12 @@
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { BaseFacade, FACADE_FLAGS } from '../../facades/scaffolding/base-facade';
-import { FacadeFlagMap } from '../../facades/scaffolding/facade-flag-map';
+import { BaseFacade, FACADES_KEY } from '../../facades/scaffolding/base-facade';
+import { FacadeDictionary } from '../../facades/scaffolding/facade-dictionary';
 import { MetadataGroupEntry } from '../../types/config';
 import { MetadataDispatcher } from '../../core/metadata-state/metadata-dispatcher';
 
 export class MetadataGroupLeader implements BaseFacade {
-  readonly [FACADE_FLAGS]: Partial<FacadeFlagMap> = {};
+  readonly [FACADES_KEY]: Partial<FacadeDictionary> = {};
 
   static async initialize(
     key: string,

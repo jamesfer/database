@@ -1,6 +1,7 @@
-import { Config, ConfigEntry, ConfigFolder, ConfigFolderItem, FullyQualifiedPath } from '../../../types/config';
+import { Config, ConfigEntry, ConfigFolder, ConfigFolderItem} from '../../../types/config';
 import { Observable } from 'rxjs';
 import { scan } from 'rxjs/operators';
+import { FullyQualifiedPath } from '../../../config/scaffolding/config';
 
 function updateConfigFolderItem(
   existingFolderItem: ConfigFolderItem | undefined,

@@ -1,4 +1,4 @@
-import { Request } from './request';
 import { Response } from './response';
+import { BaseRequest } from './base-request';
 
-export type RequestRouter<R extends Request> = (request: R) => Promise<Response>;
+export type RequestRouter<R extends BaseRequest> = (request: R) => Promise<Response>;

@@ -1,8 +1,8 @@
-import { BaseFacade, FACADE_FLAGS } from '../../facades/scaffolding/base-facade';
+import { BaseFacade, FACADES_KEY } from '../../facades/scaffolding/base-facade';
 import { Observable } from 'rxjs';
 
 export class HashPartition implements BaseFacade {
-  readonly [FACADE_FLAGS] = {};
+  readonly [FACADES_KEY] = {};
 
   static async initialize(
     key: string,

@@ -2,11 +2,14 @@ import {
   KEY_VALUE_DATASTORE_FLAG,
   KeyValueDatastore as KeyValueDatastoreFacade
 } from '../../facades/key-value-datastore';
-import { BaseFacade, FACADE_FLAGS } from '../../facades/scaffolding/base-facade';
+import { BaseFacade, FACADES_KEY, PickFacades } from '../../facades/scaffolding/base-facade';
+import { KEY_VALUE_PROCESS_ROUTER_FLAG } from '../../facades/key-value-process-router';
+import { simpleMemoryKeyValueProcessRouter } from './simple-memory-key-value-process-router';
 
 export class SimpleMemoryKeyValueDatastoreProcess implements BaseFacade, KeyValueDatastoreFacade {
-  readonly [FACADE_FLAGS]: KeyValueDatastoreFacade[FACADE_FLAGS] = {
+  readonly [FACADES_KEY]: PickFacades<KEY_VALUE_DATASTORE_FLAG | KEY_VALUE_PROCESS_ROUTER_FLAG> = {
     [KEY_VALUE_DATASTORE_FLAG]: this,
+    [KEY_VALUE_PROCESS_ROUTER_FLAG]: simpleMemoryKeyValueProcessRouter(this),
   };
 
   static async initialize(): Promise<SimpleMemoryKeyValueDatastoreProcess> {

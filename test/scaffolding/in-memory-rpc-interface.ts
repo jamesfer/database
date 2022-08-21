@@ -1,28 +1,31 @@
-import { Request, RequestType } from '../../src/core/routers/scaffolding/request';
+import { sample } from 'lodash';
 import { Response } from '../../src/core/routers/scaffolding/response';
 import { RPCInterface } from '../../src/types/rpc-interface';
 import { RequestRouter } from '../../src/core/routers/scaffolding/request-router';
-import { sample } from 'lodash';
+import { RequestCategory } from '../../src/core/routers/scaffolding/request-category';
+import { AnyRequest } from '../../src/core/routers/combined-router';
+import { assertNever } from '../../src/utils/assert-never';
 
-export class InMemoryRpcInterface<R extends Request> implements RPCInterface<R> {
-  private routers: { [k: string]: RequestRouter<R> } = {};
+export class InMemoryRpcInterface implements RPCInterface<AnyRequest> {
+  private routers: { [k: string]: RequestRouter<AnyRequest> } = {};
 
-  registerRouter(nodeId: string, router: RequestRouter<R>) {
+  registerRouter(nodeId: string, router: RequestRouter<AnyRequest>) {
     this.routers[nodeId] = router;
   }
 
-  async makeRequest(request: R): Promise<Response> {
-    switch (request.target.type) {
-      case RequestType.Node: {
-        const matchingRouter: RequestRouter<R> | undefined = this.routers[request.target.nodeId];
-        if (!matchingRouter) {
-          throw new Error('Can not find target node id: ' + request.target.nodeId + ' in list');
+  async makeRequest(request: AnyRequest): Promise<Response> {
+    switch (request.category) {
+      case RequestCategory.ProcessControl:
+      case RequestCategory.ProcessAction: {
+        const matchingNodeRouter: RequestRouter<AnyRequest> | undefined = this.routers[request.targetNodeId];
+        if (!matchingNodeRouter) {
+          throw new Error(`Can not find target node id: ${request.targetNodeId} in list`);
         }
 
-        return matchingRouter(request);
+        return matchingNodeRouter(request);
       }
 
-      case RequestType.Path: {
+      case RequestCategory.ConfigAction: {
         // Pick a random router
         const router = sample(this.routers);
         if (!router) {
@@ -31,8 +34,9 @@ export class InMemoryRpcInterface<R extends Request> implements RPCInterface<R> 
 
         return router(request);
       }
+
+      default:
+        assertNever(request);
     }
-
-
   }
 }

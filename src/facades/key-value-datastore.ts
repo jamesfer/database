@@ -1,11 +1,11 @@
 import { WithFacadeFlag } from './scaffolding/base-facade';
 
-export const KEY_VALUE_DATASTORE_FLAG: unique symbol = Symbol("KEY_VALUE_DATASTORE_FLAG")
+export const KEY_VALUE_DATASTORE_FLAG: unique symbol = Symbol('KEY_VALUE_DATASTORE_FLAG');
 
 export type KEY_VALUE_DATASTORE_FLAG = typeof KEY_VALUE_DATASTORE_FLAG;
 
-declare module '../facades/scaffolding/facade-flag-map' {
-  interface FacadeFlagMap {
+declare module './scaffolding/facade-dictionary' {
+  interface FacadeDictionary {
     readonly [KEY_VALUE_DATASTORE_FLAG]: KeyValueDatastore
   }
 }

@@ -1,11 +1,11 @@
 import { BehaviorSubject } from 'rxjs';
 import { LifecycleControllerConfigEntry } from './lifecycle-controller-config-entry';
 import { STREAMING_DATASTORE_FLAG, StreamingDatastore } from '../../facades/streaming-datastore';
-import { BaseFacade, FACADE_FLAGS } from '../../facades/scaffolding/base-facade';
+import { BaseFacade, FACADES_KEY } from '../../facades/scaffolding/base-facade';
 import { ProcessManager } from '../../core/process-manager';
 
 export class LifecycleController implements BaseFacade, StreamingDatastore {
-  readonly [FACADE_FLAGS]: {
+  readonly [FACADES_KEY]: {
     [STREAMING_DATASTORE_FLAG]: LifecycleController
   } = {
     [STREAMING_DATASTORE_FLAG]: this,

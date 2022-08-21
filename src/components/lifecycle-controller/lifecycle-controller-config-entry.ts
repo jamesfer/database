@@ -1,4 +1,5 @@
-import { BaseConfigEntry, FullyQualifiedPath } from '../../types/config';
+
+import { BaseConfigEntry, FullyQualifiedPath } from '../../config/scaffolding/config';
 
 export class LifecycleControllerConfigEntry implements BaseConfigEntry {
   constructor(
