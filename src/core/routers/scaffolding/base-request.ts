@@ -1,5 +1,2 @@
-import { RequestCategory } from './request-category';
+export interface BaseRequest {}
 
-export interface BaseRequest {
-  // category: RequestCategory;
-}

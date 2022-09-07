@@ -1,4 +1,4 @@
-import { ConfigEntry, SimpleMemoryKeyValueInstanceEntry, SimpleMemoryKeyValueInternalEntry } from '../../types/config';
+import { ConfigEntry } from '../../types/config';
 import { concatMap, withLatestFrom } from 'rxjs/operators';
 import { ProcessManager } from '../../core/process-manager';
 import { sample } from 'lodash';
@@ -10,6 +10,7 @@ import { AnyRequest } from '../../core/routers/combined-router';
 import { ProcessControlRequestAction, SpawnProcessRequest } from '../../core/routers/process-control-router';
 import { RequestCategory } from '../../core/routers/scaffolding/request-category';
 import { ConfigEntryName } from '../../config/scaffolding/config';
+import { SimpleMemoryKeyValueInternalEntry } from './simple-memory-key-value-internal-entry';
 
 export const simpleMemoryKeyValueDatastoreOperator = (
   processManager: ProcessManager,
