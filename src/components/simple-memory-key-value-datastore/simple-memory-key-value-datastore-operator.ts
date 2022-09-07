@@ -44,10 +44,6 @@ export const simpleMemoryKeyValueDatastoreOperator = (
           throw new Error('No nodes available to allocate a key value datastore to');
         }
 
-        // Create a config entry for the instance
-        const instancePath = [...config.id, `@${chosenNode}`];
-        await metadataManager.putEntry(new SimpleMemoryKeyValueInstanceEntry(instancePath, undefined));
-
         // Send a spawn process request
         const spawnProcessRequest: SpawnProcessRequest = {
           category: RequestCategory.ProcessControl,
