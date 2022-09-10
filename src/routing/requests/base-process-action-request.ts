@@ -1,5 +1,5 @@
 import { BaseRequest } from './base-request';
-import { RequestCategory } from './request-category';
+import { RequestCategory } from '../types/request-category';
 
 export enum ProcessActionGroupName {
   KeyValue = 'KeyValue',

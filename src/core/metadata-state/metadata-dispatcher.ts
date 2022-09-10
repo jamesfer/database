@@ -1,21 +1,20 @@
 import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs';
 import { concatMap, ignoreElements, map, mergeMap, pairwise, startWith, withLatestFrom } from 'rxjs/operators';
 import { ProcessManager } from '../process-manager';
-import {
-  Config,
-  ConfigEntry,
-  ConfigFolder,
-  SelectConfigEntry
-} from '../../types/config';
 import { BaseFacade, FACADES_KEY } from '../../facades/scaffolding/base-facade';
 import { METADATA_DISPATCHER_FACADE_FLAG, MetadataDispatcherFacade } from '../../facades/metadata-dispatcher-facade';
 import { DistributedMetadataFacade } from '../../facades/distributed-metadata-facade';
 import { reduceConfigEntriesToConfig } from './utils/reduce-config-entries-to-config';
 import { allComponentOperator } from '../../components/all-component-operator';
-import { AnyConfigLifecycle } from '../../components/component-operator';
+import { AnyConfigLifecycle } from '../../components/scaffolding/component-operator';
 import { RPCInterface } from '../../types/rpc-interface';
-import { AnyRequest } from '../routers/combined-router';
-import { ConfigEntryName, FullyQualifiedPath } from '../../config/scaffolding/config';
+import { AnyRequest } from '../../routing/all-request-router';
+import {
+  Config, ConfigFolder,
+  FullyQualifiedPath
+} from '../../config/config';
+import { ConfigEntryName } from '../../config/config-entry-name';
+import { ConfigEntry, SelectConfigEntry } from '../../config/config-entry';
 
 interface ConfigCreate {
   type: 'create';

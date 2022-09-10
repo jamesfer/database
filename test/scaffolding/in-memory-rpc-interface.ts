@@ -1,9 +1,9 @@
 import { sample } from 'lodash';
-import { Response } from '../../src/core/routers/scaffolding/response';
+import { Response } from '../../src/routing/types/response';
 import { RPCInterface } from '../../src/types/rpc-interface';
-import { RequestRouter } from '../../src/core/routers/scaffolding/request-router';
-import { RequestCategory } from '../../src/core/routers/scaffolding/request-category';
-import { AnyRequest } from '../../src/core/routers/combined-router';
+import { RequestRouter } from '../../src/routing/types/request-router';
+import { RequestCategory } from '../../src/routing/types/request-category';
+import { AnyRequest } from '../../src/routing/all-request-router';
 import { assertNever } from '../../src/utils/assert-never';
 
 export class InMemoryRpcInterface implements RPCInterface<AnyRequest> {

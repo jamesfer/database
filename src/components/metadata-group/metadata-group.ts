@@ -3,7 +3,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { BaseFacade, FACADES_KEY } from '../../facades/scaffolding/base-facade';
 import { FacadeDictionary } from '../../facades/scaffolding/facade-dictionary';
-import { MetadataGroupEntry } from '../../types/config';
+import { MetadataGroupEntry } from './metadata-group-entry';
 
 export class MetadataGroup implements BaseFacade {
   readonly [FACADES_KEY]: Partial<FacadeDictionary> = {};

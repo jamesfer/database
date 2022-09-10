@@ -1,16 +1,16 @@
-import { ConfigEntry } from '../../types/config';
 import { concatMap, withLatestFrom } from 'rxjs/operators';
 import { ProcessManager } from '../../core/process-manager';
 import { sample } from 'lodash';
 import { Observable } from 'rxjs';
 import { MetadataDispatcherFacade } from '../../facades/metadata-dispatcher-facade';
-import { ComponentOperator } from '../component-operator';
+import { ComponentOperator } from '../scaffolding/component-operator';
 import { RPCInterface } from '../../types/rpc-interface';
-import { AnyRequest } from '../../core/routers/combined-router';
-import { ProcessControlRequestAction, SpawnProcessRequest } from '../../core/routers/process-control-router';
-import { RequestCategory } from '../../core/routers/scaffolding/request-category';
-import { ConfigEntryName } from '../../config/scaffolding/config';
+import { AnyRequest } from '../../routing/all-request-router';
+import { ProcessControlRequestAction, SpawnProcessRequest } from '../../routing/process-control-router';
+import { RequestCategory } from '../../routing/types/request-category';
 import { SimpleMemoryKeyValueInternalEntry } from './simple-memory-key-value-internal-entry';
+import { ConfigEntryName } from '../../config/config-entry-name';
+import { ConfigEntry } from '../../config/config-entry';
 
 export const simpleMemoryKeyValueDatastoreOperator = (
   processManager: ProcessManager,

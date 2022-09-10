@@ -1,4 +1,4 @@
-import { BaseProcessActionRequest, ProcessActionGroupName } from './scaffolding/base-process-action-request';
+import { BaseProcessActionRequest, ProcessActionGroupName } from './base-process-action-request';
 
 export enum KeyValueProcessAction {
   Get = 'Get',

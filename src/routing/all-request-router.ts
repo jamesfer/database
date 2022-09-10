@@ -1,10 +1,9 @@
-import { switchRouter } from './scaffolding/switch-router';
-import { RequestCategory } from './scaffolding/request-category';
-import { RPCInterface } from '../../types/rpc-interface';
-import { ProcessManager } from '../process-manager';
-import { MetadataDispatcherFacade } from '../../facades/metadata-dispatcher-facade';
+import { switchRouter } from './utils/switch-router';
+import { RequestCategory } from './types/request-category';
+import { RPCInterface } from '../types/rpc-interface';
+import { ProcessManager } from '../core/process-manager';
+import { MetadataDispatcherFacade } from '../facades/metadata-dispatcher-facade';
 import { ProcessControlRequest, processControlRouter } from './process-control-router';
-import { RequestRouter } from './scaffolding/request-router';
 import { combinedConfigActionRouter, ConfigActionRequest } from './combined-config-action-router';
 import { combinedProcessActionRouter, ProcessActionRequest } from './combined-process-action-router';
 
@@ -13,9 +12,7 @@ export type AnyRequest =
   | ProcessActionRequest
   | ProcessControlRequest;
 
-const emptyRouter: RequestRouter<AnyRequest> = async () => {};
-
-export const combinedRouter = (
+export const allRequestRouter = (
   nodeId: string,
   rpcInterface: RPCInterface<AnyRequest>,
   metadataDispatcher: MetadataDispatcherFacade,
@@ -24,5 +21,4 @@ export const combinedRouter = (
   [RequestCategory.ConfigAction]: combinedConfigActionRouter(rpcInterface, metadataDispatcher),
   [RequestCategory.ProcessAction]: combinedProcessActionRouter(nodeId, processManager),
   [RequestCategory.ProcessControl]: processControlRouter(nodeId, processManager),
-  // [RequestCategory.MetadataControl]: emptyRouter,
 });

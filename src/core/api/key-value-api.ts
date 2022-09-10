@@ -2,7 +2,8 @@ import { ProcessManager } from '../process-manager';
 import { KEY_VALUE_DATASTORE_FLAG } from '../../facades/key-value-datastore';
 import { MetadataDispatcherFacade } from '../../facades/metadata-dispatcher-facade';
 import { RPCInterface } from '../../types/rpc-interface';
-import { ConfigEntryName, FullyQualifiedPath } from '../../config/scaffolding/config';
+import { FullyQualifiedPath } from '../../config/config';
+import { ConfigEntryName } from '../../config/config-entry-name';
 
 export class KeyValueApi {
   public static async initialize(

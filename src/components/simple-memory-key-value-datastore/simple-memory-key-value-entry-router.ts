@@ -3,17 +3,17 @@ import {
   KeyValueProcessDropRequest,
   KeyValueProcessGetRequest,
   KeyValueProcessPutRequest
-} from '../../core/routers/key-value-node-request';
-import { RequestCategory } from '../../core/routers/scaffolding/request-category';
-import { RequestRouter } from '../../core/routers/scaffolding/request-router';
-import { KeyValueConfigAction, KeyValueConfigRequest } from '../../core/routers/key-value-config-request';
+} from '../../routing/requests/key-value-node-request';
+import { RequestCategory } from '../../routing/types/request-category';
+import { RequestRouter } from '../../routing/types/request-router';
+import { KeyValueConfigAction, KeyValueConfigRequest } from '../../routing/requests/key-value-config-request';
 import { RPCInterface } from '../../types/rpc-interface';
-import { AnyRequest } from '../../core/routers/combined-router';
+import { AnyRequest } from '../../routing/all-request-router';
 import { MetadataDispatcherFacade } from '../../facades/metadata-dispatcher-facade';
 import { SimpleMemoryKeyValueEntry } from './simple-memory-key-value-entry';
 import { assertNever } from '../../utils/assert-never';
-import { ConfigEntryName } from '../../config/scaffolding/config';
-import { ProcessActionGroupName } from '../../core/routers/scaffolding/base-process-action-request';
+import { ProcessActionGroupName } from '../../routing/requests/base-process-action-request';
+import { ConfigEntryName } from '../../config/config-entry-name';
 
 export function simpleMemoryKeyValueEntryRouter(
   rpcInterface: RPCInterface<AnyRequest>,

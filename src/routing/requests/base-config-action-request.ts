@@ -1,6 +1,6 @@
-import { RequestCategory } from './request-category';
+import { RequestCategory } from '../types/request-category';
 import { BaseRequest } from './base-request';
-import { FullyQualifiedPath } from '../../../config/scaffolding/config';
+import { FullyQualifiedPath } from '../../config/config';
 
 export enum ConfigActionGroupName {
   KeyValue = 'KeyValue',

@@ -1,15 +1,13 @@
-import { RequestRouter } from './scaffolding/request-router';
-import { BaseProcessActionRequest, ProcessActionGroupName } from './scaffolding/base-process-action-request';
-import { ProcessManager } from '../process-manager';
-import { KeyValueProcessRequest } from './key-value-node-request';
-import { castFacade } from '../../facades/scaffolding/cast-facade';
-import { KEY_VALUE_PROCESS_ROUTER_FLAG } from '../../facades/key-value-process-router';
-import { assertNever } from '../../utils/assert-never';
+import { RequestRouter } from './types/request-router';
+import { BaseProcessActionRequest, ProcessActionGroupName } from './requests/base-process-action-request';
+import { ProcessManager } from '../core/process-manager';
+import { KeyValueProcessRequest } from './requests/key-value-node-request';
+import { castFacade } from '../facades/scaffolding/cast-facade';
+import { KEY_VALUE_PROCESS_ROUTER_FLAG } from '../facades/key-value-process-router';
+import { assertNever } from '../utils/assert-never';
 
 export type ProcessActionRequest =
   | KeyValueProcessRequest
-  // TODO remove this. It is only to fix a bug with the typing
-  | { group: ProcessActionGroupName.ProcessControl } & BaseProcessActionRequest;
 
 export function combinedProcessActionRouter(
   nodeId: string,
@@ -38,11 +36,9 @@ export function combinedProcessActionRouter(
         return processRouter(request);
       }
 
-      case ProcessActionGroupName.ProcessControl:
-        break;
-
       default:
-        assertNever(request);
+        // TODO uncomment this once there is more than on type of request
+        // assertNever(request);
     }
   };
 }

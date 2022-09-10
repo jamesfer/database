@@ -1,12 +1,12 @@
-import { RequestRouter } from './scaffolding/request-router';
-import { switchRouter } from './scaffolding/switch-router';
-import { ProcessManager } from '../process-manager';
+import { RequestRouter } from './types/request-router';
+import { switchRouter } from './utils/switch-router';
+import { ProcessManager } from '../core/process-manager';
 import { uniqueId } from 'lodash';
 import {
   SimpleMemoryKeyValueDatastoreProcess
-} from '../../components/simple-memory-key-value-datastore/simple-memory-key-value-datastore-process';
-import { BaseRequest } from './scaffolding/base-request';
-import { RequestCategory } from './scaffolding/request-category';
+} from '../components/simple-memory-key-value-datastore/simple-memory-key-value-datastore-process';
+import { BaseRequest } from './requests/base-request';
+import { RequestCategory } from './types/request-category';
 
 export enum ProcessControlRequestAction {
   Spawn = 'Spawn',

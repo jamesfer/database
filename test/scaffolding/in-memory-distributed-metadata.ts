@@ -4,8 +4,8 @@ import {
   DistributedMetadataFacade
 } from '../../src/facades/distributed-metadata-facade';
 import { BehaviorSubject, Subject } from 'rxjs';
-import { ConfigEntry } from '../../src/types/config';
 import { map } from 'rxjs/operators';
+import { ConfigEntry } from '../../src/config/config-entry';
 
 export class InMemoryDistributedMetadataHub {
   public readonly configSubject$: Subject<ConfigEntry> = new Subject();

@@ -1,16 +1,16 @@
-import { RPCInterface } from '../../types/rpc-interface';
-import { AnyRequest } from './combined-router';
-import { KeyValueConfigRequest } from './key-value-config-request';
-import { RequestRouter } from './scaffolding/request-router';
-import { ConfigEntry, SelectConfigEntry } from '../../types/config';
-import { MetadataDispatcherFacade } from '../../facades/metadata-dispatcher-facade';
-import { Refine } from '../../types/refine';
-import { ConfigActionGroupName } from './scaffolding/base-config-action-request';
-import { ConfigEntryName } from '../../config/scaffolding/config';
+import { RPCInterface } from '../types/rpc-interface';
+import { AnyRequest } from './all-request-router';
+import { KeyValueConfigRequest } from './requests/key-value-config-request';
+import { RequestRouter } from './types/request-router';
+import { MetadataDispatcherFacade } from '../facades/metadata-dispatcher-facade';
+import { Refine } from '../types/refine';
+import { ConfigActionGroupName } from './requests/base-config-action-request';
 import {
   simpleMemoryKeyValueEntryRouter
-} from '../../components/simple-memory-key-value-datastore/simple-memory-key-value-entry-router';
-import { Response } from './scaffolding/response';
+} from '../components/simple-memory-key-value-datastore/simple-memory-key-value-entry-router';
+import { Response } from './types/response';
+import { ConfigEntryName } from '../config/config-entry-name';
+import { ConfigEntry, SelectConfigEntry } from '../config/config-entry';
 
 export type ConfigActionRequest =
   | KeyValueConfigRequest;
@@ -24,6 +24,15 @@ type RequestGroupLookup<C extends ConfigEntry> = {
 type ConfigRouterLookup = {
   [C in ConfigEntry['name']]?: RequestGroupLookup<SelectConfigEntry<C>>
 };
+
+// TODO put this in a better location
+function getLookup(rpcInterface: RPCInterface<AnyRequest>, metadataDispatcher: MetadataDispatcherFacade) {
+  return {
+    [ConfigEntryName.SimpleMemoryKeyValue]: {
+      [ConfigActionGroupName.KeyValue]: simpleMemoryKeyValueEntryRouter(rpcInterface, metadataDispatcher),
+    },
+  };
+}
 
 function routeRequest<C extends ConfigEntry, R extends ConfigActionRequest>(
   config: C,
@@ -44,11 +53,7 @@ export function combinedConfigActionRouter(
   rpcInterface: RPCInterface<AnyRequest>,
   metadataDispatcher: MetadataDispatcherFacade,
 ): RequestRouter<ConfigActionRequest> {
-  const lookup: ConfigRouterLookup = {
-    [ConfigEntryName.SimpleMemoryKeyValue]: {
-      [ConfigActionGroupName.KeyValue]: simpleMemoryKeyValueEntryRouter(rpcInterface, metadataDispatcher),
-    },
-  };
+  const lookup: ConfigRouterLookup = getLookup(rpcInterface, metadataDispatcher);
 
   return async (request) => {
     // Load the config entry

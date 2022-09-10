@@ -2,11 +2,11 @@ import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs';
 import { scan } from 'rxjs/operators';
 import {
   Config,
-  ConfigEntry,
   ConfigFolder,
-  ConfigFolderItem
-} from '../../types/config';
-import { FullyQualifiedPath } from '../../config/scaffolding/config';
+  ConfigFolderItem,
+  FullyQualifiedPath
+} from '../../config/config';
+import { ConfigEntry } from '../../config/config-entry';
 
 /**
  * Publishes changes to the config state and consumes updates from gossip.

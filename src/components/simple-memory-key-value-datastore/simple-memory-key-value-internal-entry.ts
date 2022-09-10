@@ -1,4 +1,6 @@
-import { BaseConfigEntry, ConfigEntryName, FullyQualifiedPath } from '../../config/scaffolding/config';
+import { FullyQualifiedPath } from '../../config/config';
+import { BaseConfigEntry } from '../../config/base-config-entry';
+import { ConfigEntryName } from '../../config/config-entry-name';
 
 export class SimpleMemoryKeyValueInternalEntry extends BaseConfigEntry<ConfigEntryName.SimpleMemoryKeyValueInternal> {
   constructor(

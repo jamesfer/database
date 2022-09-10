@@ -1,6 +1,6 @@
 import { WithFacadeFlag } from './scaffolding/base-facade';
-import { ConfigEntry } from '../types/config';
 import { Observable } from 'rxjs';
+import { ConfigEntry } from '../config/config-entry';
 
 export const DISTRIBUTED_METADATA_FACADE_FLAG: unique symbol = Symbol("DISTRIBUTED_METADATA_FACADE_FLAG")
 

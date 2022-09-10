@@ -9,17 +9,17 @@ import {
 } from './scaffolding/in-memory-distributed-metadata';
 import { range } from 'lodash';
 import { DistributedMetadataFactory } from '../src/types/distributed-metadata-factory';
-import { combinedRouter, AnyRequest } from '../src/core/routers/combined-router';
+import { allRequestRouter, AnyRequest } from '../src/routing/all-request-router';
 import { InMemoryRpcInterface } from './scaffolding/in-memory-rpc-interface';
-import { RequestCategory } from '../src/core/routers/scaffolding/request-category';
+import { RequestCategory } from '../src/routing/types/request-category';
 import {
   KeyValueConfigAction,
   KeyValueConfigGetRequest,
   KeyValueConfigPutRequest
-} from '../src/core/routers/key-value-config-request';
+} from '../src/routing/requests/key-value-config-request';
 import { BehaviorSubject } from 'rxjs';
 import { SimpleMemoryKeyValueEntry } from '../src/components/simple-memory-key-value-datastore/simple-memory-key-value-entry';
-import { ConfigActionGroupName } from '../src/core/routers/scaffolding/base-config-action-request';
+import { ConfigActionGroupName } from '../src/routing/requests/base-config-action-request';
 
 describe('database', () => {
   it('works', async () => {
@@ -45,7 +45,7 @@ describe('database', () => {
       expect(dispatcher).toBeInstanceOf(MetadataDispatcher);
 
       // Create the router
-      const router = combinedRouter(
+      const router = allRequestRouter(
         nodeId,
         rpcInterface,
         dispatcher,

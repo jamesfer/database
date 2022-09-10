@@ -1,6 +1,6 @@
-import { ConfigEntry } from '../types/config';
 import { Observable } from 'rxjs';
-import { Refine } from '../types/refine';
+import { Refine } from '../../types/refine';
+import { ConfigEntry } from '../../config/config-entry';
 
 export interface ConfigLifecycle<E extends ConfigEntry> {
   name: ConfigEntry['name'];
