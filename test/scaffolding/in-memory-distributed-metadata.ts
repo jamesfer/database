@@ -6,9 +6,10 @@ import {
 import { BehaviorSubject, Subject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ConfigEntry } from '../../src/config/config-entry';
+import { FullyQualifiedPath } from '../../src/config/config';
 
 export class InMemoryDistributedMetadataHub {
-  public readonly configSubject$: Subject<ConfigEntry> = new Subject();
+  public readonly configSubject$: Subject<[FullyQualifiedPath, ConfigEntry]> = new Subject();
   public readonly leaderSubject$: BehaviorSubject<string>;
 
   constructor(initialLeader: string) {
@@ -31,7 +32,7 @@ export class InMemoryDistributedMetadata implements BaseFacade, DistributedMetad
     private readonly hub: InMemoryDistributedMetadataHub,
   ) {}
 
-  async write(configEntry: ConfigEntry): Promise<void> {
-    this.hub.configSubject$.next(configEntry);
+  async write(path: FullyQualifiedPath, configEntry: ConfigEntry): Promise<void> {
+    this.hub.configSubject$.next([path, configEntry]);
   }
 }

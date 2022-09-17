@@ -11,11 +11,16 @@ import {
 import { Response } from './types/response';
 import { ConfigEntryName } from '../config/config-entry-name';
 import { ConfigEntry, SelectConfigEntry } from '../config/config-entry';
+import { FullyQualifiedPath } from '../config/config';
+import { hashPartitionKeyValueRouter } from '../components/hash-partition/hash-partition-key-value-router';
 
 export type ConfigActionRequest =
   | KeyValueConfigRequest;
 
-type ConfigActionRequestRouter<C extends ConfigEntry, R extends ConfigActionRequest> = (config: C) => RequestRouter<R>;
+type ConfigActionRequestRouter<C extends ConfigEntry, R extends ConfigActionRequest> = (
+  path: FullyQualifiedPath,
+  config: C,
+) => RequestRouter<R>;
 
 type RequestGroupLookup<C extends ConfigEntry> = {
   [G in ConfigActionRequest['group']]?: ConfigActionRequestRouter<C, Refine<ConfigActionRequest, { group: G }>>
@@ -26,15 +31,22 @@ type ConfigRouterLookup = {
 };
 
 // TODO put this in a better location
-function getLookup(rpcInterface: RPCInterface<AnyRequest>, metadataDispatcher: MetadataDispatcherFacade) {
+function getLookup(
+  rpcInterface: RPCInterface<AnyRequest>,
+  metadataDispatcher: MetadataDispatcherFacade,
+): ConfigRouterLookup {
   return {
     [ConfigEntryName.SimpleMemoryKeyValue]: {
       [ConfigActionGroupName.KeyValue]: simpleMemoryKeyValueEntryRouter(rpcInterface, metadataDispatcher),
     },
+    [ConfigEntryName.HashPartition]: {
+      [ConfigActionGroupName.KeyValue]: hashPartitionKeyValueRouter(rpcInterface, metadataDispatcher),
+    }
   };
 }
 
 function routeRequest<C extends ConfigEntry, R extends ConfigActionRequest>(
+  path: FullyQualifiedPath,
   config: C,
   request: R,
   lookup: ConfigRouterLookup,
@@ -46,7 +58,7 @@ function routeRequest<C extends ConfigEntry, R extends ConfigActionRequest>(
     throw new Error(`Config does not support this request. Config type: ${config.name}, request group: ${request.group}`);
   }
 
-  return router(config)(request);
+  return router(path, config)(request);
 }
 
 export function combinedConfigActionRouter(
@@ -62,6 +74,6 @@ export function combinedConfigActionRouter(
       throw new Error(`Config does not exist at path: ${config}`);
     }
 
-    return routeRequest(config, request, lookup);
+    return routeRequest(request.target, config, request, lookup);
   };
 }

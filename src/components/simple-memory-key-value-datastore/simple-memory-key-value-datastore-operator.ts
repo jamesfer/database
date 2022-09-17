@@ -11,24 +11,25 @@ import { RequestCategory } from '../../routing/types/request-category';
 import { SimpleMemoryKeyValueInternalEntry } from './simple-memory-key-value-internal-entry';
 import { ConfigEntryName } from '../../config/config-entry-name';
 import { ConfigEntry } from '../../config/config-entry';
+import { FullyQualifiedPath } from '../../config/config';
 
 export const simpleMemoryKeyValueDatastoreOperator = (
   processManager: ProcessManager,
   metadataManager: MetadataDispatcherFacade,
   rpcInterface: RPCInterface<AnyRequest>,
   nodes$: Observable<string[]>,
-): ComponentOperator<ConfigEntryName.SimpleMemoryKeyValue> => ({ events$ }) => {
+): ComponentOperator<ConfigEntryName.SimpleMemoryKeyValue> => ({ path, events$ }) => {
   return events$.pipe(
     withLatestFrom(nodes$),
     concatMap(async ([config, nodes]) => {
       // Fetch the internal config
-      const internalConfigPath = [...config.id, 'internal'];
+      const internalConfigPath = [...path, 'internal'];
       let internalConfig: ConfigEntry | undefined = await metadataManager.getEntry(internalConfigPath);
 
       // Create it if it doesn't exist
       if (!internalConfig) {
-        internalConfig = new SimpleMemoryKeyValueInternalEntry(internalConfigPath, undefined);
-        await metadataManager.putEntry(internalConfig);
+        internalConfig = new SimpleMemoryKeyValueInternalEntry(undefined);
+        await metadataManager.putEntry(internalConfigPath, internalConfig);
       }
 
       // Throw an error if it has the wrong type
@@ -57,8 +58,8 @@ export const simpleMemoryKeyValueDatastoreOperator = (
           throw new Error(`Received invalid response from spawn processes request. Expected: string, received: ${newProcessId}`);
         }
 
-        internalConfig = new SimpleMemoryKeyValueInternalEntry(internalConfigPath, { nodeId: chosenNode, processId: newProcessId });
-        await metadataManager.putEntry(internalConfig);
+        internalConfig = new SimpleMemoryKeyValueInternalEntry({ nodeId: chosenNode, processId: newProcessId });
+        await metadataManager.putEntry(internalConfigPath, internalConfig);
       }
     }),
   );

@@ -7,10 +7,14 @@ import {
 import { MetadataGroupEntry } from '../components/metadata-group/metadata-group-entry';
 import { ConfigEntryName } from './config-entry-name';
 import { Refine } from '../types/refine';
+import { HashPartitionEntry } from '../components/hash-partition/hash-partition-entry';
+import { HashPartitionInternalEntry } from '../components/hash-partition/hash-partition-internal-entry';
 
 export type ConfigEntry =
   | SimpleMemoryKeyValueEntry
   | SimpleMemoryKeyValueInternalEntry
-  | MetadataGroupEntry
+  | HashPartitionEntry
+  | HashPartitionInternalEntry
+  | MetadataGroupEntry;
 
 export type SelectConfigEntry<T extends ConfigEntryName> = Refine<ConfigEntry, { name: T }>;

@@ -10,26 +10,31 @@ import { KeyValueConfigAction, KeyValueConfigRequest } from '../../routing/reque
 import { RPCInterface } from '../../types/rpc-interface';
 import { AnyRequest } from '../../routing/all-request-router';
 import { MetadataDispatcherFacade } from '../../facades/metadata-dispatcher-facade';
-import { SimpleMemoryKeyValueEntry } from './simple-memory-key-value-entry';
 import { assertNever } from '../../utils/assert-never';
 import { ProcessActionGroupName } from '../../routing/requests/base-process-action-request';
 import { ConfigEntryName } from '../../config/config-entry-name';
 import { FullyQualifiedPath } from '../../config/config';
+import { HashPartitionEntry } from './hash-partition-entry';
+import { findHashPartition } from './utils/hash';
+import { HashPartitionDetails } from './hash-partition-internal-entry';
 
-export function simpleMemoryKeyValueEntryRouter(
+export function hashPartitionKeyValueRouter(
   rpcInterface: RPCInterface<AnyRequest>,
   metadataDispatcher: MetadataDispatcherFacade,
-): (path: FullyQualifiedPath, config: SimpleMemoryKeyValueEntry) => RequestRouter<KeyValueConfigRequest> {
+): (path: FullyQualifiedPath, config: HashPartitionEntry) => RequestRouter<KeyValueConfigRequest> {
   return (path, config) => async (request) => {
     // Look up internal config
     const internalPath = [...path, 'internal'];
-    const internalConfig = await metadataDispatcher.getEntryAs(internalPath, ConfigEntryName.SimpleMemoryKeyValueInternal);
+    const internalConfig = await metadataDispatcher.getEntryAs(internalPath, ConfigEntryName.HashPartitionInternal);
     if (!internalConfig) {
-      throw new Error('SimpleMemoryKeyValue internal config does not exist');
+      throw new Error('HashPartition internal config does not exist');
     }
 
-    if (!internalConfig.remoteProcess) {
-      throw new Error('SimpleMemoryKeyValue remote process is not ready yet');
+    // Find the partition the key belongs to
+    const partitionIndex = findHashPartition(request.key, config.partitionsCount);
+    const partitionDetails: HashPartitionDetails | undefined = internalConfig.partitions[partitionIndex];
+    if (!partitionDetails) {
+      throw new Error('HashPartition partition at index ' + partitionIndex + ' is not ready yet');
     }
 
     switch (request.action) {
@@ -38,8 +43,8 @@ export function simpleMemoryKeyValueEntryRouter(
           category: RequestCategory.ProcessAction,
           group: ProcessActionGroupName.KeyValue,
           action: KeyValueProcessAction.Get,
-          targetNodeId: internalConfig.remoteProcess.nodeId,
-          targetProcessId: internalConfig.remoteProcess.processId,
+          targetNodeId: partitionDetails.nodeId,
+          targetProcessId: partitionDetails.processId,
           key: request.key,
         };
         return rpcInterface.makeRequest(processRequest);
@@ -50,8 +55,8 @@ export function simpleMemoryKeyValueEntryRouter(
           category: RequestCategory.ProcessAction,
           group: ProcessActionGroupName.KeyValue,
           action: KeyValueProcessAction.Put,
-          targetNodeId: internalConfig.remoteProcess.nodeId,
-          targetProcessId: internalConfig.remoteProcess.processId,
+          targetNodeId: partitionDetails.nodeId,
+          targetProcessId: partitionDetails.processId,
           key: request.key,
           value: request.value,
         };
@@ -64,8 +69,8 @@ export function simpleMemoryKeyValueEntryRouter(
           category: RequestCategory.ProcessAction,
           group: ProcessActionGroupName.KeyValue,
           action: KeyValueProcessAction.Drop,
-          targetNodeId: internalConfig.remoteProcess.nodeId,
-          targetProcessId: internalConfig.remoteProcess.processId,
+          targetNodeId: partitionDetails.nodeId,
+          targetProcessId: partitionDetails.processId,
           key: request.key,
         };
         await rpcInterface.makeRequest(processRequest);
