@@ -5,7 +5,7 @@ import { HashPartitionProcess } from './hash-partition-process';
 import { RPCInterface } from '../../types/rpc-interface';
 import { AnyRequest } from '../../routing/all-request-router';
 import {
-  KeyValueConfigAction,
+  KeyValueConfigAction, KeyValueConfigDropRequest,
   KeyValueConfigGetRequest,
   KeyValueConfigPutRequest
 } from '../../routing/requests/key-value-config-request';
@@ -41,6 +41,14 @@ export const hashPartitionProcessRouter = (
     return rpcInterface.makeRequest(forwardedRequest);
   },
   async [KeyValueProcessAction.Drop](request) {
-    throw new Error('Not yet implemented');
+    const nestedConfigPath = [...process.parentPath, 'internal', `nested${process.partitionIndex}`];
+    const forwardedRequest: KeyValueConfigDropRequest = {
+      category: RequestCategory.ConfigAction,
+      group: ConfigActionGroupName.KeyValue,
+      action: KeyValueConfigAction.Drop,
+      target: nestedConfigPath,
+      key: request.key,
+    }
+    return rpcInterface.makeRequest(forwardedRequest);
   }
 })
