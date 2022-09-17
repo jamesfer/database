@@ -18,5 +18,5 @@ export interface MetadataDispatcherFacade extends WithFacadeFlag<METADATA_DISPAT
   ownsPath(path: FullyQualifiedPath): boolean;
   getEntry(path: FullyQualifiedPath): Promise<ConfigEntry | undefined>;
   getEntryAs<N extends ConfigEntryName>(path: FullyQualifiedPath, name: N): Promise<SelectConfigEntry<N>>;
-  putEntry(entry: ConfigEntry): Promise<void>;
+  putEntry(path: FullyQualifiedPath, entry: ConfigEntry): Promise<void>;
 }

@@ -20,5 +20,5 @@ export const allRequestRouter = (
 ) => switchRouter('category')<AnyRequest>({
   [RequestCategory.ConfigAction]: combinedConfigActionRouter(rpcInterface, metadataDispatcher),
   [RequestCategory.ProcessAction]: combinedProcessActionRouter(nodeId, processManager),
-  [RequestCategory.ProcessControl]: processControlRouter(nodeId, processManager),
+  [RequestCategory.ProcessControl]: processControlRouter(nodeId, rpcInterface, processManager),
 });

@@ -71,14 +71,14 @@ export class CoreApi {
     return parentDispatcher.getEntry(path);
   }
 
-  public async putEntry(entry: ConfigEntry): Promise<void> {
+  public async putEntry(path: FullyQualifiedPath, entry: ConfigEntry): Promise<void> {
     // Find the matching metadata dispatcher
     const dispatchers = this.processManager.getAllProcessesByFlag(METADATA_DISPATCHER_FACADE_FLAG);
-    const parentDispatcher = dispatchers.find(dispatcher => dispatcher.ownsPath(entry.id));
+    const parentDispatcher = dispatchers.find(dispatcher => dispatcher.ownsPath(path));
     if (!parentDispatcher) {
-      throw new Error(`Could not find parent dispatcher for entry at ${entry.id.join('/')}`);
+      throw new Error(`Could not find parent dispatcher for entry at ${path.join('/')}`);
     }
 
-    await parentDispatcher.putEntry(entry);
+    await parentDispatcher.putEntry(path, entry);
   }
 }

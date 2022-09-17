@@ -54,8 +54,8 @@ function updateConfigFolder(
   })
 }
 
-function updateConfig(existingConfig: Config, newEntry: ConfigEntry): Config {
-  const [nextPathSegment, ...remainingPath] = newEntry.id;
+function updateConfig(existingConfig: Config, [newPath, newEntry]: [FullyQualifiedPath, ConfigEntry]): Config {
+  const [nextPathSegment, ...remainingPath] = newPath;
   if (!nextPathSegment) {
     throw new Error('Cannot update the root entry of the config');
   }
@@ -68,6 +68,8 @@ function updateConfig(existingConfig: Config, newEntry: ConfigEntry): Config {
   ));
 }
 
-export function reduceConfigEntriesToConfig(configEntries$: Observable<ConfigEntry>): Observable<Config> {
+export function reduceConfigEntriesToConfig(
+  configEntries$: Observable<[FullyQualifiedPath, ConfigEntry]>,
+): Observable<Config> {
   return configEntries$.pipe(scan(updateConfig, Config.empty()));
 }

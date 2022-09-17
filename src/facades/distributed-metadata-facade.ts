@@ -1,6 +1,7 @@
 import { WithFacadeFlag } from './scaffolding/base-facade';
 import { Observable } from 'rxjs';
 import { ConfigEntry } from '../config/config-entry';
+import { FullyQualifiedPath } from '../config/config';
 
 export const DISTRIBUTED_METADATA_FACADE_FLAG: unique symbol = Symbol("DISTRIBUTED_METADATA_FACADE_FLAG")
 
@@ -13,7 +14,7 @@ declare module './scaffolding/facade-dictionary' {
 }
 
 export interface DistributedMetadataFacade extends WithFacadeFlag<DISTRIBUTED_METADATA_FACADE_FLAG> {
-  readonly commits$: Observable<ConfigEntry>;
+  readonly commits$: Observable<[FullyQualifiedPath, ConfigEntry]>;
   readonly isLeader$: Observable<boolean>;
-  write(configEntry: ConfigEntry): Promise<void>;
+  write(path: FullyQualifiedPath, configEntry: ConfigEntry): Promise<void>;
 }

@@ -10,6 +10,7 @@ import { RPCInterface } from '../types/rpc-interface';
 import { AnyRequest } from '../routing/all-request-router';
 import { ConfigEntryName } from '../config/config-entry-name';
 import { ConfigEntry } from '../config/config-entry';
+import { hashPartitionOperator } from './hash-partition/hash-partition-operator';
 
 export const emptyComponentInitializer: ComponentOperator<any> = () => NEVER;
 
@@ -23,6 +24,8 @@ export function allComponentOperator(
   return switchFunctionOnKey('name')<AnyConfigLifecycle, Observable<void>>({
     [ConfigEntryName.SimpleMemoryKeyValue]: simpleMemoryKeyValueDatastoreOperator(processManager, metadataDispatcher, rpcInterface, nodes$),
     [ConfigEntryName.SimpleMemoryKeyValueInternal]: emptyComponentInitializer,
+    [ConfigEntryName.HashPartition]: hashPartitionOperator(processManager, metadataDispatcher, rpcInterface, nodes$),
+    [ConfigEntryName.HashPartitionInternal]: emptyComponentInitializer,
     [ConfigEntryName.MetadataGroup]: emptyComponentInitializer,
   });
 }
