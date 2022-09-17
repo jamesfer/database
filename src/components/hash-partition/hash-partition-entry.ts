@@ -1,6 +1,7 @@
 import { BaseConfigEntry } from '../../config/base-config-entry';
 import { ConfigEntryName } from '../../config/config-entry-name';
 import { ConfigEntry } from '../../config/config-entry';
+import { configEquals } from '../../config/config-equals';
 
 export class HashPartitionEntry extends BaseConfigEntry<ConfigEntryName.HashPartition> {
   constructor(
@@ -12,7 +13,6 @@ export class HashPartitionEntry extends BaseConfigEntry<ConfigEntryName.HashPart
 
   equals(other: this): boolean {
     return this.partitionsCount === other.partitionsCount
-      && this.nestedConfig.name === other.nestedConfig.name
-      && this.nestedConfig.equals(other.nestedConfig as any);
+      && configEquals(this.nestedConfig, other.nestedConfig);
   }
 }
