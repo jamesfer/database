@@ -1,9 +1,9 @@
-import { concatMap, map, withLatestFrom } from 'rxjs/operators';
+import { concatMap, withLatestFrom } from 'rxjs/operators';
 import { ProcessManager } from '../../core/process-manager';
-import { range, sample } from 'lodash';
+import { sample } from 'lodash';
 import { Observable } from 'rxjs';
 import { MetadataDispatcherFacade } from '../../facades/metadata-dispatcher-facade';
-import { ComponentOperator, ConfigLifecycle } from '../scaffolding/component-operator';
+import { ComponentOperator } from '../scaffolding/component-operator';
 import { RPCInterface } from '../../types/rpc-interface';
 import { AnyRequest } from '../../routing/all-request-router';
 import { ProcessControlRequestAction, SpawnProcessRequest } from '../../routing/process-control-router';
@@ -11,29 +11,9 @@ import { RequestCategory } from '../../routing/types/request-category';
 import { ConfigEntryName } from '../../config/config-entry-name';
 import { ConfigEntry } from '../../config/config-entry';
 import { HashPartitionInternalEntry } from './hash-partition-internal-entry';
-import { ConfigFolder, ConfigFolderItem, FullyQualifiedPath } from '../../config/config';
-import { dispatchConfigFolderChanges } from '../../core/metadata-state/utils/dispatch-config-folder-changes';
+import { FullyQualifiedPath } from '../../config/config';
 import { HashPartitionEntry } from './hash-partition-entry';
 import { configEquals } from '../../config/config-equals';
-
-// const updateNestedState = (
-//   path: FullyQualifiedPath,
-//   allComponentOperator: ComponentOperator<ConfigEntry['name']>,
-// ) => (
-//   config$: Observable<HashPartitionEntry>,
-// ) => {
-//   return config$.pipe(
-//     map((config): ConfigFolder => {
-//       const entries = range(config.partitionsCount)
-//         .map((index): [number, ConfigFolderItem] => [
-//           index,
-//           new ConfigFolderItem(config.nestedConfig, new ConfigFolder({})),
-//         ]);
-//       return new ConfigFolder(Object.fromEntries(entries));
-//     }),
-//     dispatchConfigFolderChanges(path, allComponentOperator),
-//   );
-// }
 
 async function updateState(
   metadataDispatcher: MetadataDispatcherFacade,
@@ -101,14 +81,9 @@ export const hashPartitionOperator = (
   metadataManager: MetadataDispatcherFacade,
   rpcInterface: RPCInterface<AnyRequest>,
   nodes$: Observable<string[]>,
-  // allComponentOperator: ComponentOperator<ConfigEntry['name']>,
 ): ComponentOperator<ConfigEntryName.HashPartition> => ({ path, events$ }) => {
   return events$.pipe(
     withLatestFrom(nodes$),
-    concatMap(async ([config, nodes]) => {
-      await updateState(metadataManager, rpcInterface, path, config, nodes);
-      // return config;
-    }),
-    // updateNestedState(path, allComponentOperator),
+    concatMap(([config, nodes]) => updateState(metadataManager, rpcInterface, path, config, nodes)),
   );
 }
