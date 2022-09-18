@@ -10,8 +10,8 @@ import { AnyRequest } from '../../routing/all-request-router';
 import { Config, ConfigFolder, FullyQualifiedPath } from '../../config/config';
 import { ConfigEntryName } from '../../config/config-entry-name';
 import { ConfigEntry, SelectConfigEntry } from '../../config/config-entry';
-import { dispatchConfigFolderChanges } from './utils/dispatch-config-folder-changes';
 import { allComponentOperator } from '../../components/all-component-operator';
+import { dispatchConfigFolderChanges } from './utils/dispatch-config-folder-changes';
 
 const onlyIncludeWhenLeading = (
   isLeader$: Observable<boolean>,

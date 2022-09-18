@@ -12,14 +12,15 @@ import { allRequestRouter } from '../src/routing/all-request-router';
 import { InMemoryRpcInterface } from './scaffolding/in-memory-rpc-interface';
 import { RequestCategory } from '../src/routing/types/request-category';
 import {
-  KeyValueConfigAction,
+  KeyValueConfigAddressedRequestAction,
   KeyValueConfigGetRequest,
   KeyValueConfigPutRequest
-} from '../src/routing/requests/key-value-config-request';
+} from '../src/routing/requests/key-value-config-addressed-request';
 import { BehaviorSubject } from 'rxjs';
 import { SimpleMemoryKeyValueEntry } from '../src/components/simple-memory-key-value-datastore/simple-memory-key-value-entry';
-import { ConfigActionGroupName } from '../src/routing/requests/base-config-action-request';
+import { ConfigAddressedGroupName } from '../src/routing/requests/config-addressed/base-config-addressed-request';
 import { HashPartitionEntry } from '../src/components/hash-partition/hash-partition-entry';
+import { MetadataManager } from '../src/core/metadata-state/metadata-manager';
 
 describe('database', () => {
   it('works', async () => {
@@ -37,11 +38,18 @@ describe('database', () => {
     const nodes = await Promise.all(range(3).map(async (index) => {
       const nodeId = `node${index}`;
       const processManager = await ProcessManager.initialize();
-      const coreApi = await CoreApi.initialize(nodeId, processManager, distributedMetadataFactory, rpcInterface, nodes$);
+      const metadataManager = await MetadataManager.initialize();
+      const coreApi = await CoreApi.initialize(
+        nodeId,
+        processManager,
+        metadataManager,
+        distributedMetadataFactory,
+        rpcInterface,
+        nodes$,
+      );
 
       // Bootstrap a new cluster
-      const dispatcherId = await coreApi.joinMetadataCluster([]);
-      const dispatcher = processManager.getProcessByIdAs(dispatcherId, METADATA_DISPATCHER_FACADE_FLAG)!;
+      const dispatcher = await coreApi.joinMetadataCluster([]);
       expect(dispatcher).toBeInstanceOf(MetadataDispatcher);
 
       // Create the router
@@ -74,9 +82,9 @@ describe('database', () => {
     const value = Buffer.from('hello');
     const putRequest: KeyValueConfigPutRequest = {
       category: RequestCategory.ConfigAction,
-      group: ConfigActionGroupName.KeyValue,
+      group: ConfigAddressedGroupName.KeyValue,
       target: keyValueDatasetPath,
-      action: KeyValueConfigAction.Put,
+      action: KeyValueConfigAddressedRequestAction.Put,
       key: 'a',
       value: value,
     };
@@ -85,9 +93,9 @@ describe('database', () => {
     // Get the key from the same node
     const getRequest: KeyValueConfigGetRequest = {
       category: RequestCategory.ConfigAction,
-      group: ConfigActionGroupName.KeyValue,
+      group: ConfigAddressedGroupName.KeyValue,
       target: keyValueDatasetPath,
-      action: KeyValueConfigAction.Get,
+      action: KeyValueConfigAddressedRequestAction.Get,
       key: 'a',
     };
     const node0Response = await nodes[0].router(getRequest);
@@ -111,9 +119,9 @@ describe('database', () => {
       const key = `key${i}`;
       const putRequest: KeyValueConfigPutRequest = {
         category: RequestCategory.ConfigAction,
-        group: ConfigActionGroupName.KeyValue,
+        group: ConfigAddressedGroupName.KeyValue,
         target: hashPartitionDatasetPath,
-        action: KeyValueConfigAction.Put,
+        action: KeyValueConfigAddressedRequestAction.Put,
         key: key,
         value: value,
       };
@@ -126,9 +134,9 @@ describe('database', () => {
       const key = `key${i}`;
       const getRequest: KeyValueConfigGetRequest = {
         category: RequestCategory.ConfigAction,
-        group: ConfigActionGroupName.KeyValue,
+        group: ConfigAddressedGroupName.KeyValue,
         target: hashPartitionDatasetPath,
-        action: KeyValueConfigAction.Get,
+        action: KeyValueConfigAddressedRequestAction.Get,
         key: key,
       };
       const response = await nodes[2].router(getRequest);

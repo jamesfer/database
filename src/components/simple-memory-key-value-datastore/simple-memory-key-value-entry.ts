@@ -1,4 +1,3 @@
-import { FullyQualifiedPath } from '../../config/config';
 import { BaseConfigEntry } from '../../config/base-config-entry';
 import { ConfigEntryName } from '../../config/config-entry-name';
 

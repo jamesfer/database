@@ -1,8 +1,8 @@
 import { NEVER, Observable } from 'rxjs';
 import { ProcessManager } from '../core/process-manager';
 import {
-  simpleMemoryKeyValueDatastoreOperator
-} from './simple-memory-key-value-datastore/simple-memory-key-value-datastore-operator';
+  simpleMemoryKeyValueOperator
+} from './simple-memory-key-value-datastore/simple-memory-key-value-operator';
 import { switchFunctionOnKey } from '../utils/switch-function-on-key';
 import { MetadataDispatcherFacade } from '../facades/metadata-dispatcher-facade';
 import { AnyConfigLifecycle, ComponentOperator } from './scaffolding/component-operator';
@@ -22,7 +22,7 @@ export function allComponentOperator(
   nodes$: Observable<string[]>,
 ): ComponentOperator<ConfigEntry['name']> {
   return switchFunctionOnKey('name')<AnyConfigLifecycle, Observable<void>>({
-    [ConfigEntryName.SimpleMemoryKeyValue]: simpleMemoryKeyValueDatastoreOperator(processManager, metadataDispatcher, rpcInterface, nodes$),
+    [ConfigEntryName.SimpleMemoryKeyValue]: simpleMemoryKeyValueOperator(processManager, metadataDispatcher, rpcInterface, nodes$),
     [ConfigEntryName.SimpleMemoryKeyValueInternal]: emptyComponentInitializer,
     [ConfigEntryName.HashPartition]: hashPartitionOperator(processManager, metadataDispatcher, rpcInterface, nodes$),
     [ConfigEntryName.HashPartitionInternal]: emptyComponentInitializer,

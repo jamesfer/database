@@ -13,7 +13,7 @@ import { ConfigEntryName } from '../../config/config-entry-name';
 import { ConfigEntry } from '../../config/config-entry';
 import { FullyQualifiedPath } from '../../config/config';
 
-export const simpleMemoryKeyValueDatastoreOperator = (
+export const simpleMemoryKeyValueOperator = (
   processManager: ProcessManager,
   metadataManager: MetadataDispatcherFacade,
   rpcInterface: RPCInterface<AnyRequest>,

@@ -3,8 +3,8 @@ import { switchRouter } from './utils/switch-router';
 import { ProcessManager } from '../core/process-manager';
 import { uniqueId } from 'lodash';
 import {
-  SimpleMemoryKeyValueDatastoreProcess
-} from '../components/simple-memory-key-value-datastore/simple-memory-key-value-datastore-process';
+  SimpleMemoryKeyValueProcess
+} from '../components/simple-memory-key-value-datastore/simple-memory-key-value-process';
 import { BaseRequest } from './requests/base-request';
 import { RequestCategory } from './types/request-category';
 import { assertNever } from '../utils/assert-never';
@@ -55,11 +55,11 @@ export const processControlRouter = (
     const processId = uniqueId(request.payload.processClass)
     switch (request.payload.processClass) {
       case 'SimpleMemoryKeyValueDatastore':
-        processManager.register(processId, await SimpleMemoryKeyValueDatastoreProcess.initialize());
+        processManager.register(processId, new SimpleMemoryKeyValueProcess());
         break;
 
       case 'HashPartition':
-        processManager.register(processId, await HashPartitionProcess.initialize(
+        processManager.register(processId, new HashPartitionProcess(
           rpcInterface,
           request.payload.parentPath,
           request.payload.partitionIndex,

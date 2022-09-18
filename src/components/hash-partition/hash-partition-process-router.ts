@@ -5,15 +5,16 @@ import { HashPartitionProcess } from './hash-partition-process';
 import { RPCInterface } from '../../types/rpc-interface';
 import { AnyRequest } from '../../routing/all-request-router';
 import {
-  KeyValueConfigAction, KeyValueConfigDropRequest,
+  KeyValueConfigAddressedRequestAction, KeyValueConfigDropRequest,
   KeyValueConfigGetRequest,
   KeyValueConfigPutRequest
-} from '../../routing/requests/key-value-config-request';
-import { ConfigActionGroupName } from '../../routing/requests/base-config-action-request';
+} from '../../routing/requests/key-value-config-addressed-request';
+import { ConfigAddressedGroupName } from '../../routing/requests/config-addressed/base-config-addressed-request';
 import { RequestCategory } from '../../routing/types/request-category';
 
 export const hashPartitionProcessRouter = (
   rpcInterface: RPCInterface<AnyRequest>,
+) => (
   process: HashPartitionProcess,
 ): KeyValueProcessRouter => switchRouter('action')<KeyValueProcessRequest>({
   async [KeyValueProcessAction.Get](request) {
@@ -21,8 +22,8 @@ export const hashPartitionProcessRouter = (
     const nestedConfigPath = [...process.parentPath, 'internal', `nested${process.partitionIndex}`];
     const forwardedRequest: KeyValueConfigGetRequest = {
       category: RequestCategory.ConfigAction,
-      group: ConfigActionGroupName.KeyValue,
-      action: KeyValueConfigAction.Get,
+      group: ConfigAddressedGroupName.KeyValue,
+      action: KeyValueConfigAddressedRequestAction.Get,
       target: nestedConfigPath,
       key: request.key,
     }
@@ -32,8 +33,8 @@ export const hashPartitionProcessRouter = (
     const nestedConfigPath = [...process.parentPath, 'internal', `nested${process.partitionIndex}`];
     const forwardedRequest: KeyValueConfigPutRequest = {
       category: RequestCategory.ConfigAction,
-      group: ConfigActionGroupName.KeyValue,
-      action: KeyValueConfigAction.Put,
+      group: ConfigAddressedGroupName.KeyValue,
+      action: KeyValueConfigAddressedRequestAction.Put,
       target: nestedConfigPath,
       key: request.key,
       value: request.value,
@@ -44,8 +45,8 @@ export const hashPartitionProcessRouter = (
     const nestedConfigPath = [...process.parentPath, 'internal', `nested${process.partitionIndex}`];
     const forwardedRequest: KeyValueConfigDropRequest = {
       category: RequestCategory.ConfigAction,
-      group: ConfigActionGroupName.KeyValue,
-      action: KeyValueConfigAction.Drop,
+      group: ConfigAddressedGroupName.KeyValue,
+      action: KeyValueConfigAddressedRequestAction.Drop,
       target: nestedConfigPath,
       key: request.key,
     }

@@ -17,4 +17,4 @@ export type ConfigLifecycles = {
 
 export type AnyConfigLifecycle = ConfigLifecycles[ConfigEntry['name']];
 
-export type ComponentOperator<N extends ConfigEntry['name']> = (lifecycle: ConfigLifecycles[N]) => Observable<void>;
+export type ComponentOperator<N extends keyof ConfigLifecycles> = (lifecycle: ConfigLifecycles[N]) => Observable<void>;

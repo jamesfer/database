@@ -1,42 +1,42 @@
-import { FacadeDictionary, FacadeDictionaryKey } from '../facades/scaffolding/facade-dictionary';
-import { BaseFacade } from '../facades/scaffolding/base-facade';
-import { castFacade } from '../facades/scaffolding/cast-facade';
+import { Process } from '../processes/process';
+import { Refine } from '../types/refine';
+import { ProcessType } from '../processes/process-type';
 
 export class ProcessManager {
   public static async initialize(): Promise<ProcessManager> {
     return new ProcessManager();
   }
 
-  private readonly processes: { [k: string]: BaseFacade } = {};
+  private readonly processes: { [k: string]: Process } = {};
 
   private constructor() {}
 
-  register(id: string, component: BaseFacade): void {
+  register(id: string, process: Process): void {
     if (this.getProcessById(id)) {
-      throw new Error(`A component has already been registered with the id: ${id}`);
+      throw new Error(`A process has already been registered with the id: ${id}`);
     }
 
-    this.processes[id] = component;
+    this.processes[id] = process;
   }
 
   deregister(id: string): void {
     delete this.processes[id];
   }
 
-  getProcessById(id: string): BaseFacade | undefined {
+  getProcessById(id: string): Process | undefined {
     return this.processes[id];
   }
 
-  getProcessByIdAs<F extends FacadeDictionaryKey>(id: string, flag: F): FacadeDictionary[F] | undefined {
-    const instance = this.getProcessById(id);
-    if (instance) {
-      return castFacade(instance, flag);
+  getProcessByIdAs<T extends ProcessType>(id: string, processType: T): Refine<Process, { type: T }> | undefined {
+    const process = this.getProcessById(id);
+    if (process && process.type === processType) {
+      return process as Refine<Process, { type: T }>;
     }
   }
 
-  getAllProcessesByFlag<F extends FacadeDictionaryKey>(flag: F): FacadeDictionary[F][] {
-    return Object.values(this.processes)
-      .map(instance => castFacade(instance, flag))
-      .flatMap(instance => instance ? [instance] : []);
-  }
+  // getAllProcessesByFlag<F extends FacadeDictionaryKey>(flag: F): FacadeDictionary[F][] {
+  //   return Object.values(this.processes)
+  //     .map(instance => castFacade(instance, flag))
+  //     .flatMap(instance => instance ? [instance] : []);
+  // }
 }

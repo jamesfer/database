@@ -4,12 +4,14 @@ import { RPCInterface } from '../types/rpc-interface';
 import { ProcessManager } from '../core/process-manager';
 import { MetadataDispatcherFacade } from '../facades/metadata-dispatcher-facade';
 import { ProcessControlRequest, processControlRouter } from './process-control-router';
-import { combinedConfigActionRouter, ConfigActionRequest } from './combined-config-action-router';
-import { combinedProcessActionRouter, ProcessActionRequest } from './combined-process-action-router';
+import { allConfigAddressedRequestRouter } from './requests/config-addressed/all-config-addressed-request-router';
+import { allProcessAddressedRequestRouter } from './requests/process-targeting/all-process-addressed-request-router';
+import { ConfigAddressedRequest } from './requests/config-addressed/config-addressed-request';
+import { ProcessAddressedRequest } from './requests/process-targeting/process-addressed-request';
 
 export type AnyRequest =
-  | ConfigActionRequest
-  | ProcessActionRequest
+  | ConfigAddressedRequest
+  | ProcessAddressedRequest
   | ProcessControlRequest;
 
 export const allRequestRouter = (
@@ -18,7 +20,7 @@ export const allRequestRouter = (
   metadataDispatcher: MetadataDispatcherFacade,
   processManager: ProcessManager,
 ) => switchRouter('category')<AnyRequest>({
-  [RequestCategory.ConfigAction]: combinedConfigActionRouter(rpcInterface, metadataDispatcher),
-  [RequestCategory.ProcessAction]: combinedProcessActionRouter(nodeId, processManager),
+  [RequestCategory.ConfigAction]: allConfigAddressedRequestRouter(rpcInterface, metadataDispatcher),
+  [RequestCategory.ProcessAction]: allProcessAddressedRequestRouter(nodeId, processManager, rpcInterface),
   [RequestCategory.ProcessControl]: processControlRouter(nodeId, rpcInterface, processManager),
 });
