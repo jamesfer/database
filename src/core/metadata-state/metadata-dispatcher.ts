@@ -94,7 +94,8 @@ export class MetadataDispatcher implements MetadataDispatcherInterface {
     }
 
     const configParent = this.findEntry(pathToDirectory);
-    return (configParent !== undefined && configParent.name !== ConfigEntryName.MetadataGroup);
+    // TODO check that the config parent is not a metadata group
+    return configParent !== undefined;
   }
 
   ownsPath(path: FullyQualifiedPath): boolean {
