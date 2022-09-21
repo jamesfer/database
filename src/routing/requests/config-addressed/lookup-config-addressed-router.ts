@@ -1,6 +1,5 @@
 import { RPCInterface } from '../../../types/rpc-interface';
 import { AnyRequest } from '../../all-request-router';
-import { MetadataDispatcherFacade } from '../../../facades/metadata-dispatcher-facade';
 import { ConfigEntryName } from '../../../config/config-entry-name';
 import { FullyQualifiedPath } from '../../../config/config';
 import { RequestRouter } from '../../types/request-router';
@@ -12,6 +11,7 @@ import {
 } from '../../../components/simple-memory-key-value-datastore/simple-memory-key-value-entry-router';
 import { hashPartitionKeyValueRouter } from '../../../components/hash-partition/hash-partition-key-value-router';
 import { ConfigAddressedRequest } from './config-addressed-request';
+import { MetadataDispatcherInterface } from '../../../types/metadata-dispatcher-interface';
 
 type ConfigActionRequestRouter<C extends ConfigEntry, R extends ConfigAddressedRequest> = (
   path: FullyQualifiedPath,
@@ -28,7 +28,7 @@ type ConfigAddressedRouterMap = {
 
 function createRouterLookup(
   rpcInterface: RPCInterface<AnyRequest>,
-  metadataDispatcher: MetadataDispatcherFacade,
+  metadataDispatcher: MetadataDispatcherInterface,
 ): ConfigAddressedRouterMap {
   return {
     [ConfigEntryName.SimpleMemoryKeyValue]: {
@@ -42,7 +42,7 @@ function createRouterLookup(
 
 export const lookupConfigAddressedRouter = (
   rpcInterface: RPCInterface<AnyRequest>,
-  metadataDispatcher: MetadataDispatcherFacade,
+  metadataDispatcher: MetadataDispatcherInterface,
 ): <C extends ConfigEntry, R extends ConfigAddressedRequest>(
   requestGroup: R['group'],
   configName: C['name'],

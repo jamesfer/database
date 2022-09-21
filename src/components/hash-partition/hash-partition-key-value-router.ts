@@ -9,7 +9,6 @@ import { RequestRouter } from '../../routing/types/request-router';
 import { KeyValueConfigAddressedRequestAction, KeyValueConfigAddressedRequest } from '../../routing/requests/key-value-config-addressed-request';
 import { RPCInterface } from '../../types/rpc-interface';
 import { AnyRequest } from '../../routing/all-request-router';
-import { MetadataDispatcherFacade } from '../../facades/metadata-dispatcher-facade';
 import { assertNever } from '../../utils/assert-never';
 import { ProcessAddressedGroupName } from '../../routing/requests/process-targeting/base-process-addressed-request';
 import { ConfigEntryName } from '../../config/config-entry-name';
@@ -17,10 +16,11 @@ import { FullyQualifiedPath } from '../../config/config';
 import { HashPartitionEntry } from './hash-partition-entry';
 import { findHashPartition } from './utils/hash';
 import { HashPartitionDetails } from './hash-partition-internal-entry';
+import { MetadataDispatcherInterface } from '../../types/metadata-dispatcher-interface';
 
 export function hashPartitionKeyValueRouter(
   rpcInterface: RPCInterface<AnyRequest>,
-  metadataDispatcher: MetadataDispatcherFacade,
+  metadataDispatcher: MetadataDispatcherInterface,
 ): (path: FullyQualifiedPath, config: HashPartitionEntry) => RequestRouter<KeyValueConfigAddressedRequest> {
   return (path, config) => async (request) => {
     // Look up internal config

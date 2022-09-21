@@ -1,11 +1,11 @@
 import { switchRouter } from '../../routing/utils/switch-router';
 import { KeyValueProcessAction, KeyValueProcessRequest } from '../../routing/requests/key-value-node-request';
 import { SimpleMemoryKeyValueProcess } from './simple-memory-key-value-process';
-import { KeyValueProcessRouter } from '../../facades/key-value-process-router';
+import { RequestRouter } from '../../routing/types/request-router';
 
 export const simpleMemoryKeyValueProcessRouter = (
   process: SimpleMemoryKeyValueProcess,
-): KeyValueProcessRouter => switchRouter('action')<KeyValueProcessRequest>({
+): RequestRouter<KeyValueProcessRequest> => switchRouter('action')<KeyValueProcessRequest>({
   async [KeyValueProcessAction.Get](request) {
     return process.get(request.key);
   },

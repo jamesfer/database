@@ -1,12 +1,8 @@
-import { BaseFacade, FACADES_KEY } from '../../src/facades/scaffolding/base-facade';
-import {
-  DISTRIBUTED_METADATA_FACADE_FLAG,
-  DistributedMetadataFacade
-} from '../../src/facades/distributed-metadata-facade';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ConfigEntry } from '../../src/config/config-entry';
 import { FullyQualifiedPath } from '../../src/config/config';
+import { DistributedMetadataInterface } from '../../src/types/distributed-metadata-interface';
 
 export class InMemoryDistributedMetadataHub {
   public readonly configSubject$: Subject<[FullyQualifiedPath, ConfigEntry]> = new Subject();
@@ -17,11 +13,7 @@ export class InMemoryDistributedMetadataHub {
   }
 }
 
-export class InMemoryDistributedMetadata implements BaseFacade, DistributedMetadataFacade {
-  readonly [FACADES_KEY]: DistributedMetadataFacade[FACADES_KEY] = {
-    [DISTRIBUTED_METADATA_FACADE_FLAG]: this,
-  };
-
+export class InMemoryDistributedMetadata implements DistributedMetadataInterface {
   readonly commits$ = this.hub.configSubject$.asObservable();
   readonly isLeader$ = this.hub.leaderSubject$.pipe(
     map(leader => leader === this.name),

@@ -1,13 +1,13 @@
 import { RPCInterface } from '../../../types/rpc-interface';
 import { AnyRequest } from '../../all-request-router';
 import { RequestRouter } from '../../types/request-router';
-import { MetadataDispatcherFacade } from '../../../facades/metadata-dispatcher-facade';
 import { lookupConfigAddressedRouter } from './lookup-config-addressed-router';
 import { ConfigAddressedRequest } from './config-addressed-request';
+import { MetadataDispatcherInterface } from '../../../types/metadata-dispatcher-interface';
 
 export function allConfigAddressedRequestRouter(
   rpcInterface: RPCInterface<AnyRequest>,
-  metadataDispatcher: MetadataDispatcherFacade,
+  metadataDispatcher: MetadataDispatcherInterface,
 ): RequestRouter<ConfigAddressedRequest> {
   const lookupRouter = lookupConfigAddressedRouter(rpcInterface, metadataDispatcher);
 

@@ -1,5 +1,5 @@
-import { DistributedMetadataFacade } from '../facades/distributed-metadata-facade';
+import { DistributedMetadataInterface } from './distributed-metadata-interface';
 
 export interface DistributedMetadataFactory {
-  createDistributedMetadata(nodeId: string): Promise<DistributedMetadataFacade>;
+  createDistributedMetadata(nodeId: string): Promise<DistributedMetadataInterface>;
 }

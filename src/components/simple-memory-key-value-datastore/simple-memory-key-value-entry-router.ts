@@ -9,16 +9,16 @@ import { RequestRouter } from '../../routing/types/request-router';
 import { KeyValueConfigAddressedRequestAction, KeyValueConfigAddressedRequest } from '../../routing/requests/key-value-config-addressed-request';
 import { RPCInterface } from '../../types/rpc-interface';
 import { AnyRequest } from '../../routing/all-request-router';
-import { MetadataDispatcherFacade } from '../../facades/metadata-dispatcher-facade';
 import { SimpleMemoryKeyValueEntry } from './simple-memory-key-value-entry';
 import { assertNever } from '../../utils/assert-never';
 import { ProcessAddressedGroupName } from '../../routing/requests/process-targeting/base-process-addressed-request';
 import { ConfigEntryName } from '../../config/config-entry-name';
 import { FullyQualifiedPath } from '../../config/config';
+import { MetadataDispatcherInterface } from '../../types/metadata-dispatcher-interface';
 
 export function simpleMemoryKeyValueEntryRouter(
   rpcInterface: RPCInterface<AnyRequest>,
-  metadataDispatcher: MetadataDispatcherFacade,
+  metadataDispatcher: MetadataDispatcherInterface,
 ): (path: FullyQualifiedPath, config: SimpleMemoryKeyValueEntry) => RequestRouter<KeyValueConfigAddressedRequest> {
   return (path, config) => async (request) => {
     // Look up internal config

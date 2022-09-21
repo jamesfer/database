@@ -2,7 +2,6 @@ import { concatMap, withLatestFrom } from 'rxjs/operators';
 import { ProcessManager } from '../../core/process-manager';
 import { sample } from 'lodash';
 import { Observable } from 'rxjs';
-import { MetadataDispatcherFacade } from '../../facades/metadata-dispatcher-facade';
 import { ComponentOperator } from '../scaffolding/component-operator';
 import { RPCInterface } from '../../types/rpc-interface';
 import { AnyRequest } from '../../routing/all-request-router';
@@ -14,9 +13,10 @@ import { HashPartitionInternalEntry } from './hash-partition-internal-entry';
 import { FullyQualifiedPath } from '../../config/config';
 import { HashPartitionEntry } from './hash-partition-entry';
 import { configEquals } from '../../config/config-equals';
+import { MetadataDispatcherInterface } from '../../types/metadata-dispatcher-interface';
 
 async function updateState(
-  metadataDispatcher: MetadataDispatcherFacade,
+  metadataDispatcher: MetadataDispatcherInterface,
   rpcInterface: RPCInterface<AnyRequest>,
   path: FullyQualifiedPath,
   config: HashPartitionEntry,
@@ -78,7 +78,7 @@ async function updateState(
 
 export const hashPartitionOperator = (
   processManager: ProcessManager,
-  metadataManager: MetadataDispatcherFacade,
+  metadataManager: MetadataDispatcherInterface,
   rpcInterface: RPCInterface<AnyRequest>,
   nodes$: Observable<string[]>,
 ): ComponentOperator<ConfigEntryName.HashPartition> => ({ path, events$ }) => {

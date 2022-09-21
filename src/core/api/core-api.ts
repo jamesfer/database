@@ -1,7 +1,5 @@
 import { ProcessManager } from '../process-manager';
 import { MetadataDispatcher } from '../metadata-state/metadata-dispatcher';
-import { METADATA_DISPATCHER_FACADE_FLAG } from '../../facades/metadata-dispatcher-facade';
-import { uniqueId } from 'lodash';
 import { DistributedMetadataFactory } from '../../types/distributed-metadata-factory';
 import { RPCInterface } from '../../types/rpc-interface';
 import { AnyRequest } from '../../routing/all-request-router';

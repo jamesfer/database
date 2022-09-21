@@ -1,6 +1,5 @@
 import { ProcessManager } from '../src/core/process-manager';
 import { CoreApi } from '../src/core/api/core-api';
-import { METADATA_DISPATCHER_FACADE_FLAG } from '../src/facades/metadata-dispatcher-facade';
 import { MetadataDispatcher } from '../src/core/metadata-state/metadata-dispatcher';
 import {
   InMemoryDistributedMetadata,

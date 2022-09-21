@@ -1,9 +1,6 @@
 import { BehaviorSubject, Observable, Subscription } from 'rxjs';
-import { filter, map, tap, withLatestFrom } from 'rxjs/operators';
+import { filter, map, withLatestFrom } from 'rxjs/operators';
 import { ProcessManager } from '../process-manager';
-import { BaseFacade, FACADES_KEY } from '../../facades/scaffolding/base-facade';
-import { METADATA_DISPATCHER_FACADE_FLAG, MetadataDispatcherFacade } from '../../facades/metadata-dispatcher-facade';
-import { DistributedMetadataFacade } from '../../facades/distributed-metadata-facade';
 import { reduceConfigEntriesToConfig } from './utils/reduce-config-entries-to-config';
 import { RPCInterface } from '../../types/rpc-interface';
 import { AnyRequest } from '../../routing/all-request-router';
@@ -12,6 +9,8 @@ import { ConfigEntryName } from '../../config/config-entry-name';
 import { ConfigEntry, SelectConfigEntry } from '../../config/config-entry';
 import { allComponentOperator } from '../../components/all-component-operator';
 import { dispatchConfigFolderChanges } from './utils/dispatch-config-folder-changes';
+import { MetadataDispatcherInterface } from '../../types/metadata-dispatcher-interface';
+import { DistributedMetadataInterface } from '../../types/distributed-metadata-interface';
 
 const onlyIncludeWhenLeading = (
   isLeader$: Observable<boolean>,
@@ -25,17 +24,13 @@ const onlyIncludeWhenLeading = (
   );
 }
 
-export class MetadataDispatcher implements BaseFacade, MetadataDispatcherFacade {
-  public readonly [FACADES_KEY]: MetadataDispatcherFacade[typeof FACADES_KEY] = {
-    [METADATA_DISPATCHER_FACADE_FLAG]: this
-  };
-
+export class MetadataDispatcher implements MetadataDispatcherInterface {
   static async initialize(
     nodeId: string,
     path: FullyQualifiedPath,
     processManager: ProcessManager,
     // nodeList$: Observable<string[]>,
-    distributedMetadata: DistributedMetadataFacade,
+    distributedMetadata: DistributedMetadataInterface,
     rpcInterface: RPCInterface<AnyRequest>,
     nodes$: Observable<string[]>,
   ): Promise<MetadataDispatcher> {
@@ -53,7 +48,7 @@ export class MetadataDispatcher implements BaseFacade, MetadataDispatcherFacade 
     private readonly nodeId: string,
     private readonly path: FullyQualifiedPath,
     private readonly processManager: ProcessManager,
-    private readonly distributedMetadata: DistributedMetadataFacade,
+    private readonly distributedMetadata: DistributedMetadataInterface,
     private readonly rpcInterface: RPCInterface<AnyRequest>,
     private readonly nodes$: Observable<string[]>,
     // private readonly server: MetadataServer,

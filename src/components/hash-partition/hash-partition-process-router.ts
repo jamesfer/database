@@ -1,4 +1,3 @@
-import { KeyValueProcessRouter } from '../../facades/key-value-process-router';
 import { switchRouter } from '../../routing/utils/switch-router';
 import { KeyValueProcessAction, KeyValueProcessRequest } from '../../routing/requests/key-value-node-request';
 import { HashPartitionProcess } from './hash-partition-process';
@@ -11,12 +10,13 @@ import {
 } from '../../routing/requests/key-value-config-addressed-request';
 import { ConfigAddressedGroupName } from '../../routing/requests/config-addressed/base-config-addressed-request';
 import { RequestCategory } from '../../routing/types/request-category';
+import { RequestRouter } from '../../routing/types/request-router';
 
 export const hashPartitionProcessRouter = (
   rpcInterface: RPCInterface<AnyRequest>,
 ) => (
   process: HashPartitionProcess,
-): KeyValueProcessRouter => switchRouter('action')<KeyValueProcessRequest>({
+): RequestRouter<KeyValueProcessRequest> => switchRouter('action')<KeyValueProcessRequest>({
   async [KeyValueProcessAction.Get](request) {
     // Forward the request to the matching nested config implementation
     const nestedConfigPath = [...process.parentPath, 'internal', `nested${process.partitionIndex}`];
