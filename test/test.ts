@@ -1,12 +1,10 @@
 import { ProcessManager } from '../src/core/process-manager';
-import { CoreApi } from '../src/core/api/core-api';
-import { MetadataDispatcher } from '../src/core/metadata-state/metadata-dispatcher';
 import {
-  InMemoryDistributedMetadata,
-  InMemoryDistributedMetadataHub
-} from './scaffolding/in-memory-distributed-metadata';
+  InMemoryCommitLog,
+  InMemoryCommitLogHub
+} from './scaffolding/in-memory-commit-log';
 import { range } from 'lodash';
-import { DistributedMetadataFactory } from '../src/types/distributed-metadata-factory';
+import { DistributedCommitLogFactory } from '../src/types/distributed-commit-log-factory';
 import { allRequestRouter } from '../src/routing/all-request-router';
 import { InMemoryRpcInterface } from './scaffolding/in-memory-rpc-interface';
 import { RequestCategory } from '../src/routing/types/request-category';
@@ -16,18 +14,23 @@ import {
   KeyValueConfigPutRequest
 } from '../src/routing/requests/key-value-config-addressed-request';
 import { BehaviorSubject } from 'rxjs';
-import { SimpleMemoryKeyValueEntry } from '../src/components/simple-memory-key-value-datastore/simple-memory-key-value-entry';
+import {
+  SimpleMemoryKeyValueEntry
+} from '../src/components/simple-memory-key-value-datastore/simple-memory-key-value-entry';
 import { ConfigAddressedGroupName } from '../src/routing/requests/config-addressed/base-config-addressed-request';
 import { HashPartitionEntry } from '../src/components/hash-partition/hash-partition-entry';
 import { MetadataManager } from '../src/core/metadata-state/metadata-manager';
+import { ConfigEntry } from '../src/config/config-entry';
+import { MetadataTemporaryAction } from '../src/routing/requests/metadata-temporary-request';
+import { ConfigEntryCodec } from '../src/core/commit-log/config-entry-codec';
 
 describe('database', () => {
   it('works', async () => {
     // Create test specific in memory components
-    const distributedMetadataHub = new InMemoryDistributedMetadataHub('node0');
-    const distributedMetadataFactory: DistributedMetadataFactory = {
-      async createDistributedMetadata(nodeId: string): Promise<InMemoryDistributedMetadata> {
-        return new InMemoryDistributedMetadata(nodeId, distributedMetadataHub);
+    const distributedMetadataHub = new InMemoryCommitLogHub('node0');
+    const distributedCommitLogFactory: DistributedCommitLogFactory<ConfigEntry> = {
+      async createDistributedCommitLog(nodeId: string): Promise<InMemoryCommitLog> {
+        return new InMemoryCommitLog(nodeId, distributedMetadataHub);
       }
     }
     const rpcInterface = new InMemoryRpcInterface();
@@ -36,31 +39,31 @@ describe('database', () => {
     // Create 3 nodes
     const nodes = await Promise.all(range(3).map(async (index) => {
       const nodeId = `node${index}`;
+
+      // Create managers
       const processManager = await ProcessManager.initialize();
       const metadataManager = await MetadataManager.initialize();
-      const coreApi = await CoreApi.initialize(
-        nodeId,
-        processManager,
-        metadataManager,
-        distributedMetadataFactory,
-        rpcInterface,
-        nodes$,
-      );
-
-      // Bootstrap a new cluster
-      const dispatcher = await coreApi.joinMetadataCluster([]);
-      expect(dispatcher).toBeInstanceOf(MetadataDispatcher);
 
       // Create the router
       const router = allRequestRouter(
         nodeId,
         rpcInterface,
-        dispatcher,
         processManager,
+        metadataManager,
+        distributedCommitLogFactory,
+        nodes$,
       );
       rpcInterface.registerRouter(nodeId, router);
 
-      return { nodeId, processManager, coreApi, dispatcher, router };
+      // Bootstrap a metadata dispatcher
+      await rpcInterface.makeRequest({
+        category: RequestCategory.MetadataTemporary,
+        action: MetadataTemporaryAction.Bootstrap,
+        targetNodeId: nodeId,
+        path: [],
+      });
+
+      return { nodeId, processManager, router };
     }));
 
     nodes$.next(nodes.map(node => node.nodeId));
@@ -68,10 +71,21 @@ describe('database', () => {
     // Create a key value data store
     const keyValueDatasetPath = ['dataset1'];
     const keyValueDataset = new SimpleMemoryKeyValueEntry();
-    await nodes[0].coreApi.putEntry(keyValueDatasetPath, keyValueDataset);
+    await rpcInterface.makeRequest({
+      category: RequestCategory.MetadataTemporary,
+      action: MetadataTemporaryAction.Put,
+      targetNodeId: 'node0',
+      path: keyValueDatasetPath,
+      entry: await new ConfigEntryCodec().serialize(keyValueDataset),
+    });
 
     // Fetch the entry from a different node
-    const retrievedEntry = await nodes[1].coreApi.getEntry(keyValueDatasetPath);
+    const retrievedEntry = await rpcInterface.makeRequest({
+      category: RequestCategory.MetadataTemporary,
+      action: MetadataTemporaryAction.Get,
+      targetNodeId: 'node0',
+      path: keyValueDatasetPath,
+    });
     expect(retrievedEntry).toEqual(keyValueDataset)
 
     // Small delay
@@ -87,7 +101,7 @@ describe('database', () => {
       key: 'a',
       value: value,
     };
-    await nodes[0].router(putRequest);
+    await rpcInterface.makeRequest(putRequest);
 
     // Get the key from the same node
     const getRequest: KeyValueConfigGetRequest = {
@@ -107,7 +121,13 @@ describe('database', () => {
     // Create a hash partition datastore
     const hashPartitionDatasetPath = ['dataset2'];
     const hashPartitionConfig = new HashPartitionEntry(5, new SimpleMemoryKeyValueEntry());
-    await nodes[0].coreApi.putEntry(hashPartitionDatasetPath, hashPartitionConfig);
+    await rpcInterface.makeRequest({
+      category: RequestCategory.MetadataTemporary,
+      action: MetadataTemporaryAction.Put,
+      targetNodeId: 'node0',
+      path: hashPartitionDatasetPath,
+      entry: await new ConfigEntryCodec().serialize(hashPartitionConfig),
+    })
 
     // Small delay
     await new Promise(r => setTimeout(r, 10));
@@ -124,7 +144,7 @@ describe('database', () => {
         key: key,
         value: value,
       };
-      await nodes[0].router(putRequest);
+      await rpcInterface.makeRequest(putRequest);
     }
 
     // Read values from the hash partition datastore

@@ -1,7 +1,7 @@
 import { ProcessManager } from '../process-manager';
 import { MetadataDispatcher } from '../metadata-state/metadata-dispatcher';
-import { DistributedMetadataFactory } from '../../types/distributed-metadata-factory';
-import { RPCInterface } from '../../types/rpc-interface';
+import { DistributedCommitLogFactory } from '../../types/distributed-commit-log-factory';
+import { RpcInterface } from '../../types/rpc-interface';
 import { AnyRequest } from '../../routing/all-request-router';
 import { Observable } from 'rxjs';
 import { FullyQualifiedPath } from '../../config/config';
@@ -13,19 +13,19 @@ export class CoreApi {
     nodeId: string,
     processManager: ProcessManager,
     metadataManager: MetadataManager,
-    distributedMetadataFactory: DistributedMetadataFactory,
-    rpcInterface: RPCInterface<AnyRequest>,
+    distributedCommitLogFactory: DistributedCommitLogFactory<ConfigEntry>,
+    rpcInterface: RpcInterface<AnyRequest>,
     nodes$: Observable<string[]>,
   ): Promise<CoreApi> {
-    return new CoreApi(nodeId, processManager, metadataManager, distributedMetadataFactory, rpcInterface, nodes$);
+    return new CoreApi(nodeId, processManager, metadataManager, distributedCommitLogFactory, rpcInterface, nodes$);
   }
 
   private constructor(
     private readonly nodeId: string,
     private readonly processManager: ProcessManager,
     private readonly metadataManager: MetadataManager,
-    private readonly distributedMetadataFactory: DistributedMetadataFactory,
-    private readonly rpcInterface: RPCInterface<AnyRequest>,
+    private readonly distributedCommitLogFactory: DistributedCommitLogFactory<ConfigEntry>,
+    private readonly rpcInterface: RpcInterface<AnyRequest>,
     private readonly nodes$: Observable<string[]>,
   ) {}
 
@@ -45,7 +45,7 @@ export class CoreApi {
   // }
 
   public async joinMetadataCluster(path: FullyQualifiedPath): Promise<MetadataDispatcher> {
-    const distributedMetadata = await this.distributedMetadataFactory.createDistributedMetadata(this.nodeId);
+    const distributedMetadata = await this.distributedCommitLogFactory.createDistributedCommitLog(this.nodeId);
     const metadataDispatcher = await MetadataDispatcher.initialize(
       this.nodeId,
       path,

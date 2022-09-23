@@ -1,17 +1,24 @@
-import { RPCInterface } from '../../../types/rpc-interface';
+import { RpcInterface } from '../../../types/rpc-interface';
 import { AnyRequest } from '../../all-request-router';
 import { RequestRouter } from '../../types/request-router';
 import { lookupConfigAddressedRouter } from './lookup-config-addressed-router';
 import { ConfigAddressedRequest } from './config-addressed-request';
 import { MetadataDispatcherInterface } from '../../../types/metadata-dispatcher-interface';
+import { MetadataManager } from '../../../core/metadata-state/metadata-manager';
 
 export function allConfigAddressedRequestRouter(
-  rpcInterface: RPCInterface<AnyRequest>,
-  metadataDispatcher: MetadataDispatcherInterface,
+  rpcInterface: RpcInterface<AnyRequest>,
+  metadataManager: MetadataManager,
 ): RequestRouter<ConfigAddressedRequest> {
-  const lookupRouter = lookupConfigAddressedRouter(rpcInterface, metadataDispatcher);
+  const lookupRouter = lookupConfigAddressedRouter(rpcInterface, metadataManager);
 
   return async (request) => {
+    // Find the metadata dispatcher
+    const metadataDispatcher = await metadataManager.getClosestDispatcherMatching(request.target);
+    if (!metadataDispatcher) {
+      throw new Error(`Node does not have a MetadataDispatcher matching path: ${request.target.join(', ')}`)
+    }
+
     // Load the config entry
     const config = await metadataDispatcher.getEntry(request.target);
     if (!config) {

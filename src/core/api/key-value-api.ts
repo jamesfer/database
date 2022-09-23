@@ -1,5 +1,5 @@
 import { ProcessManager } from '../process-manager';
-import { RPCInterface } from '../../types/rpc-interface';
+import { RpcInterface } from '../../types/rpc-interface';
 import { FullyQualifiedPath } from '../../config/config';
 import { ConfigEntryName } from '../../config/config-entry-name';
 
@@ -8,7 +8,7 @@ export class KeyValueApi {
     nodeId: string,
     metadataDispatcher: MetadataDispatcherFacade,
     processManager: ProcessManager,
-    rcpInterface: RPCInterface,
+    rcpInterface: RpcInterface,
   ): Promise<KeyValueApi> {
     return new KeyValueApi(nodeId, metadataDispatcher, processManager, rcpInterface);
   }
@@ -17,7 +17,7 @@ export class KeyValueApi {
     private readonly nodeId: string,
     private readonly metadataDispatcher: MetadataDispatcherFacade,
     private readonly processManager: ProcessManager,
-    private readonly rpcInterface: RPCInterface,
+    private readonly rpcInterface: RpcInterface,
   ) {}
 
   async put(path: FullyQualifiedPath, key: string, value: ArrayBuffer): Promise<void> {

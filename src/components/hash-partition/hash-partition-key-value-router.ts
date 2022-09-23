@@ -7,24 +7,29 @@ import {
 import { RequestCategory } from '../../routing/types/request-category';
 import { RequestRouter } from '../../routing/types/request-router';
 import { KeyValueConfigAddressedRequestAction, KeyValueConfigAddressedRequest } from '../../routing/requests/key-value-config-addressed-request';
-import { RPCInterface } from '../../types/rpc-interface';
+import { RpcInterface } from '../../types/rpc-interface';
 import { AnyRequest } from '../../routing/all-request-router';
 import { assertNever } from '../../utils/assert-never';
-import { ProcessAddressedGroupName } from '../../routing/requests/process-targeting/base-process-addressed-request';
+import { ProcessAddressedGroupName } from '../../routing/requests/process-addressed/base-process-addressed-request';
 import { ConfigEntryName } from '../../config/config-entry-name';
 import { FullyQualifiedPath } from '../../config/config';
 import { HashPartitionEntry } from './hash-partition-entry';
 import { findHashPartition } from './utils/hash';
 import { HashPartitionDetails } from './hash-partition-internal-entry';
-import { MetadataDispatcherInterface } from '../../types/metadata-dispatcher-interface';
+import { MetadataManager } from '../../core/metadata-state/metadata-manager';
 
 export function hashPartitionKeyValueRouter(
-  rpcInterface: RPCInterface<AnyRequest>,
-  metadataDispatcher: MetadataDispatcherInterface,
+  rpcInterface: RpcInterface<AnyRequest>,
+  metadataManager: MetadataManager,
 ): (path: FullyQualifiedPath, config: HashPartitionEntry) => RequestRouter<KeyValueConfigAddressedRequest> {
   return (path, config) => async (request) => {
     // Look up internal config
     const internalPath = [...path, 'internal'];
+    const metadataDispatcher = await metadataManager.getClosestDispatcherMatching(internalPath);
+    if (!metadataDispatcher) {
+      throw new Error(`Node does not have a MetadataDispatcher matching path: ${internalPath.join(', ')}`)
+    }
+
     const internalConfig = await metadataDispatcher.getEntryAs(internalPath, ConfigEntryName.HashPartitionInternal);
     if (!internalConfig) {
       throw new Error('HashPartition internal config does not exist');

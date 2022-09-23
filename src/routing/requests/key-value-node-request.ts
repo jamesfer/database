@@ -1,4 +1,4 @@
-import { BaseProcessAddressedRequest, ProcessAddressedGroupName } from './process-targeting/base-process-addressed-request';
+import { BaseProcessAddressedRequest, ProcessAddressedGroupName } from './process-addressed/base-process-addressed-request';
 
 export enum KeyValueProcessAction {
   Get = 'Get',

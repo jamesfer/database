@@ -3,7 +3,7 @@ import { ProcessManager } from '../../core/process-manager';
 import { sample } from 'lodash';
 import { Observable } from 'rxjs';
 import { ComponentOperator } from '../scaffolding/component-operator';
-import { RPCInterface } from '../../types/rpc-interface';
+import { RpcInterface } from '../../types/rpc-interface';
 import { AnyRequest } from '../../routing/all-request-router';
 import { ProcessControlRequestAction, SpawnProcessRequest } from '../../routing/process-control-router';
 import { RequestCategory } from '../../routing/types/request-category';
@@ -14,8 +14,8 @@ import { MetadataDispatcherInterface } from '../../types/metadata-dispatcher-int
 
 export const simpleMemoryKeyValueOperator = (
   processManager: ProcessManager,
-  metadataManager: MetadataDispatcherInterface,
-  rpcInterface: RPCInterface<AnyRequest>,
+  metadataDispatcher: MetadataDispatcherInterface,
+  rpcInterface: RpcInterface<AnyRequest>,
   nodes$: Observable<string[]>,
 ): ComponentOperator<ConfigEntryName.SimpleMemoryKeyValue> => ({ path, events$ }) => {
   return events$.pipe(
@@ -23,12 +23,12 @@ export const simpleMemoryKeyValueOperator = (
     concatMap(async ([config, nodes]) => {
       // Fetch the internal config
       const internalConfigPath = [...path, 'internal'];
-      let internalConfig: ConfigEntry | undefined = await metadataManager.getEntry(internalConfigPath);
+      let internalConfig: ConfigEntry | undefined = await metadataDispatcher.getEntry(internalConfigPath);
 
       // Create it if it doesn't exist
       if (!internalConfig) {
         internalConfig = new SimpleMemoryKeyValueInternalEntry(undefined);
-        await metadataManager.putEntry(internalConfigPath, internalConfig);
+        await metadataDispatcher.putEntry(internalConfigPath, internalConfig);
       }
 
       // Throw an error if it has the wrong type
@@ -58,7 +58,7 @@ export const simpleMemoryKeyValueOperator = (
         }
 
         internalConfig = new SimpleMemoryKeyValueInternalEntry({ nodeId: chosenNode, processId: newProcessId });
-        await metadataManager.putEntry(internalConfigPath, internalConfig);
+        await metadataDispatcher.putEntry(internalConfigPath, internalConfig);
       }
     }),
   );

@@ -3,7 +3,7 @@ import { ProcessManager } from '../../core/process-manager';
 import { sample } from 'lodash';
 import { Observable } from 'rxjs';
 import { ComponentOperator } from '../scaffolding/component-operator';
-import { RPCInterface } from '../../types/rpc-interface';
+import { RpcInterface } from '../../types/rpc-interface';
 import { AnyRequest } from '../../routing/all-request-router';
 import { ProcessControlRequestAction, SpawnProcessRequest } from '../../routing/process-control-router';
 import { RequestCategory } from '../../routing/types/request-category';
@@ -17,7 +17,7 @@ import { MetadataDispatcherInterface } from '../../types/metadata-dispatcher-int
 
 async function updateState(
   metadataDispatcher: MetadataDispatcherInterface,
-  rpcInterface: RPCInterface<AnyRequest>,
+  rpcInterface: RpcInterface<AnyRequest>,
   path: FullyQualifiedPath,
   config: HashPartitionEntry,
   nodes: string[],
@@ -79,7 +79,7 @@ async function updateState(
 export const hashPartitionOperator = (
   processManager: ProcessManager,
   metadataManager: MetadataDispatcherInterface,
-  rpcInterface: RPCInterface<AnyRequest>,
+  rpcInterface: RpcInterface<AnyRequest>,
   nodes$: Observable<string[]>,
 ): ComponentOperator<ConfigEntryName.HashPartition> => ({ path, events$ }) => {
   return events$.pipe(

@@ -5,7 +5,7 @@ import {
 } from './simple-memory-key-value-datastore/simple-memory-key-value-operator';
 import { switchFunctionOnKey } from '../utils/switch-function-on-key';
 import { AnyConfigLifecycle, ComponentOperator } from './scaffolding/component-operator';
-import { RPCInterface } from '../types/rpc-interface';
+import { RpcInterface } from '../types/rpc-interface';
 import { AnyRequest } from '../routing/all-request-router';
 import { ConfigEntryName } from '../config/config-entry-name';
 import { ConfigEntry } from '../config/config-entry';
@@ -18,7 +18,7 @@ export function allComponentOperator(
   nodeId: string,
   processManager: ProcessManager,
   metadataDispatcher: MetadataDispatcherInterface,
-  rpcInterface: RPCInterface<AnyRequest>,
+  rpcInterface: RpcInterface<AnyRequest>,
   nodes$: Observable<string[]>,
 ): ComponentOperator<ConfigEntry['name']> {
   return switchFunctionOnKey('name')<AnyConfigLifecycle, Observable<void>>({
@@ -26,6 +26,6 @@ export function allComponentOperator(
     [ConfigEntryName.SimpleMemoryKeyValueInternal]: emptyComponentInitializer,
     [ConfigEntryName.HashPartition]: hashPartitionOperator(processManager, metadataDispatcher, rpcInterface, nodes$),
     [ConfigEntryName.HashPartitionInternal]: emptyComponentInitializer,
-    [ConfigEntryName.MetadataGroup]: emptyComponentInitializer,
+    // [ConfigEntryName.MetadataGroup]: emptyComponentInitializer,
   });
 }

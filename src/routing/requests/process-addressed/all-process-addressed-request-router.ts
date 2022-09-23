@@ -2,13 +2,13 @@ import { RequestRouter } from '../../types/request-router';
 import { ProcessManager } from '../../../core/process-manager';
 import { ProcessAddressedRequest } from './process-addressed-request';
 import { lookupProcessAddressedRouter } from './lookup-process-addressed-router';
-import { RPCInterface } from '../../../types/rpc-interface';
+import { RpcInterface } from '../../../types/rpc-interface';
 import { AnyRequest } from '../../all-request-router';
 
 export function allProcessAddressedRequestRouter(
   nodeId: string,
   processManager: ProcessManager,
-  rpcInterface: RPCInterface<AnyRequest>,
+  rpcInterface: RpcInterface<AnyRequest>,
 ): RequestRouter<ProcessAddressedRequest> {
   const lookupRouter = lookupProcessAddressedRouter(rpcInterface);
 

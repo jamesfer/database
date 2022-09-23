@@ -1,4 +1,3 @@
-
 import { Observable } from 'rxjs';
 import { scan } from 'rxjs/operators';
 import {
@@ -18,7 +17,7 @@ function updateConfigFolderItem(
 
   if (!existingFolderItem) {
     if (nextPathSegment) {
-      throw new Error('Cannot create a config entry inside a folder that does not exist');
+      throw new Error('Cannot create a config entry inside a folder that does not exist: ' + nextPathSegment);
     }
 
     return new ConfigFolderItem(newEntry, new ConfigFolder({}));
