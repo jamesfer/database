@@ -1,4 +1,4 @@
-import { RpcInterface } from '../../../types/rpc-interface';
+import { RpcInterface } from '../../../rpc/rpc-interface';
 import { AnyRequest } from '../../all-request-router';
 import { RequestRouter } from '../../types/request-router';
 import { lookupConfigAddressedRouter } from './lookup-config-addressed-router';
@@ -14,15 +14,16 @@ export function allConfigAddressedRequestRouter(
 
   return async (request) => {
     // Find the metadata dispatcher
-    const metadataDispatcher = await metadataManager.getClosestDispatcherMatching(request.target);
+    const metadataDispatcher = metadataManager.getClosestDispatcherMatching(request.target);
     if (!metadataDispatcher) {
-      throw new Error(`Node does not have a MetadataDispatcher matching path: ${request.target.join(', ')}`)
+      throw new Error(`Node does not have a MetadataDispatcher matching path: ${request.target.join(', ')}`);
     }
 
     // Load the config entry
     const config = await metadataDispatcher.getEntry(request.target);
     if (!config) {
-      throw new Error(`Config does not exist at path: ${config}`);
+      console.log((metadataDispatcher as any).currentConfig$.getValue());
+      throw new Error(`Config does not exist at path: ${request.target}`);
     }
 
     // Find the matching router instance

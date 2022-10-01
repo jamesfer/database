@@ -17,7 +17,7 @@ export interface KeyValueProcessGetRequest extends RequestBase<KeyValueProcessAc
 
 export interface KeyValueProcessPutRequest extends RequestBase<KeyValueProcessAction.Put> {
   key: string;
-  value: ArrayBuffer;
+  value: string;
 }
 
 export interface KeyValueProcessDropRequest extends RequestBase<KeyValueProcessAction.Drop> {

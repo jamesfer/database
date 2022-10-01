@@ -1,5 +1,5 @@
 import { ProcessManager } from '../process-manager';
-import { RpcInterface } from '../../types/rpc-interface';
+import { RpcInterface } from '../../rpc/rpc-interface';
 import { FullyQualifiedPath } from '../../config/config';
 import { ConfigEntryName } from '../../config/config-entry-name';
 
@@ -20,7 +20,7 @@ export class KeyValueApi {
     private readonly rpcInterface: RpcInterface,
   ) {}
 
-  async put(path: FullyQualifiedPath, key: string, value: ArrayBuffer): Promise<void> {
+  async put(path: FullyQualifiedPath, key: string, value: Buffer): Promise<void> {
     const internalConfig = await this.metadataDispatcher.getEntryAs(
       [...path, 'internal'],
       ConfigEntryName.SimpleMemoryKeyValueInternal,
@@ -36,7 +36,7 @@ export class KeyValueApi {
     );
   }
 
-  async get(path: FullyQualifiedPath, key: string): Promise<ArrayBuffer | undefined> {
+  async get(path: FullyQualifiedPath, key: string): Promise<Buffer | undefined> {
     const config = await this.metadataDispatcher.getEntry(path);
     if (!config || config.name !== ConfigEntryName.SimpleMemoryKeyValue) {
       throw new Error(`Could not find key value config at ${path.join('/')}`);

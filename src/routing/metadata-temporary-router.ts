@@ -10,7 +10,7 @@ import { ConfigEntryCodec } from '../core/commit-log/config-entry-codec';
 import { DistributedCommitLogFactory } from '../types/distributed-commit-log-factory';
 import { ConfigEntry } from '../config/config-entry';
 import { ProcessManager } from '../core/process-manager';
-import { RpcInterface } from '../types/rpc-interface';
+import { RpcInterface } from '../rpc/rpc-interface';
 import { AnyRequest } from './all-request-router';
 import { Observable } from 'rxjs';
 import { assertNever } from '../utils/assert-never';
@@ -39,8 +39,10 @@ export function makeMetadataTemporaryRouter(
 
   return async (request) => {
     switch (request.action) {
-      case MetadataTemporaryAction.Get:
-        return getMetadataDispatcher(metadataManager, request.path).getEntry(request.path);
+      case MetadataTemporaryAction.Get: {
+        const entry = await getMetadataDispatcher(metadataManager, request.path).getEntry(request.path);
+        return entry ? new ConfigEntryCodec().serialize(entry) : '';
+      }
 
       case MetadataTemporaryAction.Put: {
         const deserializedConfig = await configEntryCodec.deserialize(request.entry);

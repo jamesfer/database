@@ -3,7 +3,7 @@ import { ProcessManager } from '../../core/process-manager';
 import { sample } from 'lodash';
 import { Observable } from 'rxjs';
 import { ComponentOperator } from '../scaffolding/component-operator';
-import { RpcInterface } from '../../types/rpc-interface';
+import { RpcInterface } from '../../rpc/rpc-interface';
 import { AnyRequest } from '../../routing/all-request-router';
 import { ProcessControlRequestAction, SpawnProcessRequest } from '../../routing/process-control-router';
 import { RequestCategory } from '../../routing/types/request-category';
@@ -64,7 +64,6 @@ async function updateState(
         [i]: { nodeId: chosenNode, processId: newProcessId },
       });
       await metadataDispatcher.putEntry(internalConfigPath, internalConfig);
-
     }
 
     // Spawn the nested states

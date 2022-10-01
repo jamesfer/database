@@ -1,98 +1,132 @@
 import { ProcessManager } from '../core/process-manager';
-import { CoreApi } from '../core/api/core-api';
-import { Options } from './options';
+import { ClusterNode, Options } from './options';
 import { MetadataManager } from '../core/metadata-state/metadata-manager';
-import { BehaviorSubject } from 'rxjs';
-import { RpcInterface } from '../types/rpc-interface';
 import { allRequestRouter, AnyRequest } from '../routing/all-request-router';
 import { ConfigEntry } from '../config/config-entry';
-import { NaiveRPCCommitLogFactory } from '../core/commit-log/naive-rpc-commit-log';
+import { NaiveRPCCommitLogFactory } from '../core/commit-log/naive-rpc-commit-log-factory';
 import { ConfigEntryCodec } from '../core/commit-log/config-entry-codec';
-import { HttpRpcInterface } from '../rpc/http-rpc-interface';
+import { HttpRpcClient, HttpUrlResolver, LOCAL } from '../rpc/http-rpc-client';
 import { NaiveRpcCommitLogRequestCodec } from '../core/commit-log/naive-rpc-commit-log-request-codec';
 import { Codec } from '../types/codec';
 import { RequestCategory } from '../routing/types/request-category';
-import { BidirectionalRpcInterface } from '../types/bidirectional-rpc-interface';
-import { concatMap } from 'rxjs/operators';
+import { StaticMembershipList } from '../membership/membership-list';
+import { keyBy } from 'lodash';
+import { RpcClientWrapper } from '../rpc/rpc-client-wrapper';
+import { RequestRouter } from '../routing/types/request-router';
+import { RpcClientFactoryInterface } from '../core/commit-log/rpc-client-factory-interface';
+import { NaiveRpcCommitLogRequest } from '../core/commit-log/naive-rpc-commit-log-request';
+import { RpcInterface } from '../rpc/rpc-interface';
+import { Unsubscribable } from 'rxjs';
+import { AnyRequestCodec } from '../routing/any-request-codec';
+
+function makeMetadataHttpHostResolver<T>(
+  thisNodeId: string,
+  clusterNodes: { [k: string]: ClusterNode },
+): HttpUrlResolver<NaiveRpcCommitLogRequest<T>> {
+  return (request) => {
+    if (request.nodeId === thisNodeId) {
+      return LOCAL;
+    }
+
+    const targetNode = clusterNodes[request.nodeId];
+    return `http://${targetNode.host}:${targetNode.metadataRpcPort}`;
+  };
+}
 
 async function makeNaiveDistributedMetadataFactory(
-  nodeId: string,
-  leaderId: string,
-  clusterNodes: string[],
-  httpListenPort: number,
+  thisNode: ClusterNode,
+  leaderNode: ClusterNode,
+  clusterNodes: { [k: string]: ClusterNode },
 ) {
   const codec = new NaiveRpcCommitLogRequestCodec<ConfigEntry>(new ConfigEntryCodec());
-  const naiveRPCCommitLogRPCInterface = await HttpRpcInterface.initialize(
-    nodeId,
-    codec,
-    codec,
-    httpListenPort,
-    () => leaderId,
-  );
+  const naiveRpcCommitLogRpcFactory = new class implements RpcClientFactoryInterface<NaiveRpcCommitLogRequest<ConfigEntry>> {
+    createRpcClient(router: RequestRouter<NaiveRpcCommitLogRequest<ConfigEntry>>): Promise<RpcInterface<NaiveRpcCommitLogRequest<ConfigEntry>> & Unsubscribable> {
+      return HttpRpcClient.initialize(
+        codec,
+        codec,
+        thisNode.metadataRpcPort,
+        makeMetadataHttpHostResolver(thisNode.nodeId, clusterNodes),
+        router,
+      );
+    }
+  };
   return new NaiveRPCCommitLogFactory<ConfigEntry>(
-    naiveRPCCommitLogRPCInterface,
-    nodeId,
-    leaderId,
-    clusterNodes,
+    naiveRpcCommitLogRpcFactory,
+    thisNode.nodeId,
+    leaderNode.nodeId,
+    Object.keys(clusterNodes),
   );
 }
 
-async function makeGeneralHttpRpcInterface(nodeId: string, leaderId: string, httpListenPort: number): Promise<BidirectionalRpcInterface<AnyRequest, AnyRequest>> {
-  const requestCodec: Codec<AnyRequest, string> = {
-    async serialize(value: AnyRequest): Promise<string> {
-      return JSON.stringify(value);
-    },
-    async deserialize(serialized: string): Promise<AnyRequest | undefined> {
-      return JSON.parse(serialized);
+function makeGeneralHttpHostResolver(
+  nodeId: string,
+  leaderId: string,
+  clusterNodes: { [k: string]: ClusterNode },
+): HttpUrlResolver<AnyRequest> {
+  return (request) => {
+    const targetNodeId = request.category === RequestCategory.ConfigAction ? leaderId : request.targetNodeId;
+    if (targetNodeId === nodeId) {
+      return LOCAL;
     }
+
+    const targetNode = clusterNodes[targetNodeId];
+    return `http://${targetNode.host}:${targetNode.generalRpcPort}`;
   };
-  const hostResolver = (request: AnyRequest) => (
-    request.category === RequestCategory.ConfigAction ? leaderId : request.targetNodeId
-  );
-  return HttpRpcInterface.initialize<AnyRequest, AnyRequest>(
-    nodeId,
+}
+
+async function makeGeneralHttpRpcInterface(
+  nodeId: string,
+  leaderId: string,
+  clusterNodes: { [k: string]: ClusterNode },
+  router: RequestRouter<AnyRequest>,
+): Promise<HttpRpcClient<AnyRequest, AnyRequest>> {
+  const requestCodec = new AnyRequestCodec();
+  return HttpRpcClient.initialize<AnyRequest, AnyRequest>(
     requestCodec,
     requestCodec,
-    httpListenPort,
-    hostResolver,
+    clusterNodes[nodeId].generalRpcPort,
+    makeGeneralHttpHostResolver(nodeId, leaderId, clusterNodes),
+    router,
   );
 }
 
 export async function start(options: Options): Promise<() => Promise<void>> {
+  const nodes = keyBy(options.clusterNodes, 'nodeId');
+  const nodeIds = Object.keys(nodes);
+
   // Core managers
   const processManager = await ProcessManager.initialize();
   const metadataManager = await MetadataManager.initialize();
 
   // Foundational components
-  const nodes$ = new BehaviorSubject<string[]>(options.clusterNodes);
-  const rpcInterface = await makeGeneralHttpRpcInterface(
-    options.nodeId,
-    options.leaderId,
-    3000,
-  );
+  const membershipList = await StaticMembershipList.initialize(nodeIds);
   const distributedCommitLogFactory = await makeNaiveDistributedMetadataFactory(
-    options.nodeId,
-    options.leaderId,
-    options.clusterNodes,
-    3001,
+    nodes[options.nodeId],
+    nodes[options.leaderId],
+    nodes,
   );
 
   // Apis
+  const rpcClientWrapper = new RpcClientWrapper<AnyRequest>();
   const router = allRequestRouter(
     options.nodeId,
-    rpcInterface,
+    rpcClientWrapper,
     processManager,
     metadataManager,
     distributedCommitLogFactory,
-    nodes$,
+    membershipList.nodes$,
   );
-  const routerSubscription = rpcInterface.incomingRequests$.pipe(
-    concatMap(router),
-  ).subscribe();
+  const httpRpcClient = await makeGeneralHttpRpcInterface(
+    options.nodeId,
+    options.leaderId,
+    nodes,
+    router,
+  );
+  rpcClientWrapper.registerClient(httpRpcClient);
 
   // Clean up all resources
   return async () => {
+    httpRpcClient.unsubscribe();
     distributedCommitLogFactory.unsubscribe();
-    routerSubscription.unsubscribe();
   };
 }

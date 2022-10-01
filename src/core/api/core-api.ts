@@ -1,7 +1,7 @@
 import { ProcessManager } from '../process-manager';
 import { MetadataDispatcher } from '../metadata-state/metadata-dispatcher';
 import { DistributedCommitLogFactory } from '../../types/distributed-commit-log-factory';
-import { RpcInterface } from '../../types/rpc-interface';
+import { RpcInterface } from '../../rpc/rpc-interface';
 import { AnyRequest } from '../../routing/all-request-router';
 import { Observable } from 'rxjs';
 import { FullyQualifiedPath } from '../../config/config';

@@ -10,7 +10,7 @@ import { RequestCategory } from './types/request-category';
 import { assertNever } from '../utils/assert-never';
 import { HashPartitionProcess } from '../components/hash-partition/hash-partition-process';
 import { FullyQualifiedPath } from '../config/config';
-import { RpcInterface } from '../types/rpc-interface';
+import { RpcInterface } from '../rpc/rpc-interface';
 import { AnyRequest } from './all-request-router';
 
 export enum ProcessControlRequestAction {

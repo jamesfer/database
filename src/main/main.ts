@@ -1,5 +1,5 @@
 import { start } from './start';
-import { loadOptions } from './options';
+import { loadOptionsFromEnv } from './options';
 
 function waitForSignal(): Promise<void> {
   return new Promise((res) => {
@@ -9,7 +9,7 @@ function waitForSignal(): Promise<void> {
 }
 
 export async function main() {
-  const options = loadOptions(process.env);
+  const options = loadOptionsFromEnv(process.env);
 
   const cleanup = await start(options);
 

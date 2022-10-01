@@ -1,6 +1,6 @@
 import { sample } from 'lodash';
 import { Response } from '../../src/routing/types/response';
-import { RpcInterface } from '../../src/types/rpc-interface';
+import { RpcInterface } from '../../src/rpc/rpc-interface';
 import { RequestRouter } from '../../src/routing/types/request-router';
 import { RequestCategory } from '../../src/routing/types/request-category';
 import { AnyRequest } from '../../src/routing/all-request-router';

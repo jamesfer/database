@@ -1,4 +1,4 @@
-import { RpcInterface } from '../../../types/rpc-interface';
+import { RpcInterface } from '../../../rpc/rpc-interface';
 import { AnyRequest } from '../../all-request-router';
 import { ConfigEntryName } from '../../../config/config-entry-name';
 import { FullyQualifiedPath } from '../../../config/config';

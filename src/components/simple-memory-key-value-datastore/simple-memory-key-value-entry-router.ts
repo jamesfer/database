@@ -7,7 +7,7 @@ import {
 import { RequestCategory } from '../../routing/types/request-category';
 import { RequestRouter } from '../../routing/types/request-router';
 import { KeyValueConfigAddressedRequestAction, KeyValueConfigAddressedRequest } from '../../routing/requests/key-value-config-addressed-request';
-import { RpcInterface } from '../../types/rpc-interface';
+import { RpcInterface } from '../../rpc/rpc-interface';
 import { AnyRequest } from '../../routing/all-request-router';
 import { SimpleMemoryKeyValueEntry } from './simple-memory-key-value-entry';
 import { assertNever } from '../../utils/assert-never';

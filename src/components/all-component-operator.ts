@@ -5,7 +5,7 @@ import {
 } from './simple-memory-key-value-datastore/simple-memory-key-value-operator';
 import { switchFunctionOnKey } from '../utils/switch-function-on-key';
 import { AnyConfigLifecycle, ComponentOperator } from './scaffolding/component-operator';
-import { RpcInterface } from '../types/rpc-interface';
+import { RpcInterface } from '../rpc/rpc-interface';
 import { AnyRequest } from '../routing/all-request-router';
 import { ConfigEntryName } from '../config/config-entry-name';
 import { ConfigEntry } from '../config/config-entry';
@@ -26,6 +26,5 @@ export function allComponentOperator(
     [ConfigEntryName.SimpleMemoryKeyValueInternal]: emptyComponentInitializer,
     [ConfigEntryName.HashPartition]: hashPartitionOperator(processManager, metadataDispatcher, rpcInterface, nodes$),
     [ConfigEntryName.HashPartitionInternal]: emptyComponentInitializer,
-    // [ConfigEntryName.MetadataGroup]: emptyComponentInitializer,
   });
 }

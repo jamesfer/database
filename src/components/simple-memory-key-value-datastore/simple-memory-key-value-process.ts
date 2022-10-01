@@ -4,17 +4,17 @@ import { ProcessType } from '../../processes/process-type';
 export class SimpleMemoryKeyValueProcess extends BaseProcess<ProcessType.SimpleMemoryKeyValue> {
   public readonly type = ProcessType.SimpleMemoryKeyValue;
 
-  private readonly storage: Map<string, ArrayBuffer> = new Map();
+  private readonly storage: Map<string, string> = new Map();
 
   constructor() {
     super();
   }
 
-  async put(key: string, value: ArrayBuffer): Promise<void> {
+  async put(key: string, value: string): Promise<void> {
     this.storage.set(key, value);
   }
 
-  async get(key: string): Promise<ArrayBuffer> {
+  async get(key: string): Promise<string> {
     const result = this.storage.get(key);
     if (!result) {
       throw new Error(`Could not get key "${key}" from SimpleMemoryKeyValueDatastore because it didn't exist`);

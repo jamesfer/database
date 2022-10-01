@@ -2,7 +2,7 @@ import { ConfigFolder, FullyQualifiedPath } from '../../../config/config';
 import { ConfigEntry } from '../../../config/config-entry';
 import { Observable, Subject } from 'rxjs';
 import { AnyConfigLifecycle, ComponentOperator } from '../../../components/scaffolding/component-operator';
-import { concatMap, ignoreElements, mergeMap, pairwise, startWith, tap, withLatestFrom } from 'rxjs/operators';
+import { concatMap, ignoreElements, mergeMap, pairwise, startWith, tap } from 'rxjs/operators';
 
 interface ConfigCreate {
   type: 'create';

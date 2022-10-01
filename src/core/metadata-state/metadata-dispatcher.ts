@@ -1,8 +1,8 @@
-import { BehaviorSubject, Observable, Subscription } from 'rxjs';
+import { BehaviorSubject, Observable, Subscription, Unsubscribable } from 'rxjs';
 import { filter, map, withLatestFrom } from 'rxjs/operators';
 import { ProcessManager } from '../process-manager';
 import { reduceConfigEntriesToConfig } from './utils/reduce-config-entries-to-config';
-import { RpcInterface } from '../../types/rpc-interface';
+import { RpcInterface } from '../../rpc/rpc-interface';
 import { AnyRequest } from '../../routing/all-request-router';
 import { Config, ConfigFolder, FullyQualifiedPath } from '../../config/config';
 import { ConfigEntryName } from '../../config/config-entry-name';
@@ -105,11 +105,11 @@ export class MetadataDispatcher implements MetadataDispatcherInterface {
   async getEntryAs<N extends ConfigEntryName>(path: FullyQualifiedPath, name: N): Promise<SelectConfigEntry<N>> {
     const entry = await this.getEntry(path);
     if (!entry) {
-      throw new Error(`Could not find config entry at path: ${path.join('/')}`)
+      throw new Error(`Could not find config entry at path: ${path.join('/')}, on node: ${this.nodeId}`);
     }
 
     if (entry.name !== name) {
-      throw new Error(`Tried to get a config entry as the incorrect type. Config type: ${entry.name}, expected type: ${name}`);
+      throw new Error(`Tried to get a config entry as the incorrect type. Config type: ${entry.name}, expected type: ${name}, node id: ${this.nodeId}`);
     }
 
     // We have to use a cast here because Typescript can't correctly infer the type with a generic parameter

@@ -9,13 +9,13 @@ describe('SimpleMemoryKeyValueDatastore', () => {
 
   it('stores data', async () => {
     const datastore = new SimpleMemoryKeyValueProcess();
-    await datastore.put('a', Buffer.from('hello'));
+    await datastore.put('a', 'hello');
     expect(await datastore.get('a'))
   });
 
   it('deletes data', async () => {
     const datastore = new SimpleMemoryKeyValueProcess();
-    await datastore.put('a', Buffer.from('hello'));
+    await datastore.put('a', 'hello');
     await datastore.drop('a');
     await expect(datastore.get('a')).rejects
       .toThrow(`Could not get key "a" from SimpleMemoryKeyValueDatastore because it didn't exist`);
