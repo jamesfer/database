@@ -17,7 +17,7 @@ export interface KeyValueConfigGetRequest extends RequestBase<KeyValueConfigAddr
 
 export interface KeyValueConfigPutRequest extends RequestBase<KeyValueConfigAddressedRequestAction.Put> {
   key: string;
-  value: ArrayBuffer;
+  value: string;
 }
 
 export interface KeyValueConfigDropRequest extends RequestBase<KeyValueConfigAddressedRequestAction.Drop> {

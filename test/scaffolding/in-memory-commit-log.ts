@@ -2,9 +2,9 @@ import { BehaviorSubject, Subject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ConfigEntry } from '../../src/config/config-entry';
 import { FullyQualifiedPath } from '../../src/config/config';
-import { DistributedMetadataInterface } from '../../src/types/distributed-metadata-interface';
+import { DistributedCommitLogInterface } from '../../src/types/distributed-commit-log-interface';
 
-export class InMemoryDistributedMetadataHub {
+export class InMemoryCommitLogHub {
   public readonly configSubject$: Subject<[FullyQualifiedPath, ConfigEntry]> = new Subject();
   public readonly leaderSubject$: BehaviorSubject<string>;
 
@@ -13,7 +13,7 @@ export class InMemoryDistributedMetadataHub {
   }
 }
 
-export class InMemoryDistributedMetadata implements DistributedMetadataInterface {
+export class InMemoryCommitLog implements DistributedCommitLogInterface<ConfigEntry> {
   readonly commits$ = this.hub.configSubject$.asObservable();
   readonly isLeader$ = this.hub.leaderSubject$.pipe(
     map(leader => leader === this.name),
@@ -21,7 +21,7 @@ export class InMemoryDistributedMetadata implements DistributedMetadataInterface
 
   constructor(
     private readonly name: string,
-    private readonly hub: InMemoryDistributedMetadataHub,
+    private readonly hub: InMemoryCommitLogHub,
   ) {}
 
   async write(path: FullyQualifiedPath, configEntry: ConfigEntry): Promise<void> {

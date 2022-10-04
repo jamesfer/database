@@ -1,4 +1,4 @@
-import { BaseProcessAddressedRequest, ProcessAddressedGroupName } from './process-targeting/base-process-addressed-request';
+import { BaseProcessAddressedRequest, ProcessAddressedGroupName } from './process-addressed/base-process-addressed-request';
 
 export enum KeyValueProcessAction {
   Get = 'Get',
@@ -17,7 +17,7 @@ export interface KeyValueProcessGetRequest extends RequestBase<KeyValueProcessAc
 
 export interface KeyValueProcessPutRequest extends RequestBase<KeyValueProcessAction.Put> {
   key: string;
-  value: ArrayBuffer;
+  value: string;
 }
 
 export interface KeyValueProcessDropRequest extends RequestBase<KeyValueProcessAction.Drop> {

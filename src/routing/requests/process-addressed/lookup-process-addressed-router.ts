@@ -1,4 +1,4 @@
-import { RPCInterface } from '../../../types/rpc-interface';
+import { RpcInterface } from '../../../rpc/rpc-interface';
 import { AnyRequest } from '../../all-request-router';
 import { RequestRouter } from '../../types/request-router';
 import { Refine } from '../../../types/refine';
@@ -22,7 +22,7 @@ type ProcessAddressedRouterMap = {
 };
 
 function createRouterLookup(
-  rpcInterface: RPCInterface<AnyRequest>,
+  rpcInterface: RpcInterface<AnyRequest>,
 ): ProcessAddressedRouterMap {
   return {
     [ProcessType.HashPartition]: {
@@ -30,12 +30,12 @@ function createRouterLookup(
     },
     [ProcessType.SimpleMemoryKeyValue]: {
       [ProcessAddressedGroupName.KeyValue]: simpleMemoryKeyValueProcessRouter,
-    }
+    },
   };
 }
 
 export const lookupProcessAddressedRouter = (
-  rpcInterface: RPCInterface<AnyRequest>,
+  rpcInterface: RpcInterface<AnyRequest>,
 ): <P extends Process, R extends ProcessAddressedRequest>(
   requestGroup: R['group'],
   processType: P['type'],

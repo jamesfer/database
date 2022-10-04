@@ -1,12 +1,12 @@
 import { sample } from 'lodash';
 import { Response } from '../../src/routing/types/response';
-import { RPCInterface } from '../../src/types/rpc-interface';
+import { RpcInterface } from '../../src/rpc/rpc-interface';
 import { RequestRouter } from '../../src/routing/types/request-router';
 import { RequestCategory } from '../../src/routing/types/request-category';
 import { AnyRequest } from '../../src/routing/all-request-router';
 import { assertNever } from '../../src/utils/assert-never';
 
-export class InMemoryRpcInterface implements RPCInterface<AnyRequest> {
+export class InMemoryRpcInterface implements RpcInterface<AnyRequest> {
   private routers: { [k: string]: RequestRouter<AnyRequest> } = {};
 
   registerRouter(nodeId: string, router: RequestRouter<AnyRequest>) {
@@ -15,6 +15,7 @@ export class InMemoryRpcInterface implements RPCInterface<AnyRequest> {
 
   async makeRequest(request: AnyRequest): Promise<Response> {
     switch (request.category) {
+      case RequestCategory.MetadataTemporary:
       case RequestCategory.ProcessControl:
       case RequestCategory.ProcessAction: {
         const matchingNodeRouter: RequestRouter<AnyRequest> | undefined = this.routers[request.targetNodeId];

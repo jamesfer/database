@@ -1,7 +1,7 @@
 import { switchRouter } from '../../routing/utils/switch-router';
 import { KeyValueProcessAction, KeyValueProcessRequest } from '../../routing/requests/key-value-node-request';
 import { HashPartitionProcess } from './hash-partition-process';
-import { RPCInterface } from '../../types/rpc-interface';
+import { RpcInterface } from '../../rpc/rpc-interface';
 import { AnyRequest } from '../../routing/all-request-router';
 import {
   KeyValueConfigAddressedRequestAction, KeyValueConfigDropRequest,
@@ -13,7 +13,7 @@ import { RequestCategory } from '../../routing/types/request-category';
 import { RequestRouter } from '../../routing/types/request-router';
 
 export const hashPartitionProcessRouter = (
-  rpcInterface: RPCInterface<AnyRequest>,
+  rpcInterface: RpcInterface<AnyRequest>,
 ) => (
   process: HashPartitionProcess,
 ): RequestRouter<KeyValueProcessRequest> => switchRouter('action')<KeyValueProcessRequest>({
