@@ -3,7 +3,7 @@ import { RequestCategory } from './types/request-category';
 import { RpcInterface } from '../rpc/rpc-interface';
 import { ProcessManager } from '../core/process-manager';
 import { ProcessControlRequest, processControlRouter } from './process-control-router';
-import { allConfigAddressedRequestRouter } from './requests/config-addressed/all-config-addressed-request-router';
+import { configAddressedRequestRouter } from './requests/config-addressed/config-addressed-request-router';
 import { allProcessAddressedRequestRouter } from './requests/process-addressed/all-process-addressed-request-router';
 import { ConfigAddressedRequest } from './requests/config-addressed/config-addressed-request';
 import { ProcessAddressedRequest } from './requests/process-addressed/process-addressed-request';
@@ -32,7 +32,7 @@ const wrapWithDiagnostics = (requestRouter: RequestRouter<AnyRequest>): RequestR
   }
 }
 
-export const allRequestRouter = (
+export const unifiedRequestRouter = (
   nodeId: string,
   rpcInterface: RpcInterface<AnyRequest>,
   processManager: ProcessManager,
@@ -40,7 +40,7 @@ export const allRequestRouter = (
   distributedCommitLogFactory: DistributedCommitLogFactory<ConfigEntry>,
   nodes$: Observable<string[]>,
 ): RequestRouter<AnyRequest> => wrapWithDiagnostics(switchRouter('category')({
-  [RequestCategory.ConfigAction]: allConfigAddressedRequestRouter(rpcInterface, metadataManager),
+  [RequestCategory.ConfigAction]: configAddressedRequestRouter(rpcInterface, metadataManager),
   [RequestCategory.ProcessAction]: allProcessAddressedRequestRouter(nodeId, processManager, rpcInterface),
   [RequestCategory.ProcessControl]: processControlRouter(nodeId, rpcInterface, processManager),
   [RequestCategory.MetadataTemporary]: makeMetadataTemporaryRouter(

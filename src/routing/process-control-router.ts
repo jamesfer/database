@@ -2,16 +2,16 @@ import { RequestRouter } from './types/request-router';
 import { switchRouter } from './utils/switch-router';
 import { ProcessManager } from '../core/process-manager';
 import { uniqueId } from 'lodash';
-import {
-  SimpleMemoryKeyValueProcess
-} from '../components/simple-memory-key-value-datastore/simple-memory-key-value-process';
 import { BaseRequest } from './requests/base-request';
 import { RequestCategory } from './types/request-category';
 import { assertNever } from '../utils/assert-never';
 import { HashPartitionProcess } from '../components/hash-partition/hash-partition-process';
 import { FullyQualifiedPath } from '../config/config';
 import { RpcInterface } from '../rpc/rpc-interface';
-import { AnyRequest } from './all-request-router';
+import { AnyRequest } from './unified-request-router';
+import {
+  SimpleInMemoryKeyValueProcess
+} from '../components/simple-memory-key-value-datastore/simple-in-memory-key-value-process';
 
 export enum ProcessControlRequestAction {
   Spawn = 'Spawn',
@@ -55,7 +55,7 @@ export const processControlRouter = (
     const processId = uniqueId(request.payload.processClass)
     switch (request.payload.processClass) {
       case 'SimpleMemoryKeyValueDatastore':
-        processManager.register(processId, new SimpleMemoryKeyValueProcess());
+        processManager.register(processId, new SimpleInMemoryKeyValueProcess());
         break;
 
       case 'HashPartition':

@@ -1,6 +1,6 @@
 import { Refine } from '../types/refine';
 
-export type Key = string | number | symbol;
+export type Key = string | number;
 
 export const switchFunctionOnKey = <K extends Key>(
   switchKey: K,

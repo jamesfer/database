@@ -11,7 +11,7 @@ import { DistributedCommitLogFactory } from '../types/distributed-commit-log-fac
 import { ConfigEntry } from '../config/config-entry';
 import { ProcessManager } from '../core/process-manager';
 import { RpcInterface } from '../rpc/rpc-interface';
-import { AnyRequest } from './all-request-router';
+import { AnyRequest } from './unified-request-router';
 import { Observable } from 'rxjs';
 import { assertNever } from '../utils/assert-never';
 
@@ -27,6 +27,10 @@ function getMetadataDispatcher(
   return parentDispatcher;
 }
 
+/**
+ * This router handles the Put and Get requests on metadata entries themselves.
+ * It is designed to be temporary and will eventually be replaced by something else.
+ */
 export function makeMetadataTemporaryRouter(
   nodeId: string,
   metadataManager: MetadataManager,

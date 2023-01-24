@@ -1,11 +1,11 @@
 import { Observable } from 'rxjs';
-import { Refine } from '../../types/refine';
-import { ConfigEntry } from '../../config/config-entry';
-import { FullyQualifiedPath } from '../../config/config';
+import { Refine } from '../types/refine';
+import { ConfigEntry } from '../config/config-entry';
+import { FullyQualifiedPath } from '../config/config';
 
 export interface ConfigLifecycle<E extends ConfigEntry> {
   path: FullyQualifiedPath,
-  name: ConfigEntry['name'];
+  name: E['name'];
   events$: Observable<E>;
 }
 

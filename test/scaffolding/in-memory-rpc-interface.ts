@@ -3,7 +3,7 @@ import { Response } from '../../src/routing/types/response';
 import { RpcInterface } from '../../src/rpc/rpc-interface';
 import { RequestRouter } from '../../src/routing/types/request-router';
 import { RequestCategory } from '../../src/routing/types/request-category';
-import { AnyRequest } from '../../src/routing/all-request-router';
+import { AnyRequest } from '../../src/routing/unified-request-router';
 import { assertNever } from '../../src/utils/assert-never';
 
 export class InMemoryRpcInterface implements RpcInterface<AnyRequest> {

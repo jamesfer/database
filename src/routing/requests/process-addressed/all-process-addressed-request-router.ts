@@ -3,7 +3,7 @@ import { ProcessManager } from '../../../core/process-manager';
 import { ProcessAddressedRequest } from './process-addressed-request';
 import { lookupProcessAddressedRouter } from './lookup-process-addressed-router';
 import { RpcInterface } from '../../../rpc/rpc-interface';
-import { AnyRequest } from '../../all-request-router';
+import { AnyRequest } from '../../unified-request-router';
 
 export function allProcessAddressedRequestRouter(
   nodeId: string,
@@ -13,6 +13,7 @@ export function allProcessAddressedRequestRouter(
   const lookupRouter = lookupProcessAddressedRouter(rpcInterface);
 
   return async (request) => {
+    console.log(request);
     // Assert that this is the correct node
     if (request.targetNodeId !== nodeId) {
       throw new Error(`Request arrived at the wrong node. Current node: ${nodeId}, expected node: ${request.targetNodeId}`);

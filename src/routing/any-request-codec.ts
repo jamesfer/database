@@ -1,5 +1,5 @@
 import { Codec } from '../types/codec';
-import { AnyRequest } from './all-request-router';
+import { AnyRequest } from './unified-request-router';
 
 export class AnyRequestCodec implements Codec<AnyRequest, string> {
   async serialize(value: AnyRequest): Promise<string> {

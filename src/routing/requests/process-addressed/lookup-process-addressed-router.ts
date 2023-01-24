@@ -1,5 +1,5 @@
 import { RpcInterface } from '../../../rpc/rpc-interface';
-import { AnyRequest } from '../../all-request-router';
+import { AnyRequest } from '../../unified-request-router';
 import { RequestRouter } from '../../types/request-router';
 import { Refine } from '../../../types/refine';
 import { ProcessAddressedRequest } from './process-addressed-request';
@@ -8,8 +8,8 @@ import { ProcessType } from '../../../processes/process-type';
 import { ProcessAddressedGroupName } from './base-process-addressed-request';
 import { hashPartitionProcessRouter } from '../../../components/hash-partition/hash-partition-process-router';
 import {
-  simpleMemoryKeyValueProcessRouter
-} from '../../../components/simple-memory-key-value-datastore/simple-memory-key-value-process-router';
+  simpleInMemoryKeyValueProcessRouter
+} from '../../../components/simple-memory-key-value-datastore/simple-in-memory-key-value-process-router';
 
 type ProcessAddressedRouter<P extends Process, R extends ProcessAddressedRequest> = (process: P) => RequestRouter<R>;
 
@@ -29,7 +29,7 @@ function createRouterLookup(
       [ProcessAddressedGroupName.KeyValue]: hashPartitionProcessRouter(rpcInterface),
     },
     [ProcessType.SimpleMemoryKeyValue]: {
-      [ProcessAddressedGroupName.KeyValue]: simpleMemoryKeyValueProcessRouter,
+      [ProcessAddressedGroupName.KeyValue]: simpleInMemoryKeyValueProcessRouter,
     },
   };
 }

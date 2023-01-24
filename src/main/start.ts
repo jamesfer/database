@@ -1,13 +1,12 @@
 import { ProcessManager } from '../core/process-manager';
 import { ClusterNode, Options } from './options';
 import { MetadataManager } from '../core/metadata-state/metadata-manager';
-import { allRequestRouter, AnyRequest } from '../routing/all-request-router';
+import { unifiedRequestRouter, AnyRequest } from '../routing/unified-request-router';
 import { ConfigEntry } from '../config/config-entry';
 import { NaiveRPCCommitLogFactory } from '../core/commit-log/naive-rpc-commit-log-factory';
 import { ConfigEntryCodec } from '../core/commit-log/config-entry-codec';
 import { HttpRpcClient, HttpUrlResolver, LOCAL } from '../rpc/http-rpc-client';
 import { NaiveRpcCommitLogRequestCodec } from '../core/commit-log/naive-rpc-commit-log-request-codec';
-import { Codec } from '../types/codec';
 import { RequestCategory } from '../routing/types/request-category';
 import { StaticMembershipList } from '../membership/membership-list';
 import { keyBy } from 'lodash';
@@ -108,7 +107,7 @@ export async function start(options: Options): Promise<() => Promise<void>> {
 
   // Apis
   const rpcClientWrapper = new RpcClientWrapper<AnyRequest>();
-  const router = allRequestRouter(
+  const router = unifiedRequestRouter(
     options.nodeId,
     rpcClientWrapper,
     processManager,

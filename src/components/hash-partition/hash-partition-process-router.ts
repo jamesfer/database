@@ -2,7 +2,7 @@ import { switchRouter } from '../../routing/utils/switch-router';
 import { KeyValueProcessAction, KeyValueProcessRequest } from '../../routing/requests/key-value-node-request';
 import { HashPartitionProcess } from './hash-partition-process';
 import { RpcInterface } from '../../rpc/rpc-interface';
-import { AnyRequest } from '../../routing/all-request-router';
+import { AnyRequest } from '../../routing/unified-request-router';
 import {
   KeyValueConfigAddressedRequestAction, KeyValueConfigDropRequest,
   KeyValueConfigGetRequest,

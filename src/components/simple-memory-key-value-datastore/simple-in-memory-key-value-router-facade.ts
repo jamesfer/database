@@ -1,41 +1,48 @@
 import {
+  KeyValueConfigAddressedRequest,
+  KeyValueConfigAddressedRequestAction
+} from '../../routing/requests/key-value-config-addressed-request';
+import {
   KeyValueProcessAction,
   KeyValueProcessDropRequest,
   KeyValueProcessGetRequest,
   KeyValueProcessPutRequest
 } from '../../routing/requests/key-value-node-request';
 import { RequestCategory } from '../../routing/types/request-category';
-import { RequestRouter } from '../../routing/types/request-router';
-import { KeyValueConfigAddressedRequestAction, KeyValueConfigAddressedRequest } from '../../routing/requests/key-value-config-addressed-request';
-import { RpcInterface } from '../../rpc/rpc-interface';
-import { AnyRequest } from '../../routing/all-request-router';
-import { SimpleMemoryKeyValueEntry } from './simple-memory-key-value-entry';
-import { assertNever } from '../../utils/assert-never';
 import { ProcessAddressedGroupName } from '../../routing/requests/process-addressed/base-process-addressed-request';
-import { ConfigEntryName } from '../../config/config-entry-name';
-import { FullyQualifiedPath } from '../../config/config';
-import { MetadataManager } from '../../core/metadata-state/metadata-manager';
+import { assertNever } from '../../utils/assert-never';
+import { SimpleInMemoryKeyValueConfiguration } from './simple-in-memory-key-value-configuration';
+import {
+  KeyValueConfigRequestRouterContext,
+  KeyValueConfigRequestRouterFacade
+} from '../../facades/key-value-config-request-handler';
+import { Response } from '../../routing/types/response';
+import { assert } from '../../utils/assert';
+import { ComponentName } from '../scaffolding/component-name';
 
-export function simpleMemoryKeyValueEntryRouter(
-  rpcInterface: RpcInterface<AnyRequest>,
-  metadataManager: MetadataManager,
-): (path: FullyQualifiedPath, config: SimpleMemoryKeyValueEntry) => RequestRouter<KeyValueConfigAddressedRequest> {
-  return (path, config) => async (request) => {
+export const simpleMemoryKeyValueRouterFacade: KeyValueConfigRequestRouterFacade<SimpleInMemoryKeyValueConfiguration> = {
+  async handleKeyValueConfigRequest(
+    context: KeyValueConfigRequestRouterContext,
+    request: KeyValueConfigAddressedRequest,
+    config: SimpleInMemoryKeyValueConfiguration
+  ): Promise<Response> {
     // Look up internal config
-    const internalPath = [...path, 'internal'];
-    const metadataDispatcher = await metadataManager.getClosestDispatcherMatching(internalPath);
-    if (!metadataDispatcher) {
-      throw new Error(`Node does not have a MetadataDispatcher matching path: ${internalPath.join(', ')}`)
-    }
+    const internalPath = [...request.target, 'internal'];
+    const metadataDispatcher = await context.metadataManager.getClosestDispatcherMatching(internalPath);
+    assert(
+      metadataDispatcher,
+      `Node does not have a MetadataDispatcher matching path: ${internalPath.join(', ')}`,
+    );
 
-    const internalConfig = await metadataDispatcher.getEntryAs(internalPath, ConfigEntryName.SimpleMemoryKeyValueInternal);
-    if (!internalConfig) {
-      throw new Error('SimpleMemoryKeyValue internal config does not exist');
-    }
-
-    if (!internalConfig.remoteProcess) {
-      throw new Error('SimpleMemoryKeyValue remote process is not ready yet');
-    }
+    const internalConfig = await metadataDispatcher.getEntryAs(internalPath, ComponentName.SimpleMemoryKeyValueInternal);
+    assert(
+      internalConfig,
+      'SimpleMemoryKeyValue internal config does not exist',
+    );
+    assert(
+      internalConfig.remoteProcess,
+      'SimpleMemoryKeyValue remote process is not ready yet'
+    )
 
     switch (request.action) {
       case KeyValueConfigAddressedRequestAction.Get: {
@@ -47,7 +54,7 @@ export function simpleMemoryKeyValueEntryRouter(
           targetProcessId: internalConfig.remoteProcess.processId,
           key: request.key,
         };
-        return rpcInterface.makeRequest(processRequest);
+        return context.rpcInterface.makeRequest(processRequest);
       }
 
       case KeyValueConfigAddressedRequestAction.Put: {
@@ -60,7 +67,7 @@ export function simpleMemoryKeyValueEntryRouter(
           key: request.key,
           value: request.value,
         };
-        await rpcInterface.makeRequest(processRequest);
+        await context.rpcInterface.makeRequest(processRequest);
         break;
       }
 
@@ -73,12 +80,12 @@ export function simpleMemoryKeyValueEntryRouter(
           targetProcessId: internalConfig.remoteProcess.processId,
           key: request.key,
         };
-        await rpcInterface.makeRequest(processRequest);
+        await context.rpcInterface.makeRequest(processRequest);
         break;
       }
 
       default:
         assertNever(request);
     }
-  };
-}
+  }
+};

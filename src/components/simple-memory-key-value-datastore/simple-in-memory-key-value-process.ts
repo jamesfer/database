@@ -1,7 +1,7 @@
 import { BaseProcess } from '../../processes/base-process';
 import { ProcessType } from '../../processes/process-type';
 
-export class SimpleMemoryKeyValueProcess extends BaseProcess<ProcessType.SimpleMemoryKeyValue> {
+export class SimpleInMemoryKeyValueProcess extends BaseProcess<ProcessType.SimpleMemoryKeyValue> {
   public readonly type = ProcessType.SimpleMemoryKeyValue;
 
   private readonly storage: Map<string, string> = new Map();
