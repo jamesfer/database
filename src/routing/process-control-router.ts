@@ -6,7 +6,7 @@ import { BaseRequest } from './requests/base-request';
 import { RequestCategory } from './types/request-category';
 import { assertNever } from '../utils/assert-never';
 import { HashPartitionProcess } from '../components/hash-partition/hash-partition-process';
-import { FullyQualifiedPath } from '../config/config';
+import { FullyQualifiedPath } from '../core/metadata-state/config';
 import { RpcInterface } from '../rpc/rpc-interface';
 import { AnyRequest } from './unified-request-router';
 import {

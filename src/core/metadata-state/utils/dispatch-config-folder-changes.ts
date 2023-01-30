@@ -1,4 +1,4 @@
-import { ConfigFolder, ConfigFolderItem, FullyQualifiedPath } from '../../../config/config';
+import { ConfigFolder, ConfigFolderItem, FullyQualifiedPath } from '../config';
 import { Observable, Subject } from 'rxjs';
 import { concatMap, ignoreElements, mergeMap, pairwise, startWith } from 'rxjs/operators';
 import { AllComponentsLookup } from '../../../components/scaffolding/all-components-lookup';

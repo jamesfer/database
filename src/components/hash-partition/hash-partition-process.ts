@@ -1,4 +1,4 @@
-import { FullyQualifiedPath } from '../../config/config';
+import { FullyQualifiedPath } from '../../core/metadata-state/config';
 import { RpcInterface } from '../../rpc/rpc-interface';
 import { AnyRequest } from '../../routing/unified-request-router';
 import { BaseProcess } from '../../processes/base-process';

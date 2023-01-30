@@ -1,4 +1,4 @@
-import { FullyQualifiedPath } from '../../config/config';
+import { FullyQualifiedPath } from './config';
 import { MetadataDispatcher } from './metadata-dispatcher';
 
 class Trie<T> {

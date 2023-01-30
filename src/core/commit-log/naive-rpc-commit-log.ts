@@ -1,6 +1,6 @@
 import { DistributedCommitLogInterface } from '../../types/distributed-commit-log-interface';
 import { Observable, Unsubscribable } from 'rxjs';
-import { FullyQualifiedPath } from '../../config/config';
+import { FullyQualifiedPath } from '../metadata-state/config';
 import { InternalNaiveRpcCommitLog } from './internal-naive-rpc-commit-log';
 import { RpcInterface } from '../../rpc/rpc-interface';
 import { NaiveRpcCommitLogRequest } from './naive-rpc-commit-log-request';

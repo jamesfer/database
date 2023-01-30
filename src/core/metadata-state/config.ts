@@ -1,4 +1,4 @@
-import { AllComponentConfigurations } from '../components/scaffolding/all-component-configurations';
+import { AllComponentConfigurations } from '../../components/scaffolding/all-component-configurations';
 
 export type FullyQualifiedPath = string[];
 

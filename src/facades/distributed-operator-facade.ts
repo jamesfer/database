@@ -3,7 +3,7 @@ import { ProcessManager } from '../core/process-manager';
 import { MetadataDispatcherInterface } from '../types/metadata-dispatcher-interface';
 import { RpcInterface } from '../rpc/rpc-interface';
 import { AnyRequest } from '../routing/unified-request-router';
-import { FullyQualifiedPath } from '../config/config';
+import { FullyQualifiedPath } from '../core/metadata-state/config';
 import { AllComponentConfigurations } from '../components/scaffolding/all-component-configurations';
 
 export const DISTRIBUTED_OPERATOR_FACADE_NAME = 'OPERATOR_FACADE' as const;

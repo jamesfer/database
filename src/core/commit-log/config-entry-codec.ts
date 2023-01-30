@@ -1,4 +1,3 @@
-import { ConfigEntry } from '../../config/config-entry';
 import { Codec } from '../../types/codec';
 import { AllComponentsLookup } from '../../components/scaffolding/all-components-lookup';
 import { assert } from '../../utils/assert';

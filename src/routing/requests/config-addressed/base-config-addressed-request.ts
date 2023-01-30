@@ -1,6 +1,6 @@
 import { RequestCategory } from '../../types/request-category';
 import { BaseRequest } from '../base-request';
-import { FullyQualifiedPath } from '../../../config/config';
+import { FullyQualifiedPath } from '../../../core/metadata-state/config';
 
 export enum ConfigAddressedGroupName {
   KeyValue = 'KeyValue',

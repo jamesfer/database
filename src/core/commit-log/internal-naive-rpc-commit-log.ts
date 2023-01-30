@@ -1,7 +1,7 @@
 import { DistributedCommitLogInterface } from '../../types/distributed-commit-log-interface';
 import { NaiveRpcCommitLogRequest } from './naive-rpc-commit-log-request';
 import { RpcInterface } from '../../rpc/rpc-interface';
-import { FullyQualifiedPath } from '../../config/config';
+import { FullyQualifiedPath } from '../metadata-state/config';
 import { concat, NEVER, of, Subject, Unsubscribable } from 'rxjs';
 import { SequentialTaskExecutor } from './sequential-task-executor';
 

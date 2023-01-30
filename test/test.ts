@@ -16,7 +16,6 @@ import {
 import { BehaviorSubject } from 'rxjs';
 import { ConfigAddressedGroupName } from '../src/routing/requests/config-addressed/base-config-addressed-request';
 import { MetadataManager } from '../src/core/metadata-state/metadata-manager';
-import { ConfigEntry } from '../src/config/config-entry';
 import { MetadataTemporaryAction } from '../src/routing/requests/metadata-temporary-request';
 import {
   SimpleInMemoryKeyValueConfiguration
@@ -27,12 +26,13 @@ import { start } from '../src/main/start';
 import { AnyRequestCodec } from '../src/routing/any-request-codec';
 import fetch from 'node-fetch';
 import { ConfigEntryCodec } from '../src/core/commit-log/config-entry-codec';
+import { AllComponentConfigurations } from '../src/components/scaffolding/all-component-configurations';
 
 describe('database', () => {
   it('runs a simple scenario with the in memory links', async () => {
     // Create test specific in memory components
     const distributedMetadataHub = new InMemoryCommitLogHub('node0');
-    const distributedCommitLogFactory: DistributedCommitLogFactory<ConfigEntry> = {
+    const distributedCommitLogFactory: DistributedCommitLogFactory<AllComponentConfigurations> = {
       async createDistributedCommitLog(nodeId: string): Promise<InMemoryCommitLog> {
         return new InMemoryCommitLog(nodeId, distributedMetadataHub);
       }

@@ -5,8 +5,7 @@ import {
   ConfigFolder,
   ConfigFolderItem,
   FullyQualifiedPath
-} from '../../../config/config';
-import { ConfigEntry } from '../../../config/config-entry';
+} from '../config';
 import { AllComponentConfigurations } from '../../../components/scaffolding/all-component-configurations';
 
 function updateConfigFolderItem(

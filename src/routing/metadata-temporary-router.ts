@@ -5,7 +5,7 @@ import {
 } from './requests/metadata-temporary-request';
 import { MetadataManager } from '../core/metadata-state/metadata-manager';
 import { MetadataDispatcher } from '../core/metadata-state/metadata-dispatcher';
-import { FullyQualifiedPath } from '../config/config';
+import { FullyQualifiedPath } from '../core/metadata-state/config';
 import { ConfigEntryCodec } from '../core/commit-log/config-entry-codec';
 import { DistributedCommitLogFactory } from '../types/distributed-commit-log-factory';
 import { ProcessManager } from '../core/process-manager';

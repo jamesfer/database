@@ -1,4 +1,4 @@
-import { FullyQualifiedPath } from '../../config/config';
+import { FullyQualifiedPath } from '../metadata-state/config';
 
 export interface NaiveRpcCommitLogRequest<T> {
   nodeId: string;

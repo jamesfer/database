@@ -1,4 +1,4 @@
-import { FullyQualifiedPath } from '../config/config';
+import { FullyQualifiedPath } from '../core/metadata-state/config';
 import { ComponentName } from '../components/scaffolding/component-name';
 import { AllComponentConfigurations } from '../components/scaffolding/all-component-configurations';
 import { Refine } from './refine';

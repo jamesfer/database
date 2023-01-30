@@ -4,7 +4,7 @@ import { ProcessManager } from '../process-manager';
 import { reduceConfigEntriesToConfig } from './utils/reduce-config-entries-to-config';
 import { RpcInterface } from '../../rpc/rpc-interface';
 import { AnyRequest } from '../../routing/unified-request-router';
-import { Config, ConfigFolder, FullyQualifiedPath } from '../../config/config';
+import { Config, ConfigFolder, FullyQualifiedPath } from './config';
 import { dispatchConfigFolderChanges } from './utils/dispatch-config-folder-changes';
 import { MetadataDispatcherInterface } from '../../types/metadata-dispatcher-interface';
 import { DistributedCommitLogInterface } from '../../types/distributed-commit-log-interface';

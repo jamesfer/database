@@ -1,5 +1,5 @@
 import { Observable } from 'rxjs';
-import { FullyQualifiedPath } from '../config/config';
+import { FullyQualifiedPath } from '../core/metadata-state/config';
 
 export interface DistributedCommitLogInterface<T> {
   readonly commits$: Observable<[FullyQualifiedPath, T]>;

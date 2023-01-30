@@ -1,4 +1,4 @@
-import { FullyQualifiedPath } from '../../config/config';
+import { FullyQualifiedPath } from '../../core/metadata-state/config';
 import { RequestCategory } from '../types/request-category';
 import { BaseRequest } from './base-request';
 

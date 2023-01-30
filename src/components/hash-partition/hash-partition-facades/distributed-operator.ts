@@ -10,7 +10,7 @@ import { HashPartitionDetails, HashPartitionInternalConfiguration } from '../has
 import { ComponentName } from '../../scaffolding/component-name';
 import { RpcInterface } from '../../../rpc/rpc-interface';
 import { AnyRequest } from '../../../routing/unified-request-router';
-import { FullyQualifiedPath } from '../../../config/config';
+import { FullyQualifiedPath } from '../../../core/metadata-state/config';
 import { AllComponentsLookup } from '../../scaffolding/all-components-lookup';
 import { EQUALS_FACADE_NAME, EqualsFacade } from '../../../facades/equals-facade';
 import { assert } from '../../../utils/assert';
