@@ -1,7 +1,8 @@
 import { RpcInterface } from './rpc-interface';
 import { Response } from '../routing/types/response';
+import { BaseRequest } from '../routing/requests/base-request';
 
-export class RpcClientWrapper<R> implements RpcInterface<R> {
+export class RpcClientWrapper<R extends BaseRequest> implements RpcInterface<R> {
   private rpcClient: RpcInterface<R> | undefined;
 
   async makeRequest(request: R): Promise<Response> {

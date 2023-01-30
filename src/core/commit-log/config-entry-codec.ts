@@ -3,6 +3,7 @@ import { Codec } from '../../types/codec';
 import { AllComponentsLookup } from '../../components/scaffolding/all-components-lookup';
 import { assert } from '../../utils/assert';
 import { SERIALIZABLE_FACADE_FLAG } from '../../facades/serializable-facade';
+import { AllComponentConfigurations } from '../../components/scaffolding/all-component-configurations';
 
 // interface SimpleMemoryKeyValueSerializableRepresentation {
 //   name: ConfigEntryName.SimpleMemoryKeyValue;
@@ -30,8 +31,8 @@ import { SERIALIZABLE_FACADE_FLAG } from '../../facades/serializable-facade';
 //   // | HashPartitionSerializableRepresentation
 //   // | HashPartitionInternalSerializableRepresentation;
 
-export class ConfigEntryCodec implements Codec<ConfigEntry, string> {
-  async serialize(value: ConfigEntry): Promise<string> {
+export class ConfigEntryCodec implements Codec<AllComponentConfigurations, string> {
+  async serialize(value: AllComponentConfigurations): Promise<string> {
     const component = AllComponentsLookup[value.NAME];
     assert(
       SERIALIZABLE_FACADE_FLAG in component.FACADES,
@@ -42,7 +43,7 @@ export class ConfigEntryCodec implements Codec<ConfigEntry, string> {
     return serializer.serialize(value as any);
   }
 
-  async deserialize(serialized: string): Promise<ConfigEntry | undefined> {
+  async deserialize(serialized: string): Promise<AllComponentConfigurations | undefined> {
     // This is a kind of inefficient way to deserialize things, but for now, it's the best we have.
     for (const component of Object.values(AllComponentsLookup)) {
       if (SERIALIZABLE_FACADE_FLAG in component.FACADES) {

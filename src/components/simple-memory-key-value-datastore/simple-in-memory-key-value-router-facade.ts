@@ -42,7 +42,7 @@ export const simpleMemoryKeyValueRouterFacade: KeyValueConfigRequestRouterFacade
     assert(
       internalConfig.remoteProcess,
       'SimpleMemoryKeyValue remote process is not ready yet'
-    )
+    );
 
     switch (request.action) {
       case KeyValueConfigAddressedRequestAction.Get: {

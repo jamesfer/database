@@ -7,14 +7,14 @@ import { ConfigAddressedGroupName } from './base-config-addressed-request';
 import { KEY_VALUE_CONFIG_REQUEST_ROUTER_FACADE_NAME } from '../../../facades/key-value-config-request-handler';
 import { Response } from '../../types/response';
 import { assertNever } from '../../../utils/assert-never';
-import { ConfigEntry } from '../../../config/config-entry';
 import { AllComponentsLookup } from '../../../components/scaffolding/all-components-lookup';
+import { AllComponentConfigurations } from '../../../components/scaffolding/all-component-configurations';
 
 async function handleRequestOnConfig(
   rpcInterface: RpcInterface<AnyRequest>,
   metadataManager: MetadataManager,
   request: ConfigAddressedRequest,
-  config: ConfigEntry,
+  config: AllComponentConfigurations,
 ): Promise<Response> {
   switch (request.group) {
     case ConfigAddressedGroupName.KeyValue: {

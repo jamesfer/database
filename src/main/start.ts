@@ -2,7 +2,6 @@ import { ProcessManager } from '../core/process-manager';
 import { ClusterNode, Options } from './options';
 import { MetadataManager } from '../core/metadata-state/metadata-manager';
 import { unifiedRequestRouter, AnyRequest } from '../routing/unified-request-router';
-import { ConfigEntry } from '../config/config-entry';
 import { NaiveRPCCommitLogFactory } from '../core/commit-log/naive-rpc-commit-log-factory';
 import { ConfigEntryCodec } from '../core/commit-log/config-entry-codec';
 import { HttpRpcClient, HttpUrlResolver, LOCAL } from '../rpc/http-rpc-client';
@@ -17,6 +16,8 @@ import { NaiveRpcCommitLogRequest } from '../core/commit-log/naive-rpc-commit-lo
 import { RpcInterface } from '../rpc/rpc-interface';
 import { Unsubscribable } from 'rxjs';
 import { AnyRequestCodec } from '../routing/any-request-codec';
+import { AllComponentConfigurations } from '../components/scaffolding/all-component-configurations';
+import { assert } from '../utils/assert';
 
 function makeMetadataHttpHostResolver<T>(
   thisNodeId: string,
@@ -37,9 +38,9 @@ async function makeNaiveDistributedMetadataFactory(
   leaderNode: ClusterNode,
   clusterNodes: { [k: string]: ClusterNode },
 ) {
-  const codec = new NaiveRpcCommitLogRequestCodec<ConfigEntry>(new ConfigEntryCodec());
-  const naiveRpcCommitLogRpcFactory = new class implements RpcClientFactoryInterface<NaiveRpcCommitLogRequest<ConfigEntry>> {
-    createRpcClient(router: RequestRouter<NaiveRpcCommitLogRequest<ConfigEntry>>): Promise<RpcInterface<NaiveRpcCommitLogRequest<ConfigEntry>> & Unsubscribable> {
+  const codec = new NaiveRpcCommitLogRequestCodec<AllComponentConfigurations>(new ConfigEntryCodec());
+  const naiveRpcCommitLogRpcFactory = new class implements RpcClientFactoryInterface<NaiveRpcCommitLogRequest<AllComponentConfigurations>> {
+    createRpcClient(router: RequestRouter<NaiveRpcCommitLogRequest<AllComponentConfigurations>>): Promise<RpcInterface<NaiveRpcCommitLogRequest<AllComponentConfigurations>> & Unsubscribable> {
       return HttpRpcClient.initialize(
         codec,
         codec,
@@ -49,7 +50,7 @@ async function makeNaiveDistributedMetadataFactory(
       );
     }
   };
-  return new NaiveRPCCommitLogFactory<ConfigEntry>(
+  return new NaiveRPCCommitLogFactory<AllComponentConfigurations>(
     naiveRpcCommitLogRpcFactory,
     thisNode.nodeId,
     leaderNode.nodeId,
@@ -68,7 +69,8 @@ function makeGeneralHttpHostResolver(
       return LOCAL;
     }
 
-    const targetNode = clusterNodes[targetNodeId];
+    const targetNode: ClusterNode | undefined = clusterNodes[targetNodeId];
+    assert(targetNode, `Target node with id ${targetNodeId} does not exist. Request category: ${request.category}, request target node: ${(request as any).targetNodeId}, leader id: ${leaderId}`);
     return `http://${targetNode.host}:${targetNode.generalRpcPort}`;
   };
 }

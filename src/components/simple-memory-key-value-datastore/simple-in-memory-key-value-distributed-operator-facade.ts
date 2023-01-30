@@ -10,10 +10,10 @@ import { AllComponentConfigurations } from '../scaffolding/all-component-configu
 import { ComponentName } from '../scaffolding/component-name';
 
 export const simpleInMemoryKeyValueDistributedOperatorFacade: DistributedOperatorFacade<SimpleInMemoryKeyValueConfiguration> = {
-  distributedOperatorFunction: (
+  distributedOperatorFunction(
     { nodes$, metadataDispatcher, rpcInterface },
     { events$, path },
-  ): Observable<void> => {
+  ): Observable<void> {
     return events$.pipe(
       withLatestFrom(nodes$),
       concatMap(async ([config, nodes]) => {

@@ -7,11 +7,12 @@ import {
   FullyQualifiedPath
 } from '../../../config/config';
 import { ConfigEntry } from '../../../config/config-entry';
+import { AllComponentConfigurations } from '../../../components/scaffolding/all-component-configurations';
 
 function updateConfigFolderItem(
   existingFolderItem: ConfigFolderItem | undefined,
   path: FullyQualifiedPath,
-  newEntry: ConfigEntry,
+  newEntry: AllComponentConfigurations,
 ): ConfigFolderItem {
   const [nextPathSegment, ...remainingPath] = path;
 
@@ -45,7 +46,7 @@ function updateConfigFolder(
   existingFolder: ConfigFolder,
   pathSegment: string,
   remainingPath: FullyQualifiedPath,
-  newEntry: ConfigEntry,
+  newEntry: AllComponentConfigurations,
 ): ConfigFolder {
   return new ConfigFolder({
     ...existingFolder.entries,
@@ -53,7 +54,7 @@ function updateConfigFolder(
   })
 }
 
-function updateConfig(existingConfig: Config, [newPath, newEntry]: [FullyQualifiedPath, ConfigEntry]): Config {
+function updateConfig(existingConfig: Config, [newPath, newEntry]: [FullyQualifiedPath, AllComponentConfigurations]): Config {
   const [nextPathSegment, ...remainingPath] = newPath;
   if (!nextPathSegment) {
     throw new Error('Cannot update the root entry of the config');
@@ -68,7 +69,7 @@ function updateConfig(existingConfig: Config, [newPath, newEntry]: [FullyQualifi
 }
 
 export function reduceConfigEntriesToConfig(
-  configEntries$: Observable<[FullyQualifiedPath, ConfigEntry]>,
+  configEntries$: Observable<[FullyQualifiedPath, AllComponentConfigurations]>,
 ): Observable<Config> {
   return configEntries$.pipe(scan(updateConfig, Config.empty()));
 }

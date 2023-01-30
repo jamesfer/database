@@ -54,11 +54,7 @@ export class HttpRpcClient<I, O extends I> implements RpcInterface<O>, Unsubscri
     return new HttpRpcClient<I, O>(codecI, codecO, httpListenPort, httpUrlResolver, router);
   }
 
-  private readonly apiTeardownLogic = new Subscription().add(buildApiWithRouter(
-    this.httpListenPort,
-    this.codecI,
-    this.router,
-  ));
+  private readonly apiTeardownLogic = new Subscription();
 
   private constructor(
     private readonly codecI: Codec<I, string>,
@@ -66,7 +62,13 @@ export class HttpRpcClient<I, O extends I> implements RpcInterface<O>, Unsubscri
     private readonly httpListenPort: number,
     private readonly httpUrlResolver: HttpUrlResolver<O>,
     private readonly router: RequestRouter<I>,
-  ) {}
+  ) {
+    this.apiTeardownLogic.add(buildApiWithRouter(
+      this.httpListenPort,
+      this.codecI,
+      this.router,
+    ));
+  }
 
   unsubscribe(): void {
     this.apiTeardownLogic.unsubscribe();

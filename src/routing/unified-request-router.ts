@@ -11,9 +11,9 @@ import { MetadataTemporaryRequest } from './requests/metadata-temporary-request'
 import { makeMetadataTemporaryRouter } from './metadata-temporary-router';
 import { MetadataManager } from '../core/metadata-state/metadata-manager';
 import { DistributedCommitLogFactory } from '../types/distributed-commit-log-factory';
-import { ConfigEntry } from '../config/config-entry';
 import { Observable } from 'rxjs';
 import { RequestRouter } from './types/request-router';
+import { AllComponentConfigurations } from '../components/scaffolding/all-component-configurations';
 
 export type AnyRequest =
   | ConfigAddressedRequest
@@ -27,7 +27,7 @@ const wrapWithDiagnostics = (requestRouter: RequestRouter<AnyRequest>): RequestR
     // console.log('[DiagnosticMiddleware] response', response);
     return response;
   } catch (error) {
-    // console.log('[DiagnosticMiddleware] error', error.toString(), (error as any).stack);
+    console.log('[DiagnosticMiddleware] error', (error as any).toString(), (error as any).stack);
     throw error;
   }
 }
@@ -37,7 +37,7 @@ export const unifiedRequestRouter = (
   rpcInterface: RpcInterface<AnyRequest>,
   processManager: ProcessManager,
   metadataManager: MetadataManager,
-  distributedCommitLogFactory: DistributedCommitLogFactory<ConfigEntry>,
+  distributedCommitLogFactory: DistributedCommitLogFactory<AllComponentConfigurations>,
   nodes$: Observable<string[]>,
 ): RequestRouter<AnyRequest> => wrapWithDiagnostics(switchRouter('category')({
   [RequestCategory.ConfigAction]: configAddressedRequestRouter(rpcInterface, metadataManager),

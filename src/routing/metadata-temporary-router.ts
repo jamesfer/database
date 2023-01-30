@@ -8,12 +8,15 @@ import { MetadataDispatcher } from '../core/metadata-state/metadata-dispatcher';
 import { FullyQualifiedPath } from '../config/config';
 import { ConfigEntryCodec } from '../core/commit-log/config-entry-codec';
 import { DistributedCommitLogFactory } from '../types/distributed-commit-log-factory';
-import { ConfigEntry } from '../config/config-entry';
 import { ProcessManager } from '../core/process-manager';
 import { RpcInterface } from '../rpc/rpc-interface';
 import { AnyRequest } from './unified-request-router';
 import { Observable } from 'rxjs';
 import { assertNever } from '../utils/assert-never';
+import { AllComponentsLookup, componentConfigurationImplements } from '../components/scaffolding/all-components-lookup';
+import { SERIALIZABLE_FACADE_FLAG, SerializableFacade } from '../facades/serializable-facade';
+import { assert } from '../utils/assert';
+import { AllComponentConfigurations } from '../components/scaffolding/all-component-configurations';
 
 function getMetadataDispatcher(
   metadataManager: MetadataManager,
@@ -34,7 +37,7 @@ function getMetadataDispatcher(
 export function makeMetadataTemporaryRouter(
   nodeId: string,
   metadataManager: MetadataManager,
-  distributedCommitLogFactory: DistributedCommitLogFactory<ConfigEntry>,
+  distributedCommitLogFactory: DistributedCommitLogFactory<AllComponentConfigurations>,
   processManager: ProcessManager,
   rpcInterface: RpcInterface<AnyRequest>,
   nodes$: Observable<string[]>,
@@ -45,7 +48,16 @@ export function makeMetadataTemporaryRouter(
     switch (request.action) {
       case MetadataTemporaryAction.Get: {
         const entry = await getMetadataDispatcher(metadataManager, request.path).getEntry(request.path);
-        return entry ? new ConfigEntryCodec().serialize(entry) : '';
+        if (!entry) {
+          return '';
+        }
+
+        assert(
+          componentConfigurationImplements([SERIALIZABLE_FACADE_FLAG], entry),
+          `Cannot return ${entry.NAME} component as it does not implement the serializable facade`,
+        );
+        const serializer: SerializableFacade<AllComponentConfigurations> = AllComponentsLookup[entry.NAME].FACADES[SERIALIZABLE_FACADE_FLAG];
+        return serializer.serialize(entry);
       }
 
       case MetadataTemporaryAction.Put: {
