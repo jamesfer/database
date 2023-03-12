@@ -3,8 +3,8 @@ import { Response } from '../../src/routing/types/response';
 import { RpcInterface } from '../../src/rpc/rpc-interface';
 import { RequestRouter } from '../../src/routing/types/request-router';
 import { RequestCategory } from '../../src/routing/types/request-category';
-import { AnyRequest } from '../../src/routing/unified-request-router';
 import { assertNever } from '../../src/utils/assert-never';
+import { AnyRequest } from '../../src/routing/requests/any-request';
 
 export class InMemoryRpcInterface implements RpcInterface<AnyRequest> {
   private routers: { [k: string]: RequestRouter<AnyRequest> } = {};
@@ -15,7 +15,6 @@ export class InMemoryRpcInterface implements RpcInterface<AnyRequest> {
 
   async makeRequest(request: AnyRequest): Promise<Response> {
     switch (request.category) {
-      case RequestCategory.MetadataTemporary:
       case RequestCategory.ProcessControl:
       case RequestCategory.ProcessAction: {
         const matchingNodeRouter: RequestRouter<AnyRequest> | undefined = this.routers[request.targetNodeId];
@@ -26,6 +25,7 @@ export class InMemoryRpcInterface implements RpcInterface<AnyRequest> {
         return matchingNodeRouter(request);
       }
 
+      case RequestCategory.MetadataTemporary:
       case RequestCategory.ConfigAction: {
         // Pick a random router
         const router = sample(this.routers);

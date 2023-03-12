@@ -3,4 +3,6 @@ export enum ComponentName {
   SimpleMemoryKeyValueInternal = 'SimpleMemoryKeyValueInternal',
   HashPartition = 'HashPartition',
   HashPartitionInternal = 'HashPartitionInternal',
+  TransformationRunner = 'TransformationRunner',
+  TransformationRunnerInternal = 'TransformationRunnerInternal',
 }

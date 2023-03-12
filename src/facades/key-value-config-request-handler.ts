@@ -1,9 +1,9 @@
 import { RpcInterface } from '../rpc/rpc-interface';
-import { AnyRequest } from '../routing/unified-request-router';
-import { KeyValueConfigAddressedRequest } from '../routing/requests/key-value-config-addressed-request';
+import { KeyValueConfigAddressedRequest } from '../routing/requests/config-addressed/key-value-config-addressed-request';
 import { MetadataManager } from '../core/metadata-state/metadata-manager';
 import { Response } from '../routing/types/response';
 import { AllComponentConfigurations } from '../components/scaffolding/all-component-configurations';
+import { AnyRequest } from '../routing/requests/any-request';
 
 export const KEY_VALUE_CONFIG_REQUEST_ROUTER_FACADE_NAME = 'KEY_VALUE_CONFIG_REQUEST_ROUTER' as const;
 
@@ -21,7 +21,7 @@ export type KeyValueConfigRequestHandler<C> = (
 ) => Promise<Response>
 
 export interface KeyValueConfigRequestRouterFacade<C> {
-  handleKeyValueConfigRequest: KeyValueConfigRequestHandler<C>
+  handleKeyValueConfigRequest: KeyValueConfigRequestHandler<C>;
 }
 
 declare module './scaffolding/all-facades' {

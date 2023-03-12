@@ -7,23 +7,26 @@ import { EQUALS_FACADE_NAME } from '../../facades/equals-facade';
 import {
   SimpleInMemoryKeyValueInternalComponent
 } from '../simple-memory-key-value-datastore/simple-in-memory-key-value-internal-component';
-import { assertExtends } from '../../utils/assert-extends';
-import { HashPartitionComponent } from '../hash-partition/hash-partition-component';
+import { HashPartitionComponent } from '../hash-partition/main-component/hash-partition-component';
 import { Refine } from '../../types/refine';
 import { AllFacades } from '../../facades/scaffolding/all-facades';
-import { HashPartitionInternalComponent } from '../hash-partition/hash-partition-internal-component';
+import { HashPartitionInternalComponent } from '../hash-partition/internal-component/hash-partition-internal-component';
 import { SERIALIZABLE_FACADE_FLAG } from '../../facades/serializable-facade';
+import { TransformationRunnerComponent } from '../transformation-runner/main-component/transformation-runner-component';
+import {
+  TransformationRunnerInternalComponent
+} from '../transformation-runner/internal-component/transformation-runner-internal-component';
 
 type AllComponentsLookupRestrictionType = { [N in ComponentName]: Component<N, any, EQUALS_FACADE_NAME | SERIALIZABLE_FACADE_FLAG> };
 
-// The assertExtends function is required in Typescript 4.8. Typescript 4.9 has the new satisfies operator which
-// does the same thing
-export const AllComponentsLookup = assertExtends<AllComponentsLookupRestrictionType>()({
+export const AllComponentsLookup = {
   [ComponentName.SimpleMemoryKeyValue]: SimpleInMemoryKeyValueComponent,
   [ComponentName.SimpleMemoryKeyValueInternal]: SimpleInMemoryKeyValueInternalComponent,
   [ComponentName.HashPartition]: HashPartitionComponent,
   [ComponentName.HashPartitionInternal]: HashPartitionInternalComponent,
-});
+  [ComponentName.TransformationRunner]: TransformationRunnerComponent,
+  [ComponentName.TransformationRunnerInternal]: TransformationRunnerInternalComponent,
+} satisfies AllComponentsLookupRestrictionType;
 
 export type AllComponentsLookup = typeof AllComponentsLookup;
 

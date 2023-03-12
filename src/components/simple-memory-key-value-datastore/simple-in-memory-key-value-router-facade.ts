@@ -1,13 +1,13 @@
 import {
   KeyValueConfigAddressedRequest,
   KeyValueConfigAddressedRequestAction
-} from '../../routing/requests/key-value-config-addressed-request';
+} from '../../routing/requests/config-addressed/key-value-config-addressed-request';
 import {
   KeyValueProcessAction,
   KeyValueProcessDropRequest,
   KeyValueProcessGetRequest,
   KeyValueProcessPutRequest
-} from '../../routing/requests/key-value-node-request';
+} from '../../routing/requests/process-addressed/key-value-process-addressed-request';
 import { RequestCategory } from '../../routing/types/request-category';
 import { ProcessAddressedGroupName } from '../../routing/requests/process-addressed/base-process-addressed-request';
 import { assertNever } from '../../utils/assert-never';

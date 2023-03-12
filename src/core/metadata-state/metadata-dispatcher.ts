@@ -3,7 +3,6 @@ import { filter, map, withLatestFrom } from 'rxjs/operators';
 import { ProcessManager } from '../process-manager';
 import { reduceConfigEntriesToConfig } from './utils/reduce-config-entries-to-config';
 import { RpcInterface } from '../../rpc/rpc-interface';
-import { AnyRequest } from '../../routing/unified-request-router';
 import { Config, ConfigFolder, FullyQualifiedPath } from './config';
 import { dispatchConfigFolderChanges } from './utils/dispatch-config-folder-changes';
 import { MetadataDispatcherInterface } from '../../types/metadata-dispatcher-interface';
@@ -12,6 +11,7 @@ import { allComponentDistributedOperator } from '../../operators/all-component-d
 import { ComponentName } from '../../components/scaffolding/component-name';
 import { AllComponentConfigurations } from '../../components/scaffolding/all-component-configurations';
 import { Refine } from '../../types/refine';
+import { AnyRequest } from '../../routing/requests/any-request';
 
 const onlyIncludeWhenLeading = (
   isLeader$: Observable<boolean>,

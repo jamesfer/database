@@ -1,13 +1,14 @@
 import { concatMap, withLatestFrom } from 'rxjs/operators';
 import { sample } from 'lodash';
 import { Observable } from 'rxjs';
-import { ProcessControlRequestAction, SpawnProcessRequest } from '../../routing/process-control-router';
 import { RequestCategory } from '../../routing/types/request-category';
 import { DistributedOperatorFacade } from '../../facades/distributed-operator-facade';
 import { SimpleInMemoryKeyValueConfiguration } from './simple-in-memory-key-value-configuration';
 import { SimpleInMemoryKeyValueInternalConfiguration } from './simple-in-memory-key-value-internal-configuration';
 import { AllComponentConfigurations } from '../scaffolding/all-component-configurations';
 import { ComponentName } from '../scaffolding/component-name';
+import { ProcessControlRequestAction, SpawnProcessRequest } from '../../routing/requests/process-control/process-control-request';
+import { assert } from '../../utils/assert';
 
 export const simpleInMemoryKeyValueDistributedOperatorFacade: DistributedOperatorFacade<SimpleInMemoryKeyValueConfiguration> = {
   distributedOperatorFunction(
@@ -37,9 +38,7 @@ export const simpleInMemoryKeyValueDistributedOperatorFacade: DistributedOperato
         if (!internalConfig.remoteProcess) {
           // Pick a node
           const chosenNode: string | undefined = sample(nodes);
-          if (!chosenNode) {
-            throw new Error('No nodes available to allocate a key value datastore to');
-          }
+          assert(chosenNode, 'No nodes available to allocate a key value datastore to');
 
           // Send a spawn process request
           const spawnProcessRequest: SpawnProcessRequest = {
@@ -49,9 +48,7 @@ export const simpleInMemoryKeyValueDistributedOperatorFacade: DistributedOperato
             payload: { processClass: 'SimpleMemoryKeyValueDatastore' },
           }
           const newProcessId = await rpcInterface.makeRequest(spawnProcessRequest);
-          if (typeof newProcessId !== 'string') {
-            throw new Error(`Received invalid response from spawn processes request. Expected: string, received: ${newProcessId}`);
-          }
+          assert(typeof newProcessId === 'string', `Received invalid response from spawn processes request. Expected: string, received: ${newProcessId}`);
 
           internalConfig = new SimpleInMemoryKeyValueInternalConfiguration({ nodeId: chosenNode, processId: newProcessId });
           await metadataDispatcher.putEntry(internalConfigPath, internalConfig);

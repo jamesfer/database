@@ -1,7 +1,7 @@
 import { ProcessManager } from '../core/process-manager';
 import { ClusterNode, Options } from './options';
 import { MetadataManager } from '../core/metadata-state/metadata-manager';
-import { unifiedRequestRouter, AnyRequest } from '../routing/unified-request-router';
+import { anyRequestRouter } from '../routing/any-request-router';
 import { NaiveRPCCommitLogFactory } from '../core/commit-log/naive-rpc-commit-log-factory';
 import { ConfigEntryCodec } from '../core/commit-log/config-entry-codec';
 import { HttpRpcClient, HttpUrlResolver, LOCAL } from '../rpc/http-rpc-client';
@@ -15,9 +15,9 @@ import { RpcClientFactoryInterface } from '../core/commit-log/rpc-client-factory
 import { NaiveRpcCommitLogRequest } from '../core/commit-log/naive-rpc-commit-log-request';
 import { RpcInterface } from '../rpc/rpc-interface';
 import { Unsubscribable } from 'rxjs';
-import { AnyRequestCodec } from '../routing/any-request-codec';
 import { AllComponentConfigurations } from '../components/scaffolding/all-component-configurations';
 import { assert } from '../utils/assert';
+import { AnyRequest, AnyRequestCodec } from '../routing/requests/any-request';
 
 function makeMetadataHttpHostResolver<T>(
   thisNodeId: string,
@@ -64,7 +64,12 @@ function makeGeneralHttpHostResolver(
   clusterNodes: { [k: string]: ClusterNode },
 ): HttpUrlResolver<AnyRequest> {
   return (request) => {
-    const targetNodeId = request.category === RequestCategory.ConfigAction ? leaderId : request.targetNodeId;
+    const targetNodeId = (
+      request.category === RequestCategory.ConfigAction
+      || request.category === RequestCategory.MetadataTemporary
+    )
+      ? leaderId
+      : request.targetNodeId;
     if (targetNodeId === nodeId) {
       return LOCAL;
     }
@@ -109,7 +114,7 @@ export async function start(options: Options): Promise<() => Promise<void>> {
 
   // Apis
   const rpcClientWrapper = new RpcClientWrapper<AnyRequest>();
-  const router = unifiedRequestRouter(
+  const router = anyRequestRouter(
     options.nodeId,
     rpcClientWrapper,
     processManager,

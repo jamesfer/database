@@ -2,9 +2,9 @@ import { Observable } from 'rxjs';
 import { ProcessManager } from '../core/process-manager';
 import { MetadataDispatcherInterface } from '../types/metadata-dispatcher-interface';
 import { RpcInterface } from '../rpc/rpc-interface';
-import { AnyRequest } from '../routing/unified-request-router';
 import { FullyQualifiedPath } from '../core/metadata-state/config';
 import { AllComponentConfigurations } from '../components/scaffolding/all-component-configurations';
+import { AnyRequest } from '../routing/requests/any-request';
 
 export const DISTRIBUTED_OPERATOR_FACADE_NAME = 'OPERATOR_FACADE' as const;
 

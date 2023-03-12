@@ -3,7 +3,7 @@ import { RequestCategory } from '../../types/request-category';
 
 export enum ProcessAddressedGroupName {
   KeyValue = 'KeyValue',
-  ProcessControl = 'ProcessControl',
+  TransformationRunner = 'TransformationRunner',
 }
 
 export interface BaseProcessAddressedRequest extends BaseRequest {

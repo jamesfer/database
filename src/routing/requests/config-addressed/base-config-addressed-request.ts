@@ -5,6 +5,7 @@ import { FullyQualifiedPath } from '../../../core/metadata-state/config';
 export enum ConfigAddressedGroupName {
   KeyValue = 'KeyValue',
   Stream = 'Stream',
+  TransformationRunner = 'TransformationRunner',
 }
 
 export interface BaseConfigAddressedRequest extends BaseRequest {
