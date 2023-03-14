@@ -12,6 +12,7 @@ import { AnyRequest } from '../any-request';
 import {
   TRANSFORMATION_RUNNER_CONFIG_REQUEST_HANDLER_FACADE
 } from '../../../facades/transformation-runner-config-request-handler';
+import { COMPONENT_STATE_CONFIG_REQUEST_HANDLER_FACADE } from '../../../facades/component-state-config-request-handler';
 
 async function handleRequestOnConfig(
   rpcInterface: RpcInterface<AnyRequest>,
@@ -36,6 +37,17 @@ async function handleRequestOnConfig(
     case ConfigAddressedGroupName.TransformationRunner: {
       if (TRANSFORMATION_RUNNER_CONFIG_REQUEST_HANDLER_FACADE in component.FACADES) {
         return component.FACADES[TRANSFORMATION_RUNNER_CONFIG_REQUEST_HANDLER_FACADE].handleTransformationRunnerProcessRequest(
+          { rpcInterface, metadataManager },
+          request,
+          config as any,
+        );
+      }
+    }
+      break;
+
+    case ConfigAddressedGroupName.ComponentState: {
+      if (COMPONENT_STATE_CONFIG_REQUEST_HANDLER_FACADE in component.FACADES) {
+        return component.FACADES[COMPONENT_STATE_CONFIG_REQUEST_HANDLER_FACADE].handleComponentStateConfigRequest(
           { rpcInterface, metadataManager },
           request,
           config as any,

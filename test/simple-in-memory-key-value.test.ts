@@ -16,6 +16,7 @@ import {
 } from '../src/routing/requests/config-addressed/key-value-config-addressed-request';
 import { ConfigAddressedGroupName } from '../src/routing/requests/config-addressed/base-config-addressed-request';
 import { makeRequest } from './scaffolding/make-request';
+import { waitUntilComponentReadyOnAllNodes } from './scaffolding/wait-until-component-ready-on-all-nodes';
 
 describe('SimpleInMemoryKeyValue e2e', () => {
   let cluster: { node0: ClusterNode, node1: ClusterNode, node2: ClusterNode };
@@ -41,8 +42,7 @@ describe('SimpleInMemoryKeyValue e2e', () => {
     });
     expect(putKeyValueConfigResponse).not.toMatch('Error');
 
-    // Small delay
-    await new Promise(r => setTimeout(r, 10));
+    await waitUntilComponentReadyOnAllNodes(Object.values(cluster), keyValueDatasetPath);
 
     // Write something to the key value datastore
     const key = 'a';

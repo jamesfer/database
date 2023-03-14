@@ -6,6 +6,7 @@ export enum ConfigAddressedGroupName {
   KeyValue = 'KeyValue',
   Stream = 'Stream',
   TransformationRunner = 'TransformationRunner',
+  ComponentState = 'ComponentState',
 }
 
 export interface BaseConfigAddressedRequest extends BaseRequest {
