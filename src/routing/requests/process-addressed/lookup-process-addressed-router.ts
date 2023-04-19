@@ -13,8 +13,12 @@ import {
   transformationRunnerProcessRequestRouter
 } from '../../../components/transformation-runner/process/transformation-runner-process-request-router';
 import { AnyRequest } from '../any-request';
+import {
+  jsonLinesRowBlockProcessRequestRouter
+} from '../../../components/json-lines-row-block/process/json-lines-row-block-process-request-router';
+import { AnyResponse } from '../any-response';
 
-type ProcessAddressedRouter<P extends Process, R extends ProcessAddressedRequest> = (process: P) => RequestRouter<R>;
+type ProcessAddressedRouter<P extends Process, R extends ProcessAddressedRequest> = (process: P) => RequestRouter<R, AnyResponse>;
 
 type RequestGroupLookup<P extends Process> = {
   [G in ProcessAddressedRequest['group']]?: ProcessAddressedRouter<P, Refine<ProcessAddressedRequest, { group: G }>>
@@ -42,6 +46,9 @@ function createRouterLookup(
     [ProcessType.TransformationRunner]: {
       [ProcessAddressedGroupName.TransformationRunner]: transformationRunnerProcessRequestRouter(rpcInterface),
     },
+    [ProcessType.JsonLinesRowBlock]: {
+      [ProcessAddressedGroupName.RowBlock]: jsonLinesRowBlockProcessRequestRouter,
+    }
   };
 }
 

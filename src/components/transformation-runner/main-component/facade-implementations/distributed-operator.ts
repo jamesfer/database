@@ -7,9 +7,6 @@ import { TransformationRunnerConfiguration } from '../transformation-runner-conf
 import { Observable } from 'rxjs';
 import { concatMap, withLatestFrom } from 'rxjs/operators';
 import { AllComponentConfigurations } from '../../../scaffolding/all-component-configurations';
-import {
-  HashPartitionInternalConfiguration
-} from '../../../hash-partition/internal-component/hash-partition-internal-configuration';
 import { ComponentName } from '../../../scaffolding/component-name';
 import {
   TransformationRunnerInternalConfiguration
@@ -20,9 +17,6 @@ import {
   SpawnProcessRequest
 } from '../../../../routing/requests/process-control/process-control-request';
 import { RequestCategory } from '../../../../routing/types/request-category';
-import {
-  SimpleInMemoryKeyValueInternalConfiguration
-} from '../../../simple-memory-key-value-datastore/simple-in-memory-key-value-internal-configuration';
 import { assert } from '../../../../utils/assert';
 
 export const TransformationRunnerDistributedOperatorFacade: DistributedOperatorFacade<TransformationRunnerConfiguration> = {
@@ -62,7 +56,7 @@ export const TransformationRunnerDistributedOperatorFacade: DistributedOperatorF
             payload: { processClass: 'TransformationRunner' },
           }
           const newProcessId = await rpcInterface.makeRequest(spawnProcessRequest);
-          assert(typeof newProcessId !== 'string', `Received invalid response from spawn processes request. Expected: string, received: ${newProcessId}`);
+          assert(typeof newProcessId === 'string', `Received invalid response from spawn processes request. Expected: string, received: ${newProcessId}`);
 
           internalConfig = new TransformationRunnerInternalConfiguration({ nodeId: chosenNode, processId: newProcessId });
           await metadataDispatcher.putEntry(internalConfigPath, internalConfig);

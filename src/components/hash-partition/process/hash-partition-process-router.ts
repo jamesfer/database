@@ -11,12 +11,13 @@ import { ConfigAddressedGroupName } from '../../../routing/requests/config-addre
 import { RequestCategory } from '../../../routing/types/request-category';
 import { RequestRouter } from '../../../routing/types/request-router';
 import { AnyRequest } from '../../../routing/requests/any-request';
+import { AnyResponse } from '../../../routing/requests/any-response';
 
 export const hashPartitionProcessRouter = (
   rpcInterface: RpcInterface<AnyRequest>,
 ) => (
   process: HashPartitionProcess,
-): RequestRouter<KeyValueProcessAddressedRequest> => switchRouter('action')<KeyValueProcessAddressedRequest>({
+): RequestRouter<KeyValueProcessAddressedRequest, AnyResponse> => switchRouter('action')<KeyValueProcessAddressedRequest, AnyResponse>({
   async [KeyValueProcessAction.Get](request) {
     // Forward the request to the matching nested config implementation
     const nestedConfigPath = [...process.parentPath, 'internal', `nested${process.partitionIndex}`];

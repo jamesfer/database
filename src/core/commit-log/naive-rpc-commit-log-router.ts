@@ -4,7 +4,7 @@ import { InternalNaiveRpcCommitLog } from './internal-naive-rpc-commit-log';
 
 export function makeNaiveRpcCommitLogRouter<T>(
   naiveRPCCommitLog: InternalNaiveRpcCommitLog<T>,
-): RequestRouter<NaiveRpcCommitLogRequest<T>> {
+): RequestRouter<NaiveRpcCommitLogRequest<T>, any> {
   return async (request) => {
     await naiveRPCCommitLog.processCommittedLog(request.path, request.value);
   };

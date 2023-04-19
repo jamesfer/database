@@ -18,6 +18,7 @@ import { Unsubscribable } from 'rxjs';
 import { AllComponentConfigurations } from '../components/scaffolding/all-component-configurations';
 import { assert } from '../utils/assert';
 import { AnyRequest, AnyRequestCodec } from '../routing/requests/any-request';
+import { AnyResponse, AnyResponseCodec } from '../routing/requests/any-response';
 
 function makeMetadataHttpHostResolver<T>(
   thisNodeId: string,
@@ -39,11 +40,14 @@ async function makeNaiveDistributedMetadataFactory(
   clusterNodes: { [k: string]: ClusterNode },
 ) {
   const codec = new NaiveRpcCommitLogRequestCodec<AllComponentConfigurations>(new ConfigEntryCodec());
-  const naiveRpcCommitLogRpcFactory = new class implements RpcClientFactoryInterface<NaiveRpcCommitLogRequest<AllComponentConfigurations>> {
-    createRpcClient(router: RequestRouter<NaiveRpcCommitLogRequest<AllComponentConfigurations>>): Promise<RpcInterface<NaiveRpcCommitLogRequest<AllComponentConfigurations>> & Unsubscribable> {
+  const naiveRpcCommitLogRpcFactory = new class implements RpcClientFactoryInterface<NaiveRpcCommitLogRequest<AllComponentConfigurations>, AnyResponse> {
+    createRpcClient(
+      router: RequestRouter<NaiveRpcCommitLogRequest<AllComponentConfigurations>, AnyResponse>
+    ): Promise<RpcInterface<NaiveRpcCommitLogRequest<AllComponentConfigurations>> & Unsubscribable> {
       return HttpRpcClient.initialize(
         codec,
         codec,
+        new AnyResponseCodec(),
         thisNode.metadataRpcPort,
         makeMetadataHttpHostResolver(thisNode.nodeId, clusterNodes),
         router,
@@ -84,12 +88,13 @@ async function makeGeneralHttpRpcInterface(
   nodeId: string,
   leaderId: string,
   clusterNodes: { [k: string]: ClusterNode },
-  router: RequestRouter<AnyRequest>,
-): Promise<HttpRpcClient<AnyRequest, AnyRequest>> {
+  router: RequestRouter<AnyRequest, AnyResponse>,
+): Promise<HttpRpcClient<AnyRequest, AnyRequest, AnyResponse>> {
   const requestCodec = new AnyRequestCodec();
-  return HttpRpcClient.initialize<AnyRequest, AnyRequest>(
+  return HttpRpcClient.initialize<AnyRequest, AnyRequest, AnyResponse>(
     requestCodec,
     requestCodec,
+    new AnyResponseCodec(),
     clusterNodes[nodeId].generalRpcPort,
     makeGeneralHttpHostResolver(nodeId, leaderId, clusterNodes),
     router,

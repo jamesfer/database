@@ -1,3 +1,1 @@
-import { Response } from './response';
-
-export type RequestRouter<R> = (request: R) => Promise<Response>;
+export type RequestRouter<R, S> = (request: R) => Promise<S>;

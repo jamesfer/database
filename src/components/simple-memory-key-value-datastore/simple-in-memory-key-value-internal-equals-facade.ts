@@ -1,5 +1,4 @@
 import { EqualsFacade } from '../../facades/equals-facade';
-import { SimpleInMemoryKeyValueConfiguration } from './simple-in-memory-key-value-configuration';
 import { SimpleInMemoryKeyValueInternalConfiguration } from './simple-in-memory-key-value-internal-configuration';
 
 export const simpleInMemoryKeyValueInternalEqualsFacade: EqualsFacade<SimpleInMemoryKeyValueInternalConfiguration> = {

@@ -10,6 +10,12 @@ import { TransformationRunnerConfiguration } from '../transformation-runner/main
 import {
   TransformationRunnerInternalConfiguration
 } from '../transformation-runner/internal-component/transformation-runner-internal-configuration';
+import {
+  JsonLinesRowBlockConfiguration
+} from '../json-lines-row-block/main-component/json-lines-row-block-configuration';
+import {
+  JsonLinesRowBlockInternalConfiguration
+} from '../json-lines-row-block/internal-component/json-lines-row-block-internal-configuration';
 
 export type AllComponentConfigurations =
   | SimpleInMemoryKeyValueConfiguration
@@ -17,4 +23,6 @@ export type AllComponentConfigurations =
   | HashPartitionConfiguration
   | HashPartitionInternalConfiguration
   | TransformationRunnerConfiguration
-  | TransformationRunnerInternalConfiguration;
+  | TransformationRunnerInternalConfiguration
+  | JsonLinesRowBlockConfiguration
+  | JsonLinesRowBlockInternalConfiguration;

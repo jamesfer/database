@@ -9,11 +9,15 @@ import { makeMetadataTemporaryRouter } from './requests/metadata-temporary/metad
 import { MetadataManager } from '../core/metadata-state/metadata-manager';
 import { DistributedCommitLogFactory } from '../types/distributed-commit-log-factory';
 import { Observable } from 'rxjs';
-import { RequestRouter } from './types/request-router';
 import { AllComponentConfigurations } from '../components/scaffolding/all-component-configurations';
 import { AnyRequest } from './requests/any-request';
+import { AnyResponse } from './requests/any-response';
 
-const wrapWithDiagnostics = (requestRouter: RequestRouter<AnyRequest>): RequestRouter<AnyRequest> => async (request: AnyRequest) => {
+const wrapWithDiagnostics = (
+  requestRouter: (request: AnyRequest) => Promise<AnyResponse>,
+) => async (
+  request: AnyRequest,
+): Promise<AnyResponse> => {
   try {
     const response = await requestRouter(request);
     // console.log('[DiagnosticMiddleware] response', response);
@@ -31,7 +35,7 @@ export const anyRequestRouter = (
   metadataManager: MetadataManager,
   distributedCommitLogFactory: DistributedCommitLogFactory<AllComponentConfigurations>,
   nodes$: Observable<string[]>,
-): RequestRouter<AnyRequest> => wrapWithDiagnostics(switchRouter('category')({
+): (request: AnyRequest) => Promise<AnyResponse> => wrapWithDiagnostics(switchRouter('category')({
   [RequestCategory.ConfigAction]: configAddressedRequestRouter(rpcInterface, metadataManager),
   [RequestCategory.ProcessAction]: anyProcessAddressedRequestRouter(nodeId, processManager, rpcInterface),
   [RequestCategory.ProcessControl]: processControlRouter(nodeId, rpcInterface, processManager),

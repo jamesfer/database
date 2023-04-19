@@ -7,7 +7,7 @@ import { RpcInterface } from './rpc-interface';
 
 export const LOCAL: unique symbol = Symbol('LOCAL');
 
-export type HttpUrlResolver<R> = (outgoing: R) => string | typeof LOCAL;
+export type HttpUrlResolver<O> = (outgoing: O) => string | typeof LOCAL;
 
 function buildExpressApi(port: number, handler: (body: string) => Promise<string>): TeardownLogic {
   const app = express();
@@ -27,10 +27,11 @@ function buildExpressApi(port: number, handler: (body: string) => Promise<string
   return () => server.close();
 }
 
-function buildApiWithRouter<I>(
+function buildApiWithRouter<I, R>(
   httpListenPort: number,
   codecI: Codec<I, string>,
-  router: RequestRouter<I>,
+  codecR: Codec<R, string>,
+  router: RequestRouter<I, R>,
 ): TeardownLogic {
   return buildExpressApi(httpListenPort, async (stringRequest) => {
     const request = await codecI.deserialize(stringRequest);
@@ -39,19 +40,20 @@ function buildApiWithRouter<I>(
     }
 
     const response = await router(request);
-    return response?.toString();
+    return codecR.serialize(response);
   })
 }
 
-export class HttpRpcClient<I, O extends I> implements RpcInterface<O>, Unsubscribable {
-  static async initialize<I, O extends I>(
+export class HttpRpcClient<I, O extends I, R> implements RpcInterface<O>, Unsubscribable {
+  static async initialize<I, O extends I, R>(
     codecI: Codec<I, string>,
     codecO: Codec<O, string>,
+    codecR: Codec<R, string>,
     httpListenPort: number,
     httpUrlResolver: HttpUrlResolver<O>,
-    router: RequestRouter<I>,
-  ): Promise<HttpRpcClient<I, O>> {
-    return new HttpRpcClient<I, O>(codecI, codecO, httpListenPort, httpUrlResolver, router);
+    router: RequestRouter<I, R>,
+  ): Promise<HttpRpcClient<I, O, R>> {
+    return new HttpRpcClient<I, O, R>(codecI, codecO, codecR, httpListenPort, httpUrlResolver, router);
   }
 
   private readonly apiTeardownLogic = new Subscription();
@@ -59,13 +61,15 @@ export class HttpRpcClient<I, O extends I> implements RpcInterface<O>, Unsubscri
   private constructor(
     private readonly codecI: Codec<I, string>,
     private readonly codecO: Codec<O, string>,
+    private readonly codecR: Codec<R, string>,
     private readonly httpListenPort: number,
     private readonly httpUrlResolver: HttpUrlResolver<O>,
-    private readonly router: RequestRouter<I>,
+    private readonly router: RequestRouter<I, R>,
   ) {
     this.apiTeardownLogic.add(buildApiWithRouter(
       this.httpListenPort,
       this.codecI,
+      this.codecR,
       this.router,
     ));
   }
@@ -78,7 +82,8 @@ export class HttpRpcClient<I, O extends I> implements RpcInterface<O>, Unsubscri
     const url = this.httpUrlResolver(request);
     if (url === LOCAL) {
       // Run the router locally
-      return this.router(request);
+      const response = await this.router(request);
+      return this.codecR.serialize(response);
     }
 
     const serializedRequest = await this.codecO.serialize(request);

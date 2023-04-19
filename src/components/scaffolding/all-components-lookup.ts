@@ -16,6 +16,10 @@ import { TransformationRunnerComponent } from '../transformation-runner/main-com
 import {
   TransformationRunnerInternalComponent
 } from '../transformation-runner/internal-component/transformation-runner-internal-component';
+import { JsonLinesRowBlockComponent } from '../json-lines-row-block/main-component/json-lines-row-block-component';
+import {
+  JsonLinesRowBlockInternalComponent
+} from '../json-lines-row-block/internal-component/json-lines-row-block-internal-component';
 
 type AllComponentsLookupRestrictionType = { [N in ComponentName]: Component<N, any, EQUALS_FACADE_NAME | SERIALIZABLE_FACADE_FLAG> };
 
@@ -26,6 +30,8 @@ export const AllComponentsLookup = {
   [ComponentName.HashPartitionInternal]: HashPartitionInternalComponent,
   [ComponentName.TransformationRunner]: TransformationRunnerComponent,
   [ComponentName.TransformationRunnerInternal]: TransformationRunnerInternalComponent,
+  [ComponentName.JsonLinesRowBlock]: JsonLinesRowBlockComponent,
+  [ComponentName.JsonLinesRowBlockInternal]: JsonLinesRowBlockInternalComponent,
 } satisfies AllComponentsLookupRestrictionType;
 
 export type AllComponentsLookup = typeof AllComponentsLookup;

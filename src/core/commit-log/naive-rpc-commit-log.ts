@@ -10,7 +10,7 @@ import { makeNaiveRpcCommitLogRouter } from './naive-rpc-commit-log-router';
 
 export class NaiveRpcCommitLog<T> implements DistributedCommitLogInterface<T>, Unsubscribable {
   static async initialize<T>(
-    rpcClientFactory: RpcClientFactoryInterface<NaiveRpcCommitLogRequest<T>>,
+    rpcClientFactory: RpcClientFactoryInterface<NaiveRpcCommitLogRequest<T>, any>,
     nodeId: string,
     staticLeaderId: string,
     clusterNodes: string[],

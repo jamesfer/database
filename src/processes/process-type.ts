@@ -4,4 +4,5 @@ export enum ProcessType {
   TransformationRunner = 'TransformationRunner',
   MetadataTemporaryRouter = 'MetadataTemporaryRouter',
   LogStructuredMerge = 'LogStructuredMerge',
+  JsonLinesRowBlock = 'JsonLinesRowBlock',
 }

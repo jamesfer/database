@@ -4,9 +4,9 @@ import { FullyQualifiedPath } from '../../../core/metadata-state/config';
 
 export enum ConfigAddressedGroupName {
   KeyValue = 'KeyValue',
-  Stream = 'Stream',
   TransformationRunner = 'TransformationRunner',
   ComponentState = 'ComponentState',
+  RowBlock = 'RowBlock',
 }
 
 export interface BaseConfigAddressedRequest extends BaseRequest {

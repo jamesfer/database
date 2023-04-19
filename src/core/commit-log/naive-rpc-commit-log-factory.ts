@@ -8,14 +8,14 @@ export class NaiveRPCCommitLogFactory<T> implements DistributedCommitLogFactory<
   private readonly subscription = new Subscription();
 
   constructor(
-    private readonly rpcClientFactory: RpcClientFactoryInterface<NaiveRpcCommitLogRequest<T>>,
+    private readonly rpcClientFactory: RpcClientFactoryInterface<NaiveRpcCommitLogRequest<T>, any>,
     private readonly nodeId: string,
     private readonly staticLeaderId: string,
     private readonly clusterNodes: string[],
   ) {}
 
   async createDistributedCommitLog(nodeId: string): Promise<NaiveRpcCommitLog<T>> {
-    const commitLog = await NaiveRpcCommitLog.initialize(
+    const commitLog = await NaiveRpcCommitLog.initialize<T>(
       this.rpcClientFactory,
       this.nodeId,
       this.staticLeaderId,

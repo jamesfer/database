@@ -13,12 +13,16 @@ import { ProcessControlRequest, ProcessControlRequestAction } from './process-co
 import {
   TransformationRunnerProcess
 } from '../../../components/transformation-runner/process/transformation-runner-process';
+import {
+  JsonLinesRowBlockProcess
+} from '../../../components/json-lines-row-block/process/json-lines-row-block-process';
+import { AnyResponse } from '../any-response';
 
 export const processControlRouter = (
   nodeId: string,
   rpcInterface: RpcInterface<AnyRequest>,
   processManager: ProcessManager,
-): RequestRouter<ProcessControlRequest> => switchRouter('action')<ProcessControlRequest>({
+): RequestRouter<ProcessControlRequest, AnyResponse> => switchRouter('action')<ProcessControlRequest, AnyResponse>({
   async [ProcessControlRequestAction.Spawn](request) {
     // Assert that this is the correct node
     if (request.targetNodeId !== nodeId) {
@@ -41,6 +45,10 @@ export const processControlRouter = (
 
       case 'TransformationRunner':
         processManager.register(processId, new TransformationRunnerProcess());
+        break;
+
+      case 'JsonLinesRowBlock':
+        processManager.register(processId, new JsonLinesRowBlockProcess(processId));
         break;
 
       default:

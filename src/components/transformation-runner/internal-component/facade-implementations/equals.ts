@@ -3,6 +3,7 @@ import { TransformationRunnerInternalConfiguration } from '../transformation-run
 
 export const transformationRunnerInternalEqualsFacade: EqualsFacade<TransformationRunnerInternalConfiguration> = {
   equals(self, other): boolean {
-    return true;
+    return self.remoteProcess?.processId == other.remoteProcess?.processId
+      && self.remoteProcess?.nodeId == other.remoteProcess?.nodeId;
   },
 };

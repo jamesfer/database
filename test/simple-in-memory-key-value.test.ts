@@ -1,9 +1,6 @@
 import { createCluster } from './scaffolding/create-cluster';
 import { ClusterNode } from '../src/main/options';
 import {
-  HashPartitionConfiguration
-} from '../src/components/hash-partition/main-component/hash-partition-configuration';
-import {
   SimpleInMemoryKeyValueConfiguration
 } from '../src/components/simple-memory-key-value-datastore/simple-in-memory-key-value-configuration';
 import { RequestCategory } from '../src/routing/types/request-category';

@@ -5,4 +5,6 @@ export enum ComponentName {
   HashPartitionInternal = 'HashPartitionInternal',
   TransformationRunner = 'TransformationRunner',
   TransformationRunnerInternal = 'TransformationRunnerInternal',
+  JsonLinesRowBlock = 'JsonLinesRowBlock',
+  JsonLinesRowBlockInternal = 'JsonLinesRowBlockInternal',
 }

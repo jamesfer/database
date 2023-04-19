@@ -4,6 +4,7 @@ import { RequestCategory } from '../../types/request-category';
 export enum ProcessAddressedGroupName {
   KeyValue = 'KeyValue',
   TransformationRunner = 'TransformationRunner',
+  RowBlock = 'RowBlock',
 }
 
 export interface BaseProcessAddressedRequest extends BaseRequest {

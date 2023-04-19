@@ -17,6 +17,7 @@ import { SERIALIZABLE_FACADE_FLAG, SerializableFacade } from '../../../facades/s
 import { assert } from '../../../utils/assert';
 import { AllComponentConfigurations } from '../../../components/scaffolding/all-component-configurations';
 import { AnyRequest } from '../any-request';
+import { AnyResponse } from '../any-response';
 
 function getMetadataDispatcher(
   metadataManager: MetadataManager,
@@ -41,7 +42,7 @@ export function makeMetadataTemporaryRouter(
   processManager: ProcessManager,
   rpcInterface: RpcInterface<AnyRequest>,
   nodes$: Observable<string[]>,
-): RequestRouter<MetadataTemporaryRequest> {
+): RequestRouter<MetadataTemporaryRequest, AnyResponse> {
   const configEntryCodec = new ConfigEntryCodec();
 
   return async (request) => {

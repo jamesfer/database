@@ -1,4 +1,3 @@
-import { Response } from '../routing/types/response';
 import { RpcInterface } from '../rpc/rpc-interface';
 import { AnyRequest } from '../routing/requests/any-request';
 import { MetadataManager } from '../core/metadata-state/metadata-manager';
@@ -12,9 +11,9 @@ export const COMPONENT_STATE_CONFIG_REQUEST_HANDLER_FACADE = 'COMPONENT_STATE_CO
 export type COMPONENT_STATE_CONFIG_REQUEST_HANDLER_FACADE = typeof COMPONENT_STATE_CONFIG_REQUEST_HANDLER_FACADE;
 
 export enum ComponentState {
-  INITIALIZING,
-  ERROR,
-  READY,
+  INITIALIZING = 'INITIALIZING',
+  ERROR = 'ERROR',
+  READY = 'READY',
 }
 
 export class ComponentInitializingState {

@@ -4,12 +4,13 @@ import { ProcessAddressedRequest } from './process-addressed-request';
 import { lookupProcessAddressedRouter } from './lookup-process-addressed-router';
 import { RpcInterface } from '../../../rpc/rpc-interface';
 import { AnyRequest } from '../any-request';
+import { AnyResponse } from '../any-response';
 
 export function anyProcessAddressedRequestRouter(
   nodeId: string,
   processManager: ProcessManager,
   rpcInterface: RpcInterface<AnyRequest>,
-): RequestRouter<ProcessAddressedRequest> {
+): RequestRouter<ProcessAddressedRequest, AnyResponse> {
   const lookupRouter = lookupProcessAddressedRouter(rpcInterface);
 
   return async (request) => {

@@ -21,10 +21,15 @@ export interface SpawnTransformationRunnerProcess {
   processClass: 'TransformationRunner';
 }
 
+export interface SpawnJsonLinesRowBlockProcess {
+  processClass: 'JsonLinesRowBlock';
+}
+
 export type SpawnProcessPayload =
   | SpawnSimpleMemoryKeyValueProcess
   | SpawnHashPartitionProcess
-  | SpawnTransformationRunnerProcess;
+  | SpawnTransformationRunnerProcess
+  | SpawnJsonLinesRowBlockProcess;
 
 export interface SpawnProcessRequest extends BaseRequest {
   category: RequestCategory.ProcessControl;

@@ -1,4 +1,4 @@
-import { BehaviorSubject, concat, NEVER, Observable, of, Unsubscribable } from 'rxjs';
+import { concat, NEVER, Observable, of } from 'rxjs';
 
 export interface MembershipListInterface {
   nodes$: Observable<string[]>;
