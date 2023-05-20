@@ -1,8 +1,8 @@
 import { ClusterNode } from '../../src/main/options';
 import { start } from '../../src/main/start';
 import { keyBy, range } from 'lodash';
-import { RequestCategory } from '../../src/routing/types/request-category';
-import { MetadataTemporaryAction } from '../../src/routing/requests/metadata-temporary/metadata-temporary-request';
+import { RequestCategory } from '../../src/routing/actions/request-category';
+import { MetadataTemporaryAction } from '../../src/routing/actions/metadata-temporary/metadata-temporary-request';
 import { assert } from '../../src/utils/assert';
 import { makeRequest } from './make-request';
 

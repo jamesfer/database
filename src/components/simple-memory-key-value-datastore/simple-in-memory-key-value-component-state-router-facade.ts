@@ -6,7 +6,7 @@ import {
 import { SimpleInMemoryKeyValueConfiguration } from './simple-in-memory-key-value-configuration';
 import {
   ComponentStateConfigAddressedRequest
-} from '../../routing/requests/config-addressed/component-state-config-addressed-request';
+} from '../../routing/actions/config-addressed/component-state/action';
 import { ComponentName } from '../scaffolding/component-name';
 
 export const simpleInMemoryKeyValueComponentStateRouterFacade: ComponentStateConfigRequestHandlerFacade<SimpleInMemoryKeyValueConfiguration> = {

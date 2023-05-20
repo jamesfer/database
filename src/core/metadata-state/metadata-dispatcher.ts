@@ -11,7 +11,7 @@ import { allComponentDistributedOperator } from '../../operators/all-component-d
 import { ComponentName } from '../../components/scaffolding/component-name';
 import { AllComponentConfigurations } from '../../components/scaffolding/all-component-configurations';
 import { Refine } from '../../types/refine';
-import { AnyRequest } from '../../routing/requests/any-request';
+import { AnyRequestResponse } from '../../routing/actions/any-request-response';
 
 const onlyIncludeWhenLeading = (
   isLeader$: Observable<boolean>,
@@ -35,7 +35,7 @@ export class MetadataDispatcher implements MetadataDispatcherInterface {
     path: FullyQualifiedPath,
     processManager: ProcessManager,
     metadataCommitLog: DistributedCommitLogInterface<AllComponentConfigurations>,
-    rpcInterface: RpcInterface<AnyRequest>,
+    rpcInterface: RpcInterface<AnyRequestResponse>,
     nodes$: Observable<string[]>,
   ): Promise<MetadataDispatcher> {
     return new MetadataDispatcher(nodeId, path, processManager, metadataCommitLog, rpcInterface, nodes$);
@@ -52,7 +52,7 @@ export class MetadataDispatcher implements MetadataDispatcherInterface {
     private readonly path: FullyQualifiedPath,
     private readonly processManager: ProcessManager,
     private readonly metadataCommitLog: DistributedCommitLogInterface<AllComponentConfigurations>,
-    private readonly rpcInterface: RpcInterface<AnyRequest>,
+    private readonly rpcInterface: RpcInterface<AnyRequestResponse>,
     private readonly nodes$: Observable<string[]>,
   ) {
     this.allSubscriptions.add(this.metadataCommitLog.isLeader$.subscribe(this.isLeader$));

@@ -1,13 +1,13 @@
 import { concatMap, withLatestFrom } from 'rxjs/operators';
 import { sample } from 'lodash';
 import { Observable } from 'rxjs';
-import { RequestCategory } from '../../routing/types/request-category';
+import { RequestCategory } from '../../routing/actions/request-category';
 import { DistributedOperatorFacade } from '../../facades/distributed-operator-facade';
 import { SimpleInMemoryKeyValueConfiguration } from './simple-in-memory-key-value-configuration';
 import { SimpleInMemoryKeyValueInternalConfiguration } from './simple-in-memory-key-value-internal-configuration';
 import { AllComponentConfigurations } from '../scaffolding/all-component-configurations';
 import { ComponentName } from '../scaffolding/component-name';
-import { ProcessControlRequestAction, SpawnProcessRequest } from '../../routing/requests/process-control/process-control-request';
+import { ProcessControlRequestAction, SpawnProcessRequest } from '../../routing/actions/process-control/process-control-request';
 import { assert } from '../../utils/assert';
 
 export const simpleInMemoryKeyValueDistributedOperatorFacade: DistributedOperatorFacade<SimpleInMemoryKeyValueConfiguration> = {

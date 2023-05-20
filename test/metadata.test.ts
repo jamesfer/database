@@ -1,5 +1,5 @@
-import { RequestCategory } from '../src/routing/types/request-category';
-import { MetadataTemporaryAction } from '../src/routing/requests/metadata-temporary/metadata-temporary-request';
+import { RequestCategory } from '../src/routing/actions/request-category';
+import { MetadataTemporaryAction } from '../src/routing/actions/metadata-temporary/metadata-temporary-request';
 import { ConfigEntryCodec } from '../src/core/commit-log/config-entry-codec';
 import { ClusterNode } from '../src/main/options';
 import { createCluster } from './scaffolding/create-cluster';

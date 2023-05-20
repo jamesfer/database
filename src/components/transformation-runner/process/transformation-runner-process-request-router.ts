@@ -3,17 +3,17 @@ import { RequestRouter } from '../../../routing/types/request-router';
 import {
   TransformationRunnerProcessAddressedRequest,
   TransformationRunnerProcessRequestAction,
-} from '../../../routing/requests/process-addressed/transformation-runner-process-addressed-request';
+} from '../../../routing/actions/process-addressed/transformation-runner-process-addressed-request';
 import { switchRouter } from '../../../routing/utils/switch-router';
 import { RpcInterface } from '../../../rpc/rpc-interface';
 import { Query } from '../query-language/query';
 import { pipe } from 'fp-ts/function';
 import { default as E } from 'fp-ts/Either';
-import { AnyRequest } from '../../../routing/requests/any-request';
-import { AnyResponse } from '../../../routing/requests/any-response';
+import { AnyRequestResponse } from '../../../routing/actions/any-request-response';
+import { AnyResponse } from '../../../routing/actions/any-response';
 
 export const transformationRunnerProcessRequestRouter = (
-  rpcInterface: RpcInterface<AnyRequest>,
+  rpcInterface: RpcInterface<AnyRequestResponse>,
 ) => (
   process: TransformationRunnerProcess,
 ): RequestRouter<TransformationRunnerProcessAddressedRequest, AnyResponse> => switchRouter('action')<TransformationRunnerProcessAddressedRequest, AnyResponse>({

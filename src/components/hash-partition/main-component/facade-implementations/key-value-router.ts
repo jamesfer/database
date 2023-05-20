@@ -5,27 +5,29 @@ import {
 import { HashPartitionConfiguration } from '../hash-partition-configuration';
 import { Response } from '../../../../routing/types/response';
 import {
-  KeyValueConfigAddressedRequest,
-  KeyValueConfigAddressedRequestAction
-} from '../../../../routing/requests/config-addressed/key-value-config-addressed-request';
+  KeyValueConfigAddressedAction
+} from '../../../../routing/actions/config-addressed/key-value/action';
 import { findHashPartition } from '../../utils/hash';
 import {
   KeyValueProcessAction,
   KeyValueProcessDropRequest,
   KeyValueProcessGetRequest,
   KeyValueProcessPutRequest
-} from '../../../../routing/requests/process-addressed/key-value-process-addressed-request';
-import { RequestCategory } from '../../../../routing/types/request-category';
-import { ProcessAddressedGroupName } from '../../../../routing/requests/process-addressed/base-process-addressed-request';
+} from '../../../../routing/actions/process-addressed/key-value-process-addressed-request';
+import { RequestCategory } from '../../../../routing/actions/request-category';
+import { ProcessAddressedGroupName } from '../../../../routing/actions/process-addressed/base-process-addressed-request';
 import { assertNever } from '../../../../utils/assert-never';
 import { ComponentName } from '../../../scaffolding/component-name';
 import { assert } from '../../../../utils/assert';
 import { HashPartitionDetails } from '../../internal-component/hash-partition-internal-configuration';
+import {
+  KeyValueConfigAddressedRequestActionType
+} from '../../../../routing/actions/config-addressed/key-value/base-request';
 
 export const hashPartitionKeyValueRouter: KeyValueConfigRequestRouterFacade<HashPartitionConfiguration> = {
   async handleKeyValueConfigRequest(
     { rpcInterface, metadataManager }: KeyValueConfigRequestRouterContext,
-    request: KeyValueConfigAddressedRequest,
+    request: KeyValueConfigAddressedAction,
     config: HashPartitionConfiguration,
   ): Promise<Response> {
     // Look up internal config
@@ -42,9 +44,9 @@ export const hashPartitionKeyValueRouter: KeyValueConfigRequestRouterFacade<Hash
     assert(partitionDetails, `HashPartition partition at index ${partitionIndex} is not ready yet`)
 
     switch (request.action) {
-      case KeyValueConfigAddressedRequestAction.Get: {
+      case KeyValueConfigAddressedRequestActionType.Get: {
         const processRequest: KeyValueProcessGetRequest = {
-          category: RequestCategory.ProcessAction,
+          category: RequestCategory.Process,
           group: ProcessAddressedGroupName.KeyValue,
           action: KeyValueProcessAction.Get,
           targetNodeId: partitionDetails.nodeId,
@@ -54,9 +56,9 @@ export const hashPartitionKeyValueRouter: KeyValueConfigRequestRouterFacade<Hash
         return rpcInterface.makeRequest(processRequest);
       }
 
-      case KeyValueConfigAddressedRequestAction.Put: {
+      case KeyValueConfigAddressedRequestActionType.Put: {
         const processRequest: KeyValueProcessPutRequest = {
-          category: RequestCategory.ProcessAction,
+          category: RequestCategory.Process,
           group: ProcessAddressedGroupName.KeyValue,
           action: KeyValueProcessAction.Put,
           targetNodeId: partitionDetails.nodeId,
@@ -68,9 +70,9 @@ export const hashPartitionKeyValueRouter: KeyValueConfigRequestRouterFacade<Hash
         break;
       }
 
-      case KeyValueConfigAddressedRequestAction.Drop: {
+      case KeyValueConfigAddressedRequestActionType.Drop: {
         const processRequest: KeyValueProcessDropRequest = {
-          category: RequestCategory.ProcessAction,
+          category: RequestCategory.Process,
           group: ProcessAddressedGroupName.KeyValue,
           action: KeyValueProcessAction.Drop,
           targetNodeId: partitionDetails.nodeId,

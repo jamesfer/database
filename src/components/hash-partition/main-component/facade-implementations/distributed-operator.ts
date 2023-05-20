@@ -2,7 +2,7 @@ import { DistributedOperatorFacade } from '../../../../facades/distributed-opera
 import { HashPartitionConfiguration } from '../hash-partition-configuration';
 import { Observable } from 'rxjs';
 import { sample } from 'lodash';
-import { RequestCategory } from '../../../../routing/types/request-category';
+import { RequestCategory } from '../../../../routing/actions/request-category';
 import { concatMap, withLatestFrom } from 'rxjs/operators';
 import { AllComponentConfigurations } from '../../../scaffolding/all-component-configurations';
 import { HashPartitionDetails, HashPartitionInternalConfiguration } from '../../internal-component/hash-partition-internal-configuration';
@@ -12,12 +12,12 @@ import { FullyQualifiedPath } from '../../../../core/metadata-state/config';
 import { AllComponentsLookup } from '../../../scaffolding/all-components-lookup';
 import { EQUALS_FACADE_NAME, EqualsFacade } from '../../../../facades/equals-facade';
 import { assert } from '../../../../utils/assert';
-import { AnyRequest } from '../../../../routing/requests/any-request';
-import { ProcessControlRequestAction, SpawnProcessRequest } from '../../../../routing/requests/process-control/process-control-request';
+import { AnyRequestResponse } from '../../../../routing/actions/any-request-response';
+import { ProcessControlRequestAction, SpawnProcessRequest } from '../../../../routing/actions/process-control/process-control-request';
 
 async function createNewPartitionProcess(
   nodes: string[],
-  rpcInterface: RpcInterface<AnyRequest>,
+  rpcInterface: RpcInterface<AnyRequestResponse>,
   parentPath: FullyQualifiedPath,
   partitionIndex: number,
 ): Promise<HashPartitionDetails> {

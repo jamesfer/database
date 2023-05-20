@@ -1,8 +1,8 @@
 import { switchRouter } from '../../routing/utils/switch-router';
-import { KeyValueProcessAction, KeyValueProcessAddressedRequest } from '../../routing/requests/process-addressed/key-value-process-addressed-request';
+import { KeyValueProcessAction, KeyValueProcessAddressedRequest } from '../../routing/actions/process-addressed/key-value-process-addressed-request';
 import { SimpleInMemoryKeyValueProcess } from './simple-in-memory-key-value-process';
 import { RequestRouter } from '../../routing/types/request-router';
-import { AnyResponse } from '../../routing/requests/any-response';
+import { AnyResponse } from '../../routing/actions/any-response';
 
 export const simpleInMemoryKeyValueProcessRouter = (
   process: SimpleInMemoryKeyValueProcess,

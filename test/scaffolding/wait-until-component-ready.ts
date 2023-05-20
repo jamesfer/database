@@ -3,9 +3,9 @@ import { makeRequest } from './make-request';
 import {
   ComponentStateConfigAddressedRequestAction,
   GetComponentStateConfigAddressedRequest
-} from '../../src/routing/requests/config-addressed/component-state-config-addressed-request';
-import { ConfigAddressedGroupName } from '../../src/routing/requests/config-addressed/base-config-addressed-request';
-import { RequestCategory } from '../../src/routing/types/request-category';
+} from '../../src/routing/actions/config-addressed/component-state/action';
+import { ConfigAddressedGroupName } from '../../src/routing/actions/config-addressed/base-config-addressed-request';
+import { RequestCategory } from '../../src/routing/actions/request-category';
 import { FullyQualifiedPath } from '../../src/core/metadata-state/config';
 import { ComponentReadyState } from '../../src/facades/component-state-config-request-handler';
 
@@ -16,7 +16,7 @@ export async function waitUntilComponentReady(
   interval = 50,
 ): Promise<void> {
   const componentStateRequest: GetComponentStateConfigAddressedRequest = {
-    category: RequestCategory.ConfigAction,
+    category: RequestCategory.Config,
     group: ConfigAddressedGroupName.ComponentState,
     action: ComponentStateConfigAddressedRequestAction.GetState,
     target,

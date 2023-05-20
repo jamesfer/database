@@ -4,16 +4,17 @@ import {
   JsonLinesRowBlockConfiguration
 } from '../src/components/json-lines-row-block/main-component/json-lines-row-block-configuration';
 import { makeRequest } from './scaffolding/make-request';
-import { MetadataTemporaryAction } from '../src/routing/requests/metadata-temporary/metadata-temporary-request';
-import { RequestCategory } from '../src/routing/types/request-category';
+import { MetadataTemporaryAction } from '../src/routing/actions/metadata-temporary/metadata-temporary-request';
+import { RequestCategory } from '../src/routing/actions/request-category';
 import { ConfigEntryCodec } from '../src/core/commit-log/config-entry-codec';
 import { waitUntilComponentReadyOnAllNodes } from './scaffolding/wait-until-component-ready-on-all-nodes';
 import { range } from 'lodash';
+import { ConfigAddressedGroupName } from '../src/routing/actions/config-addressed/base-config-addressed-request';
 import {
-  AppendRowBlockConfigAddressedRequest,
-  RowBlockConfigAddressedRequestAction, ScanAllRowBlockConfigAddressedRequest
-} from '../src/routing/requests/config-addressed/row-block-config-addressed-request';
-import { ConfigAddressedGroupName } from '../src/routing/requests/config-addressed/base-config-addressed-request';
+  RowBlockConfigAddressedRequestActionType
+} from '../src/routing/actions/config-addressed/row-block/request-action-type';
+import { ScanAllRowBlockConfigAddressedRequest } from '../src/routing/actions/config-addressed/row-block/scan-all';
+import { AppendRowBlockConfigAddressedRequest } from '../src/routing/actions/config-addressed/row-block/append-row';
 
 describe('JsonLinesRowBlock e2e', () => {
   let cluster: { node0: ClusterNode, node1: ClusterNode, node2: ClusterNode };
@@ -53,9 +54,9 @@ describe('JsonLinesRowBlock e2e', () => {
       },
     }));
     const appendRequest: AppendRowBlockConfigAddressedRequest = {
-      category: RequestCategory.ConfigAction,
+      category: RequestCategory.Config,
       group: ConfigAddressedGroupName.RowBlock,
-      action: RowBlockConfigAddressedRequestAction.Append,
+      action: RowBlockConfigAddressedRequestActionType.Append,
       target: datasetPath,
       rows: records,
     };
@@ -67,9 +68,9 @@ describe('JsonLinesRowBlock e2e', () => {
 
     // Read the records
     const scanRequest: ScanAllRowBlockConfigAddressedRequest = {
-      category: RequestCategory.ConfigAction,
+      category: RequestCategory.Config,
       group: ConfigAddressedGroupName.RowBlock,
-      action: RowBlockConfigAddressedRequestAction.ScanAll,
+      action: RowBlockConfigAddressedRequestActionType.ScanAll,
       target: datasetPath,
     };
     const scanResponse = await makeRequest(cluster.node1, scanRequest);

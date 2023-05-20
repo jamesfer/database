@@ -1,5 +1,5 @@
 import { Response } from '../routing/types/response';
-import { BaseRequest } from '../routing/requests/base-request';
+import { BaseRequest } from '../routing/actions/base-request';
 import { Observable } from 'rxjs';
 
 export interface BidirectionalRpcInterface<I, O> {

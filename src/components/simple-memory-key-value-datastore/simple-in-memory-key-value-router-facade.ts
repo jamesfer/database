@@ -1,15 +1,14 @@
 import {
-  KeyValueConfigAddressedRequest,
-  KeyValueConfigAddressedRequestAction
-} from '../../routing/requests/config-addressed/key-value-config-addressed-request';
+  KeyValueConfigAddressedAction
+} from '../../routing/actions/config-addressed/key-value/action';
 import {
   KeyValueProcessAction,
   KeyValueProcessDropRequest,
   KeyValueProcessGetRequest,
   KeyValueProcessPutRequest
-} from '../../routing/requests/process-addressed/key-value-process-addressed-request';
-import { RequestCategory } from '../../routing/types/request-category';
-import { ProcessAddressedGroupName } from '../../routing/requests/process-addressed/base-process-addressed-request';
+} from '../../routing/actions/process-addressed/key-value-process-addressed-request';
+import { RequestCategory } from '../../routing/actions/request-category';
+import { ProcessAddressedGroupName } from '../../routing/actions/process-addressed/base-process-addressed-request';
 import { assertNever } from '../../utils/assert-never';
 import { SimpleInMemoryKeyValueConfiguration } from './simple-in-memory-key-value-configuration';
 import {
@@ -19,11 +18,14 @@ import {
 import { Response } from '../../routing/types/response';
 import { assert } from '../../utils/assert';
 import { ComponentName } from '../scaffolding/component-name';
+import {
+  KeyValueConfigAddressedRequestActionType
+} from '../../routing/actions/config-addressed/key-value/base-request';
 
 export const simpleMemoryKeyValueRouterFacade: KeyValueConfigRequestRouterFacade<SimpleInMemoryKeyValueConfiguration> = {
   async handleKeyValueConfigRequest(
     context: KeyValueConfigRequestRouterContext,
-    request: KeyValueConfigAddressedRequest,
+    request: KeyValueConfigAddressedAction,
     config: SimpleInMemoryKeyValueConfiguration
   ): Promise<Response> {
     // Look up internal config
@@ -45,9 +47,9 @@ export const simpleMemoryKeyValueRouterFacade: KeyValueConfigRequestRouterFacade
     );
 
     switch (request.action) {
-      case KeyValueConfigAddressedRequestAction.Get: {
+      case KeyValueConfigAddressedRequestActionType.Get: {
         const processRequest: KeyValueProcessGetRequest = {
-          category: RequestCategory.ProcessAction,
+          category: RequestCategory.Process,
           group: ProcessAddressedGroupName.KeyValue,
           action: KeyValueProcessAction.Get,
           targetNodeId: internalConfig.remoteProcess.nodeId,
@@ -57,9 +59,9 @@ export const simpleMemoryKeyValueRouterFacade: KeyValueConfigRequestRouterFacade
         return context.rpcInterface.makeRequest(processRequest);
       }
 
-      case KeyValueConfigAddressedRequestAction.Put: {
+      case KeyValueConfigAddressedRequestActionType.Put: {
         const processRequest: KeyValueProcessPutRequest = {
-          category: RequestCategory.ProcessAction,
+          category: RequestCategory.Process,
           group: ProcessAddressedGroupName.KeyValue,
           action: KeyValueProcessAction.Put,
           targetNodeId: internalConfig.remoteProcess.nodeId,
@@ -71,9 +73,9 @@ export const simpleMemoryKeyValueRouterFacade: KeyValueConfigRequestRouterFacade
         break;
       }
 
-      case KeyValueConfigAddressedRequestAction.Drop: {
+      case KeyValueConfigAddressedRequestActionType.Drop: {
         const processRequest: KeyValueProcessDropRequest = {
-          category: RequestCategory.ProcessAction,
+          category: RequestCategory.Process,
           group: ProcessAddressedGroupName.KeyValue,
           action: KeyValueProcessAction.Drop,
           targetNodeId: internalConfig.remoteProcess.nodeId,

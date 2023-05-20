@@ -1,6 +1,6 @@
 import { RpcInterface } from './rpc-interface';
 import { Response } from '../routing/types/response';
-import { BaseRequest } from '../routing/requests/base-request';
+import { BaseRequest } from '../routing/actions/base-request';
 
 export class RpcClientWrapper<R extends BaseRequest> implements RpcInterface<R> {
   private rpcClient: RpcInterface<R> | undefined;

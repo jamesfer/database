@@ -1,9 +1,9 @@
 import { RpcInterface } from '../rpc/rpc-interface';
-import { AnyRequest } from '../routing/requests/any-request';
+import { AnyRequestResponse } from '../routing/actions/any-request-response';
 import { MetadataManager } from '../core/metadata-state/metadata-manager';
 import {
   ComponentStateConfigAddressedRequest
-} from '../routing/requests/config-addressed/component-state-config-addressed-request';
+} from '../routing/actions/config-addressed/component-state/action';
 import { AllComponentConfigurations } from '../components/scaffolding/all-component-configurations';
 
 export const COMPONENT_STATE_CONFIG_REQUEST_HANDLER_FACADE = 'COMPONENT_STATE_CONFIG_REQUEST_HANDLER_FACADE';
@@ -54,7 +54,7 @@ export type ComponentStateResponse =
   | ComponentReadyState;
 
 export interface ComponentStateConfigRequestRouterContext {
-  rpcInterface: RpcInterface<AnyRequest>,
+  rpcInterface: RpcInterface<AnyRequestResponse>,
   metadataManager: MetadataManager,
 }
 

@@ -8,12 +8,12 @@ import { FromJson } from '../interfaces/from-json';
 import { Item, Run } from '../interfaces/run';
 import { default as TE, TaskEither } from 'fp-ts/TaskEither';
 import { FullyQualifiedPath } from '../../../../core/metadata-state/config';
+import { RequestCategory } from '../../../../routing/actions/request-category';
+import { ConfigAddressedGroupName } from '../../../../routing/actions/config-addressed/base-config-addressed-request';
+import { KeyValueConfigGetRequest } from '../../../../routing/actions/config-addressed/key-value/get';
 import {
-  KeyValueConfigAddressedRequestAction,
-  KeyValueConfigGetRequest
-} from '../../../../routing/requests/config-addressed/key-value-config-addressed-request';
-import { RequestCategory } from '../../../../routing/types/request-category';
-import { ConfigAddressedGroupName } from '../../../../routing/requests/config-addressed/base-config-addressed-request';
+  KeyValueConfigAddressedRequestActionType
+} from '../../../../routing/actions/config-addressed/key-value/base-request';
 
 export type ReadByKey = {
   name: 'ReadByKey';
@@ -52,10 +52,10 @@ export const ReadByKey: FromJson<ReadByKey> & ToJson<ReadByKey> & Run<ReadByKey>
     return TE.tryCatch(
       async () => {
         const getRequest: KeyValueConfigGetRequest = {
-          category: RequestCategory.ConfigAction,
+          category: RequestCategory.Config,
           group: ConfigAddressedGroupName.KeyValue,
           target: query.source,
-          action: KeyValueConfigAddressedRequestAction.Get,
+          action: KeyValueConfigAddressedRequestActionType.Get,
           key: query.key,
         };
         const response = await rpcInterface.makeRequest(getRequest);

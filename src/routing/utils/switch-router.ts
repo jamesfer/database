@@ -1,7 +1,7 @@
 import { RequestRouter } from '../types/request-router';
 import { Refine } from '../../types/refine';
 import { Key, switchFunctionOnKey } from '../../utils/switch-function-on-key';
-import { BaseRequest } from '../requests/base-request';
+import { BaseRequest } from '../actions/base-request';
 
 // TODO add better typing for requests and responses
 // export type RequestRouterForPair<R extends RequestResponse<any, any>> = RequestRouter<R['request'], R['response']>;

@@ -15,8 +15,8 @@ import { sample } from 'lodash';
 import {
   ProcessControlRequestAction,
   SpawnProcessRequest
-} from '../../../../routing/requests/process-control/process-control-request';
-import { RequestCategory } from '../../../../routing/types/request-category';
+} from '../../../../routing/actions/process-control/process-control-request';
+import { RequestCategory } from '../../../../routing/actions/request-category';
 import { assert } from '../../../../utils/assert';
 
 export const TransformationRunnerDistributedOperatorFacade: DistributedOperatorFacade<TransformationRunnerConfiguration> = {

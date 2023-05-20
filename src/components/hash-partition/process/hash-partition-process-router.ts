@@ -1,20 +1,21 @@
 import { switchRouter } from '../../../routing/utils/switch-router';
-import { KeyValueProcessAction, KeyValueProcessAddressedRequest } from '../../../routing/requests/process-addressed/key-value-process-addressed-request';
+import { KeyValueProcessAction, KeyValueProcessAddressedRequest } from '../../../routing/actions/process-addressed/key-value-process-addressed-request';
 import { HashPartitionProcess } from './hash-partition-process';
 import { RpcInterface } from '../../../rpc/rpc-interface';
-import {
-  KeyValueConfigAddressedRequestAction, KeyValueConfigDropRequest,
-  KeyValueConfigGetRequest,
-  KeyValueConfigPutRequest
-} from '../../../routing/requests/config-addressed/key-value-config-addressed-request';
-import { ConfigAddressedGroupName } from '../../../routing/requests/config-addressed/base-config-addressed-request';
-import { RequestCategory } from '../../../routing/types/request-category';
+import { ConfigAddressedGroupName } from '../../../routing/actions/config-addressed/base-config-addressed-request';
+import { RequestCategory } from '../../../routing/actions/request-category';
 import { RequestRouter } from '../../../routing/types/request-router';
-import { AnyRequest } from '../../../routing/requests/any-request';
-import { AnyResponse } from '../../../routing/requests/any-response';
+import { AnyRequestResponse } from '../../../routing/actions/any-request-response';
+import { AnyResponse } from '../../../routing/actions/any-response';
+import { KeyValueConfigGetRequest } from '../../../routing/actions/config-addressed/key-value/get';
+import { KeyValueConfigPutRequest } from '../../../routing/actions/config-addressed/key-value/put';
+import { KeyValueConfigDropRequest } from '../../../routing/actions/config-addressed/key-value/drop';
+import {
+  KeyValueConfigAddressedRequestActionType
+} from '../../../routing/actions/config-addressed/key-value/base-request';
 
 export const hashPartitionProcessRouter = (
-  rpcInterface: RpcInterface<AnyRequest>,
+  rpcInterface: RpcInterface<AnyRequestResponse>,
 ) => (
   process: HashPartitionProcess,
 ): RequestRouter<KeyValueProcessAddressedRequest, AnyResponse> => switchRouter('action')<KeyValueProcessAddressedRequest, AnyResponse>({
@@ -22,9 +23,9 @@ export const hashPartitionProcessRouter = (
     // Forward the request to the matching nested config implementation
     const nestedConfigPath = [...process.parentPath, 'internal', `nested${process.partitionIndex}`];
     const forwardedRequest: KeyValueConfigGetRequest = {
-      category: RequestCategory.ConfigAction,
+      category: RequestCategory.Config,
       group: ConfigAddressedGroupName.KeyValue,
-      action: KeyValueConfigAddressedRequestAction.Get,
+      action: KeyValueConfigAddressedRequestActionType.Get,
       target: nestedConfigPath,
       key: request.key,
     }
@@ -33,9 +34,9 @@ export const hashPartitionProcessRouter = (
   async [KeyValueProcessAction.Put](request) {
     const nestedConfigPath = [...process.parentPath, 'internal', `nested${process.partitionIndex}`];
     const forwardedRequest: KeyValueConfigPutRequest = {
-      category: RequestCategory.ConfigAction,
+      category: RequestCategory.Config,
       group: ConfigAddressedGroupName.KeyValue,
-      action: KeyValueConfigAddressedRequestAction.Put,
+      action: KeyValueConfigAddressedRequestActionType.Put,
       target: nestedConfigPath,
       key: request.key,
       value: request.value,
@@ -45,9 +46,9 @@ export const hashPartitionProcessRouter = (
   async [KeyValueProcessAction.Drop](request) {
     const nestedConfigPath = [...process.parentPath, 'internal', `nested${process.partitionIndex}`];
     const forwardedRequest: KeyValueConfigDropRequest = {
-      category: RequestCategory.ConfigAction,
+      category: RequestCategory.Config,
       group: ConfigAddressedGroupName.KeyValue,
-      action: KeyValueConfigAddressedRequestAction.Drop,
+      action: KeyValueConfigAddressedRequestActionType.Drop,
       target: nestedConfigPath,
       key: request.key,
     }

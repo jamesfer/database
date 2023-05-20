@@ -1,22 +1,22 @@
 import { switchRouter } from './utils/switch-router';
-import { RequestCategory } from './types/request-category';
+import { RequestCategory } from './actions/request-category';
 import { RpcInterface } from '../rpc/rpc-interface';
 import { ProcessManager } from '../core/process-manager';
-import { processControlRouter } from './requests/process-control/process-control-router';
-import { configAddressedRequestRouter } from './requests/config-addressed/config-addressed-request-router';
-import { anyProcessAddressedRequestRouter } from './requests/process-addressed/any-process-addressed-request-router';
-import { makeMetadataTemporaryRouter } from './requests/metadata-temporary/metadata-temporary-router';
+import { processControlRouter } from './actions/process-control/process-control-router';
+import { configAddressedRequestRouter } from './routers/config-addressed-request-router';
+import { anyProcessAddressedRequestRouter } from './actions/process-addressed/any-process-addressed-request-router';
+import { makeMetadataTemporaryRouter } from './actions/metadata-temporary/metadata-temporary-router';
 import { MetadataManager } from '../core/metadata-state/metadata-manager';
 import { DistributedCommitLogFactory } from '../types/distributed-commit-log-factory';
 import { Observable } from 'rxjs';
 import { AllComponentConfigurations } from '../components/scaffolding/all-component-configurations';
-import { AnyRequest } from './requests/any-request';
-import { AnyResponse } from './requests/any-response';
+import { AnyRequestResponse } from './actions/any-request-response';
+import { AnyResponse } from './actions/any-response';
 
 const wrapWithDiagnostics = (
-  requestRouter: (request: AnyRequest) => Promise<AnyResponse>,
+  requestRouter: (request: AnyRequestResponse) => Promise<AnyResponse>,
 ) => async (
-  request: AnyRequest,
+  request: AnyRequestResponse,
 ): Promise<AnyResponse> => {
   try {
     const response = await requestRouter(request);
@@ -30,14 +30,14 @@ const wrapWithDiagnostics = (
 
 export const anyRequestRouter = (
   nodeId: string,
-  rpcInterface: RpcInterface<AnyRequest>,
+  rpcInterface: RpcInterface<AnyRequestResponse>,
   processManager: ProcessManager,
   metadataManager: MetadataManager,
   distributedCommitLogFactory: DistributedCommitLogFactory<AllComponentConfigurations>,
   nodes$: Observable<string[]>,
-): (request: AnyRequest) => Promise<AnyResponse> => wrapWithDiagnostics(switchRouter('category')({
-  [RequestCategory.ConfigAction]: configAddressedRequestRouter(rpcInterface, metadataManager),
-  [RequestCategory.ProcessAction]: anyProcessAddressedRequestRouter(nodeId, processManager, rpcInterface),
+): (request: AnyRequestResponse) => Promise<AnyResponse> => wrapWithDiagnostics(switchRouter('category')({
+  [RequestCategory.Config]: configAddressedRequestRouter(rpcInterface, metadataManager),
+  [RequestCategory.Process]: anyProcessAddressedRequestRouter(nodeId, processManager, rpcInterface),
   [RequestCategory.ProcessControl]: processControlRouter(nodeId, rpcInterface, processManager),
   [RequestCategory.MetadataTemporary]: makeMetadataTemporaryRouter(
     nodeId,

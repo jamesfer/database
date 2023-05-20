@@ -3,17 +3,17 @@ import { ClusterNode } from '../src/main/options';
 import {
   SimpleInMemoryKeyValueConfiguration
 } from '../src/components/simple-memory-key-value-datastore/simple-in-memory-key-value-configuration';
-import { RequestCategory } from '../src/routing/types/request-category';
-import { MetadataTemporaryAction } from '../src/routing/requests/metadata-temporary/metadata-temporary-request';
+import { RequestCategory } from '../src/routing/actions/request-category';
+import { MetadataTemporaryAction } from '../src/routing/actions/metadata-temporary/metadata-temporary-request';
 import { ConfigEntryCodec } from '../src/core/commit-log/config-entry-codec';
-import {
-  KeyValueConfigAddressedRequestAction,
-  KeyValueConfigGetRequest,
-  KeyValueConfigPutRequest
-} from '../src/routing/requests/config-addressed/key-value-config-addressed-request';
-import { ConfigAddressedGroupName } from '../src/routing/requests/config-addressed/base-config-addressed-request';
+import { ConfigAddressedGroupName } from '../src/routing/actions/config-addressed/base-config-addressed-request';
 import { makeRequest } from './scaffolding/make-request';
 import { waitUntilComponentReadyOnAllNodes } from './scaffolding/wait-until-component-ready-on-all-nodes';
+import { KeyValueConfigGetRequest } from '../src/routing/actions/config-addressed/key-value/get';
+import { KeyValueConfigPutRequest } from '../src/routing/actions/config-addressed/key-value/put';
+import {
+  KeyValueConfigAddressedRequestActionType
+} from '../src/routing/actions/config-addressed/key-value/base-request';
 
 describe('SimpleInMemoryKeyValue e2e', () => {
   let cluster: { node0: ClusterNode, node1: ClusterNode, node2: ClusterNode };
@@ -47,10 +47,10 @@ describe('SimpleInMemoryKeyValue e2e', () => {
     const putRequest: KeyValueConfigPutRequest = {
       key,
       value,
-      category: RequestCategory.ConfigAction,
+      category: RequestCategory.Config,
       group: ConfigAddressedGroupName.KeyValue,
       target: keyValueDatasetPath,
-      action: KeyValueConfigAddressedRequestAction.Put,
+      action: KeyValueConfigAddressedRequestActionType.Put,
     };
     const putKeyValueResponse = await makeRequest(cluster.node0, putRequest);
     expect(putKeyValueResponse).not.toMatch('Error');
@@ -61,10 +61,10 @@ describe('SimpleInMemoryKeyValue e2e', () => {
     // Get the key from the same node
     const getRequest: KeyValueConfigGetRequest = {
       key,
-      category: RequestCategory.ConfigAction,
+      category: RequestCategory.Config,
       group: ConfigAddressedGroupName.KeyValue,
       target: keyValueDatasetPath,
-      action: KeyValueConfigAddressedRequestAction.Get,
+      action: KeyValueConfigAddressedRequestActionType.Get,
     };
     const node0Response = await makeRequest(cluster.node0, getRequest);
     expect(node0Response).not.toMatch('Error');

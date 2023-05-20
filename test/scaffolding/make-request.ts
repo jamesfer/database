@@ -1,8 +1,8 @@
-import { AnyRequest, AnyRequestCodec } from '../../src/routing/requests/any-request';
+import { AnyRequestResponse, AnyRequestCodec } from '../../src/routing/actions/any-request-response';
 import fetch from 'node-fetch';
 import { ClusterNode } from '../../src/main/options';
 
-export async function makeRequest(node: ClusterNode, request: AnyRequest, attemptsRemaining = 3): Promise<string> {
+export async function makeRequest(node: ClusterNode, request: AnyRequestResponse, attemptsRemaining = 3): Promise<string> {
   const url = `http://${node.host}:${node.generalRpcPort}`;
   const requestString = await new AnyRequestCodec().serialize(request);
   const response = await fetch(url, {

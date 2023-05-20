@@ -6,16 +6,16 @@ import {
 import {
   SimpleInMemoryKeyValueConfiguration
 } from '../src/components/simple-memory-key-value-datastore/simple-in-memory-key-value-configuration';
-import { RequestCategory } from '../src/routing/types/request-category';
-import { MetadataTemporaryAction } from '../src/routing/requests/metadata-temporary/metadata-temporary-request';
+import { RequestCategory } from '../src/routing/actions/request-category';
+import { MetadataTemporaryAction } from '../src/routing/actions/metadata-temporary/metadata-temporary-request';
 import { ConfigEntryCodec } from '../src/core/commit-log/config-entry-codec';
-import {
-  KeyValueConfigAddressedRequestAction,
-  KeyValueConfigGetRequest,
-  KeyValueConfigPutRequest
-} from '../src/routing/requests/config-addressed/key-value-config-addressed-request';
-import { ConfigAddressedGroupName } from '../src/routing/requests/config-addressed/base-config-addressed-request';
+import { ConfigAddressedGroupName } from '../src/routing/actions/config-addressed/base-config-addressed-request';
 import { makeRequest } from './scaffolding/make-request';
+import { KeyValueConfigGetRequest } from '../src/routing/actions/config-addressed/key-value/get';
+import { KeyValueConfigPutRequest } from '../src/routing/actions/config-addressed/key-value/put';
+import {
+  KeyValueConfigAddressedRequestActionType
+} from '../src/routing/actions/config-addressed/key-value/base-request';
 
 describe('HashPartition e2e', () => {
   let cluster: { node0: ClusterNode, node1: ClusterNode, node2: ClusterNode };
@@ -50,10 +50,10 @@ describe('HashPartition e2e', () => {
     const value = 'string';
     for (let i = 0; i < 10; i++) {
       const putRequest: KeyValueConfigPutRequest = {
-        category: RequestCategory.ConfigAction,
+        category: RequestCategory.Config,
         group: ConfigAddressedGroupName.KeyValue,
         target: hashPartitionDatasetPath,
-        action: KeyValueConfigAddressedRequestAction.Put,
+        action: KeyValueConfigAddressedRequestActionType.Put,
         key: `key${i}`,
         value,
       };
@@ -67,10 +67,10 @@ describe('HashPartition e2e', () => {
     // Read values from the hash partition datastore
     for (let i = 0; i < 10; i++) {
       const getRequest: KeyValueConfigGetRequest = {
-        category: RequestCategory.ConfigAction,
+        category: RequestCategory.Config,
         group: ConfigAddressedGroupName.KeyValue,
         target: hashPartitionDatasetPath,
-        action: KeyValueConfigAddressedRequestAction.Get,
+        action: KeyValueConfigAddressedRequestActionType.Get,
         key: `key${i}`,
       };
       const response = await makeRequest(cluster.node1, getRequest);

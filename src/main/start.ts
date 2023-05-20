@@ -6,7 +6,7 @@ import { NaiveRPCCommitLogFactory } from '../core/commit-log/naive-rpc-commit-lo
 import { ConfigEntryCodec } from '../core/commit-log/config-entry-codec';
 import { HttpRpcClient, HttpUrlResolver, LOCAL } from '../rpc/http-rpc-client';
 import { NaiveRpcCommitLogRequestCodec } from '../core/commit-log/naive-rpc-commit-log-request-codec';
-import { RequestCategory } from '../routing/types/request-category';
+import { RequestCategory } from '../routing/actions/request-category';
 import { StaticMembershipList } from '../membership/membership-list';
 import { keyBy } from 'lodash';
 import { RpcClientWrapper } from '../rpc/rpc-client-wrapper';
@@ -17,8 +17,8 @@ import { RpcInterface } from '../rpc/rpc-interface';
 import { Unsubscribable } from 'rxjs';
 import { AllComponentConfigurations } from '../components/scaffolding/all-component-configurations';
 import { assert } from '../utils/assert';
-import { AnyRequest, AnyRequestCodec } from '../routing/requests/any-request';
-import { AnyResponse, AnyResponseCodec } from '../routing/requests/any-response';
+import { AnyRequestResponse, AnyRequestCodec } from '../routing/actions/any-request-response';
+import { AnyResponse, AnyResponseCodec } from '../routing/actions/any-response';
 
 function makeMetadataHttpHostResolver<T>(
   thisNodeId: string,
@@ -66,10 +66,10 @@ function makeGeneralHttpHostResolver(
   nodeId: string,
   leaderId: string,
   clusterNodes: { [k: string]: ClusterNode },
-): HttpUrlResolver<AnyRequest> {
+): HttpUrlResolver<AnyRequestResponse> {
   return (request) => {
     const targetNodeId = (
-      request.category === RequestCategory.ConfigAction
+      request.category === RequestCategory.Config
       || request.category === RequestCategory.MetadataTemporary
     )
       ? leaderId
@@ -88,10 +88,10 @@ async function makeGeneralHttpRpcInterface(
   nodeId: string,
   leaderId: string,
   clusterNodes: { [k: string]: ClusterNode },
-  router: RequestRouter<AnyRequest, AnyResponse>,
-): Promise<HttpRpcClient<AnyRequest, AnyRequest, AnyResponse>> {
+  router: RequestRouter<AnyRequestResponse, AnyResponse>,
+): Promise<HttpRpcClient<AnyRequestResponse, AnyRequestResponse, AnyResponse>> {
   const requestCodec = new AnyRequestCodec();
-  return HttpRpcClient.initialize<AnyRequest, AnyRequest, AnyResponse>(
+  return HttpRpcClient.initialize<AnyRequestResponse, AnyRequestResponse, AnyResponse>(
     requestCodec,
     requestCodec,
     new AnyResponseCodec(),
@@ -118,7 +118,7 @@ export async function start(options: Options): Promise<() => Promise<void>> {
   );
 
   // Apis
-  const rpcClientWrapper = new RpcClientWrapper<AnyRequest>();
+  const rpcClientWrapper = new RpcClientWrapper<AnyRequestResponse>();
   const router = anyRequestRouter(
     options.nodeId,
     rpcClientWrapper,

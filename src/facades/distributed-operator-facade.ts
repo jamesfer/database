@@ -4,7 +4,7 @@ import { MetadataDispatcherInterface } from '../types/metadata-dispatcher-interf
 import { RpcInterface } from '../rpc/rpc-interface';
 import { FullyQualifiedPath } from '../core/metadata-state/config';
 import { AllComponentConfigurations } from '../components/scaffolding/all-component-configurations';
-import { AnyRequest } from '../routing/requests/any-request';
+import { AnyRequestResponse } from '../routing/actions/any-request-response';
 
 export const DISTRIBUTED_OPERATOR_FACADE_NAME = 'OPERATOR_FACADE' as const;
 
@@ -21,7 +21,7 @@ export interface DistributedOperatorContext {
   nodes$: Observable<string[]>;
   processManager: ProcessManager;
   metadataDispatcher: MetadataDispatcherInterface;
-  rpcInterface: RpcInterface<AnyRequest>;
+  rpcInterface: RpcInterface<AnyRequestResponse>;
 }
 
 export interface DistributedOperatorFunction<C extends AllComponentConfigurations> {

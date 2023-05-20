@@ -2,22 +2,22 @@ import { sample } from 'lodash';
 import { Response } from '../../src/routing/types/response';
 import { RpcInterface } from '../../src/rpc/rpc-interface';
 import { RequestRouter } from '../../src/routing/types/request-router';
-import { RequestCategory } from '../../src/routing/types/request-category';
+import { RequestCategory } from '../../src/routing/actions/request-category';
 import { assertNever } from '../../src/utils/assert-never';
-import { AnyRequest } from '../../src/routing/requests/any-request';
+import { AnyRequestResponse } from '../../src/routing/actions/any-request-response';
 
-export class InMemoryRpcInterface implements RpcInterface<AnyRequest> {
-  private routers: { [k: string]: RequestRouter<AnyRequest> } = {};
+export class InMemoryRpcInterface implements RpcInterface<AnyRequestResponse> {
+  private routers: { [k: string]: RequestRouter<AnyRequestResponse> } = {};
 
-  registerRouter(nodeId: string, router: RequestRouter<AnyRequest>) {
+  registerRouter(nodeId: string, router: RequestRouter<AnyRequestResponse>) {
     this.routers[nodeId] = router;
   }
 
-  async makeRequest(request: AnyRequest): Promise<Response> {
+  async makeRequest(request: AnyRequestResponse): Promise<Response> {
     switch (request.category) {
       case RequestCategory.ProcessControl:
-      case RequestCategory.ProcessAction: {
-        const matchingNodeRouter: RequestRouter<AnyRequest> | undefined = this.routers[request.targetNodeId];
+      case RequestCategory.Process: {
+        const matchingNodeRouter: RequestRouter<AnyRequestResponse> | undefined = this.routers[request.targetNodeId];
         if (!matchingNodeRouter) {
           throw new Error(`Can not find target node id: ${request.targetNodeId} in list`);
         }
@@ -26,7 +26,7 @@ export class InMemoryRpcInterface implements RpcInterface<AnyRequest> {
       }
 
       case RequestCategory.MetadataTemporary:
-      case RequestCategory.ConfigAction: {
+      case RequestCategory.Config: {
         // Pick a random router
         const router = sample(this.routers);
         if (!router) {

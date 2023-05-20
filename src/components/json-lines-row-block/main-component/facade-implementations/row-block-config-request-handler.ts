@@ -3,18 +3,18 @@ import { JsonLinesRowBlockConfiguration } from '../json-lines-row-block-configur
 import { assert } from '../../../../utils/assert';
 import { ComponentName } from '../../../scaffolding/component-name';
 import {
-  RowBlockConfigAddressedRequestAction
-} from '../../../../routing/requests/config-addressed/row-block-config-addressed-request';
-import {
   AppendRowBlockProcessAddressedRequest,
   RowBlockProcessAddressedRequestAction,
   ScanAllRowBlockProcessAddressedRequest
-} from '../../../../routing/requests/process-addressed/row-block-process-addressed-request';
-import { RequestCategory } from '../../../../routing/types/request-category';
+} from '../../../../routing/actions/process-addressed/row-block-process-addressed-request';
+import { RequestCategory } from '../../../../routing/actions/request-category';
 import {
   ProcessAddressedGroupName
-} from '../../../../routing/requests/process-addressed/base-process-addressed-request';
+} from '../../../../routing/actions/process-addressed/base-process-addressed-request';
 import { assertNever } from '../../../../utils/assert-never';
+import {
+  RowBlockConfigAddressedRequestActionType
+} from '../../../../routing/actions/config-addressed/row-block/request-action-type';
 
 export const jsonLinesRowBlockConfigRequestHandler: RowBlockConfigRequestHandlerFacade<JsonLinesRowBlockConfiguration> = {
   async handleRowBlockConfigRequest({ metadataManager, rpcInterface }, request, config) {
@@ -28,9 +28,9 @@ export const jsonLinesRowBlockConfigRequestHandler: RowBlockConfigRequestHandler
     assert(internalConfig.remoteProcess, 'JsonLinesRowBlock remote process is not ready yet');
 
     switch (request.action) {
-      case RowBlockConfigAddressedRequestAction.ScanAll: {
+      case RowBlockConfigAddressedRequestActionType.ScanAll: {
         const processRequest: ScanAllRowBlockProcessAddressedRequest = {
-          category: RequestCategory.ProcessAction,
+          category: RequestCategory.Process,
           group: ProcessAddressedGroupName.RowBlock,
           action: RowBlockProcessAddressedRequestAction.ScanAll,
           targetNodeId: internalConfig.remoteProcess.nodeId,
@@ -38,9 +38,9 @@ export const jsonLinesRowBlockConfigRequestHandler: RowBlockConfigRequestHandler
         }
         return rpcInterface.makeRequest(processRequest);
       }
-      case RowBlockConfigAddressedRequestAction.Append: {
+      case RowBlockConfigAddressedRequestActionType.Append: {
         const processRequest: AppendRowBlockProcessAddressedRequest = {
-          category: RequestCategory.ProcessAction,
+          category: RequestCategory.Process,
           group: ProcessAddressedGroupName.RowBlock,
           action: RowBlockProcessAddressedRequestAction.Append,
           targetNodeId: internalConfig.remoteProcess.nodeId,
