@@ -9,11 +9,11 @@ import { HashPartitionDetails, HashPartitionInternalConfiguration } from '../../
 import { ComponentName } from '../../../scaffolding/component-name';
 import { RpcInterface } from '../../../../rpc/rpc-interface';
 import { FullyQualifiedPath } from '../../../../core/metadata-state/config';
-import { AllComponentsLookup } from '../../../scaffolding/all-components-lookup';
 import { EQUALS_FACADE_NAME, EqualsFacade } from '../../../../facades/equals-facade';
 import { assert } from '../../../../utils/assert';
 import { AnyRequest } from '../../../../routing/requests/any-request';
 import { ProcessControlRequestAction, SpawnProcessRequest } from '../../../../routing/requests/process-control/process-control-request';
+import { getFacade } from '../../../scaffolding/component-utils';
 
 async function createNewPartitionProcess(
   nodes: string[],
@@ -43,9 +43,11 @@ async function createNewPartitionProcess(
 }
 
 function componentEquals(left: AllComponentConfigurations, right: AllComponentConfigurations): boolean {
-  const equalsFacade: EqualsFacade<AllComponentConfigurations> | undefined = AllComponentsLookup[left.NAME].FACADES[EQUALS_FACADE_NAME];
-  assert(equalsFacade, 'Component does not have an implementation of equals');
   assert(left.NAME === right.NAME, 'Cannot compare components of different types');
+
+  const equalsFacade = getFacade(left.NAME, EQUALS_FACADE_NAME);
+  assert(equalsFacade, 'Component does not have an implementation of equals');
+
   return equalsFacade.equals(left, right);
 }
 

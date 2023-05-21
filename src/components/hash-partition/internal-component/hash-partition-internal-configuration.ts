@@ -6,7 +6,7 @@ export interface HashPartitionDetails {
   processId: string;
 }
 
-export class HashPartitionInternalConfiguration implements ComponentConfiguration<ComponentName.HashPartitionInternal> {
+export class HashPartitionInternalConfiguration implements ComponentConfiguration {
   readonly NAME = ComponentName.HashPartitionInternal;
 
   constructor(

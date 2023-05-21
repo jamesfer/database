@@ -8,9 +8,10 @@ import {
   SimpleInMemoryKeyValueConfiguration
 } from '../src/components/simple-memory-key-value-datastore/simple-in-memory-key-value-configuration';
 import { EQUALS_FACADE_NAME } from '../src/facades/equals-facade';
+import { ComponentName } from '../src/components/scaffolding/component-name';
 import {
-  SimpleInMemoryKeyValueComponent
-} from '../src/components/simple-memory-key-value-datastore/simple-in-memory-key-value-component';
+  SimpleInMemoryKeyValueFacades
+} from '../src/components/simple-memory-key-value-datastore/simple-in-memory-key-value-facades';
 
 describe('Metadata e2e', () => {
   let cluster: { node0: ClusterNode, node1: ClusterNode, node2: ClusterNode };
@@ -53,9 +54,9 @@ describe('Metadata e2e', () => {
       expect(getConfigResponse).not.toMatch('Error');
       const deserializedEntry = await new ConfigEntryCodec().deserialize(getConfigResponse);
       expect(deserializedEntry).toBeDefined();
-      expect(deserializedEntry!.NAME).toBe(SimpleInMemoryKeyValueComponent.NAME);
+      expect(deserializedEntry!.NAME).toBe(ComponentName.SimpleMemoryKeyValue);
 
-      const keyValueEqualsFacade = SimpleInMemoryKeyValueComponent.FACADES[EQUALS_FACADE_NAME];
+      const keyValueEqualsFacade = SimpleInMemoryKeyValueFacades[EQUALS_FACADE_NAME];
       expect(keyValueEqualsFacade.equals(keyValueDataset, deserializedEntry as SimpleInMemoryKeyValueConfiguration)).toBe(true);
     }
   });

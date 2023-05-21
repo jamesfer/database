@@ -1,56 +1,34 @@
-import { Component } from './component';
 import { ComponentName } from './component-name';
-import {
-  SimpleInMemoryKeyValueComponent
-} from '../simple-memory-key-value-datastore/simple-in-memory-key-value-component';
 import { EQUALS_FACADE_NAME } from '../../facades/equals-facade';
-import {
-  SimpleInMemoryKeyValueInternalComponent
-} from '../simple-memory-key-value-datastore/simple-in-memory-key-value-internal-component';
-import { HashPartitionComponent } from '../hash-partition/main-component/hash-partition-component';
-import { Refine } from '../../types/refine';
-import { AllFacades } from '../../facades/scaffolding/all-facades';
-import { HashPartitionInternalComponent } from '../hash-partition/internal-component/hash-partition-internal-component';
 import { SERIALIZABLE_FACADE_FLAG } from '../../facades/serializable-facade';
-import { TransformationRunnerComponent } from '../transformation-runner/main-component/transformation-runner-component';
+import { AllFacades } from '../../facades/scaffolding/all-facades';
+import { AllComponentConfigurations } from './all-component-configurations';
+import { Refine } from '../../types/refine';
+import { SimpleInMemoryKeyValueFacades } from '../simple-memory-key-value-datastore/simple-in-memory-key-value-facades';
 import {
-  TransformationRunnerInternalComponent
-} from '../transformation-runner/internal-component/transformation-runner-internal-component';
+  SimpleInMemoryKeyValueInternalFacades
+} from '../simple-memory-key-value-datastore/simple-in-memory-key-value-internal-facades';
+import { HashPartitionFacades } from '../hash-partition/main-component/hash-partition-facades';
+import { HashPartitionInternalFacades } from '../hash-partition/internal-component/hash-partition-internal-facades';
+import { TransformationRunnerFacades } from '../transformation-runner/main-component/transformation-runner-facades';
+import {
+  TransformationRunnerInternalFacades
+} from '../transformation-runner/internal-component/transformation-runner-internal-facades';
 
-type AllComponentsLookupRestrictionType = { [N in ComponentName]: Component<N, any, EQUALS_FACADE_NAME | SERIALIZABLE_FACADE_FLAG> };
+type AllComponentsLookupRestrictionType = {
+  [N in ComponentName]: Pick<
+    AllFacades<Refine<AllComponentConfigurations, { NAME: N }>>,
+    EQUALS_FACADE_NAME | SERIALIZABLE_FACADE_FLAG
+  >
+};
 
 export const AllComponentsLookup = {
-  [ComponentName.SimpleMemoryKeyValue]: SimpleInMemoryKeyValueComponent,
-  [ComponentName.SimpleMemoryKeyValueInternal]: SimpleInMemoryKeyValueInternalComponent,
-  [ComponentName.HashPartition]: HashPartitionComponent,
-  [ComponentName.HashPartitionInternal]: HashPartitionInternalComponent,
-  [ComponentName.TransformationRunner]: TransformationRunnerComponent,
-  [ComponentName.TransformationRunnerInternal]: TransformationRunnerInternalComponent,
+  [ComponentName.SimpleMemoryKeyValue]: SimpleInMemoryKeyValueFacades,
+  [ComponentName.SimpleMemoryKeyValueInternal]: SimpleInMemoryKeyValueInternalFacades,
+  [ComponentName.HashPartition]: HashPartitionFacades,
+  [ComponentName.HashPartitionInternal]: HashPartitionInternalFacades,
+  [ComponentName.TransformationRunner]: TransformationRunnerFacades,
+  [ComponentName.TransformationRunnerInternal]: TransformationRunnerInternalFacades,
 } satisfies AllComponentsLookupRestrictionType;
 
 export type AllComponentsLookup = typeof AllComponentsLookup;
-
-export type ComponentConfigurationType<C extends Component<any, any, any>> = C extends Component<any, infer T, any> ? T : never;
-
-// Compile time type checking of component facades
-export type ComponentWithFacades<F extends keyof AllFacades<any>> =
-  Refine<AllComponentsLookup[ComponentName], Component<any, any, F>>
-
-export type ComponentConfigurationWithFacades<F extends keyof AllFacades<any>> =
-  ComponentConfigurationType<ComponentWithFacades<F>>;
-
-// Runtime type checking of component facades
-export function componentImplements<F extends keyof AllFacades<any>>(
-  facades: F[],
-  component: AllComponentsLookup[ComponentName],
-): component is ComponentWithFacades<F> {
-  return facades.every(facade => facade in component.FACADES);
-}
-
-export function componentConfigurationImplements<F extends keyof AllFacades<any>>(
-  facades: F[],
-  componentConfig: ComponentConfigurationType<AllComponentsLookup[ComponentName]>,
-): componentConfig is ComponentConfigurationWithFacades<F> {
-  const component = AllComponentsLookup[componentConfig.NAME];
-  return componentImplements(facades, component);
-}

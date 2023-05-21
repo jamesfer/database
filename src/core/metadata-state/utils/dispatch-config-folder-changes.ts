@@ -1,15 +1,11 @@
 import { ConfigFolder, ConfigFolderItem, FullyQualifiedPath } from '../config';
 import { Observable, Subject } from 'rxjs';
 import { concatMap, ignoreElements, mergeMap, pairwise, startWith } from 'rxjs/operators';
-import { AllComponentsLookup } from '../../../components/scaffolding/all-components-lookup';
 import { EQUALS_FACADE_NAME } from '../../../facades/equals-facade';
-import {
-  ConfigLifecycle,
-  DistributedOperatorContext,
-  DistributedOperatorFunction
-} from '../../../facades/distributed-operator-facade';
+import { ConfigLifecycle, } from '../../../facades/distributed-operator-facade';
 import { AllComponentConfigurations } from '../../../components/scaffolding/all-component-configurations';
 import { assert } from '../../../utils/assert';
+import { getFacade } from '../../../components/scaffolding/component-utils';
 
 interface ConfigCreate {
   type: 'create';
@@ -38,10 +34,8 @@ function entryItemsAreEqual(
     return false;
   }
 
-  const equalsFacade = AllComponentsLookup[nextEntry.item.NAME].FACADES[EQUALS_FACADE_NAME];
-  // The type casts are required to satisfy Typescript. We confirmed that the two entries are the same type
-  // in the above if condition.
-  return equalsFacade.equals(previousEntry.item as any, nextEntry.item as any);
+  const equalsFacade = getFacade(nextEntry.item.NAME, EQUALS_FACADE_NAME);
+  return equalsFacade.equals(previousEntry.item, nextEntry.item);
 }
 
 function * compareFolders(

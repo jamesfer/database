@@ -6,13 +6,13 @@ import { ConfigAddressedGroupName } from './base-config-addressed-request';
 import { KEY_VALUE_CONFIG_REQUEST_ROUTER_FACADE_NAME } from '../../../facades/key-value-config-request-handler';
 import { Response } from '../../types/response';
 import { assertNever } from '../../../utils/assert-never';
-import { AllComponentsLookup } from '../../../components/scaffolding/all-components-lookup';
 import { AllComponentConfigurations } from '../../../components/scaffolding/all-component-configurations';
 import { AnyRequest } from '../any-request';
 import {
   TRANSFORMATION_RUNNER_CONFIG_REQUEST_HANDLER_FACADE
 } from '../../../facades/transformation-runner-config-request-handler';
 import { COMPONENT_STATE_CONFIG_REQUEST_HANDLER_FACADE } from '../../../facades/component-state-config-request-handler';
+import { getFacade } from '../../../components/scaffolding/component-utils';
 
 async function handleRequestOnConfig(
   rpcInterface: RpcInterface<AnyRequest>,
@@ -20,41 +20,45 @@ async function handleRequestOnConfig(
   request: ConfigAddressedRequest,
   config: AllComponentConfigurations,
 ): Promise<Response> {
-  const component = AllComponentsLookup[config.NAME];
-
   switch (request.group) {
     case ConfigAddressedGroupName.KeyValue: {
-      if (KEY_VALUE_CONFIG_REQUEST_ROUTER_FACADE_NAME in component.FACADES) {
-        return component.FACADES[KEY_VALUE_CONFIG_REQUEST_ROUTER_FACADE_NAME].handleKeyValueConfigRequest(
-          { rpcInterface, metadataManager },
-          request,
-          config as any,
-        );
+      const routerFacade = getFacade(config.NAME, KEY_VALUE_CONFIG_REQUEST_ROUTER_FACADE_NAME);
+      if (!routerFacade) {
+        return;
       }
+
+      return routerFacade.handleKeyValueConfigRequest(
+        { rpcInterface, metadataManager },
+        request,
+        config as any,
+      );
     }
-      break;
 
     case ConfigAddressedGroupName.TransformationRunner: {
-      if (TRANSFORMATION_RUNNER_CONFIG_REQUEST_HANDLER_FACADE in component.FACADES) {
-        return component.FACADES[TRANSFORMATION_RUNNER_CONFIG_REQUEST_HANDLER_FACADE].handleTransformationRunnerProcessRequest(
-          { rpcInterface, metadataManager },
-          request,
-          config as any,
-        );
+      const routerFacade = getFacade(config.NAME, TRANSFORMATION_RUNNER_CONFIG_REQUEST_HANDLER_FACADE);
+      if (!routerFacade) {
+        return;
       }
+
+      return routerFacade.handleTransformationRunnerProcessRequest(
+        { rpcInterface, metadataManager },
+        request,
+        config as any,
+      );
     }
-      break;
 
     case ConfigAddressedGroupName.ComponentState: {
-      if (COMPONENT_STATE_CONFIG_REQUEST_HANDLER_FACADE in component.FACADES) {
-        return component.FACADES[COMPONENT_STATE_CONFIG_REQUEST_HANDLER_FACADE].handleComponentStateConfigRequest(
-          { rpcInterface, metadataManager },
-          request,
-          config as any,
-        );
+      const routerFacade = getFacade(config.NAME, COMPONENT_STATE_CONFIG_REQUEST_HANDLER_FACADE);
+      if (!routerFacade) {
+        return;
       }
+
+      return routerFacade.handleComponentStateConfigRequest(
+        { rpcInterface, metadataManager },
+        request,
+        config as any,
+      );
     }
-      break;
 
     default:
       assertNever(request);

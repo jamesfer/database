@@ -1,8 +1,5 @@
 import { RequestRouter } from '../../types/request-router';
-import {
-  MetadataTemporaryAction,
-  MetadataTemporaryRequest
-} from './metadata-temporary-request';
+import { MetadataTemporaryAction, MetadataTemporaryRequest } from './metadata-temporary-request';
 import { MetadataManager } from '../../../core/metadata-state/metadata-manager';
 import { MetadataDispatcher } from '../../../core/metadata-state/metadata-dispatcher';
 import { FullyQualifiedPath } from '../../../core/metadata-state/config';
@@ -12,11 +9,11 @@ import { ProcessManager } from '../../../core/process-manager';
 import { RpcInterface } from '../../../rpc/rpc-interface';
 import { Observable } from 'rxjs';
 import { assertNever } from '../../../utils/assert-never';
-import { AllComponentsLookup, componentConfigurationImplements } from '../../../components/scaffolding/all-components-lookup';
-import { SERIALIZABLE_FACADE_FLAG, SerializableFacade } from '../../../facades/serializable-facade';
+import { SERIALIZABLE_FACADE_FLAG } from '../../../facades/serializable-facade';
 import { assert } from '../../../utils/assert';
 import { AllComponentConfigurations } from '../../../components/scaffolding/all-component-configurations';
 import { AnyRequest } from '../any-request';
+import { componentConfigurationImplements, getFacade } from '../../../components/scaffolding/component-utils';
 
 function getMetadataDispatcher(
   metadataManager: MetadataManager,
@@ -56,7 +53,8 @@ export function makeMetadataTemporaryRouter(
           componentConfigurationImplements([SERIALIZABLE_FACADE_FLAG], entry),
           `Cannot return ${entry.NAME} component as it does not implement the serializable facade`,
         );
-        const serializer: SerializableFacade<AllComponentConfigurations> = AllComponentsLookup[entry.NAME].FACADES[SERIALIZABLE_FACADE_FLAG];
+
+        const serializer = getFacade(entry.NAME, SERIALIZABLE_FACADE_FLAG);
         return serializer.serialize(entry);
       }
 

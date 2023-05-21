@@ -1,9 +1,7 @@
 import { ComponentConfiguration } from '../scaffolding/component-configuration';
 import { ComponentName } from '../scaffolding/component-name';
 
-export class SimpleInMemoryKeyValueInternalConfiguration implements ComponentConfiguration<
-  ComponentName.SimpleMemoryKeyValueInternal
-> {
+export class SimpleInMemoryKeyValueInternalConfiguration implements ComponentConfiguration {
   readonly NAME = ComponentName.SimpleMemoryKeyValueInternal;
 
   constructor(

@@ -1,7 +1,7 @@
 import { ComponentConfiguration } from '../../scaffolding/component-configuration';
 import { ComponentName } from '../../scaffolding/component-name';
 
-export class TransformationRunnerInternalConfiguration implements ComponentConfiguration<ComponentName.TransformationRunnerInternal> {
+export class TransformationRunnerInternalConfiguration implements ComponentConfiguration {
   readonly NAME = ComponentName.TransformationRunnerInternal;
 
   constructor(

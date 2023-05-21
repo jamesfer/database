@@ -1,8 +1,10 @@
 import { Codec } from '../../types/codec';
-import { AllComponentsLookup } from '../../components/scaffolding/all-components-lookup';
 import { assert } from '../../utils/assert';
 import { SERIALIZABLE_FACADE_FLAG } from '../../facades/serializable-facade';
 import { AllComponentConfigurations } from '../../components/scaffolding/all-component-configurations';
+import { getFacade } from '../../components/scaffolding/component-utils';
+import { AllComponentsLookup } from '../../components/scaffolding/all-components-lookup';
+import { ComponentName } from '../../components/scaffolding/component-name';
 
 // interface SimpleMemoryKeyValueSerializableRepresentation {
 //   name: ConfigEntryName.SimpleMemoryKeyValue;
@@ -32,21 +34,22 @@ import { AllComponentConfigurations } from '../../components/scaffolding/all-com
 
 export class ConfigEntryCodec implements Codec<AllComponentConfigurations, string> {
   async serialize(value: AllComponentConfigurations): Promise<string> {
-    const component = AllComponentsLookup[value.NAME];
+    const serializer = getFacade(value.NAME, SERIALIZABLE_FACADE_FLAG);
     assert(
-      SERIALIZABLE_FACADE_FLAG in component.FACADES,
+      serializer,
       `Cannot serialize ${value.NAME} component as it does not have a serializer implementation`,
     );
 
-    const serializer = component.FACADES[SERIALIZABLE_FACADE_FLAG];
     return serializer.serialize(value as any);
   }
 
   async deserialize(serialized: string): Promise<AllComponentConfigurations | undefined> {
     // This is a kind of inefficient way to deserialize things, but for now, it's the best we have.
-    for (const component of Object.values(AllComponentsLookup)) {
-      if (SERIALIZABLE_FACADE_FLAG in component.FACADES) {
-        const deserializedResult = component.FACADES[SERIALIZABLE_FACADE_FLAG].deserialize(serialized);
+    let componentName: ComponentName;
+    for (componentName in AllComponentsLookup) {
+      const serializer = getFacade(componentName, SERIALIZABLE_FACADE_FLAG);
+      if (serializer) {
+        const deserializedResult = serializer.deserialize(serialized);
         if (deserializedResult) {
           return deserializedResult;
         }

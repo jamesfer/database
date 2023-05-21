@@ -1,14 +1,13 @@
 import { EMPTY } from 'rxjs';
 import {
   ConfigLifecycle,
-  DISTRIBUTED_OPERATOR_FACADE_NAME, DistributedOperatorFacade,
+  DISTRIBUTED_OPERATOR_FACADE_NAME,
+  DistributedOperatorFacade,
   DistributedOperatorFunction
 } from '../facades/distributed-operator-facade';
 import { AllComponentConfigurations } from '../components/scaffolding/all-component-configurations';
-import {
-  AllComponentsLookup,
-  componentImplements
-} from '../components/scaffolding/all-components-lookup';
+import { componentNameImplements } from '../components/scaffolding/component-utils';
+import { AllComponentsLookup } from '../components/scaffolding/all-components-lookup';
 
 export const allComponentDistributedOperator: DistributedOperatorFunction<AllComponentConfigurations> = (
   {
@@ -20,16 +19,14 @@ export const allComponentDistributedOperator: DistributedOperatorFunction<AllCom
   },
   lifecycle,
 ) => {
-  // Look up the config name to find the component
-  const component = AllComponentsLookup[lifecycle.name];
-
   // Check if the component supports the distributed operator facade
-  if (!componentImplements([DISTRIBUTED_OPERATOR_FACADE_NAME], component)) {
-    // console.warn(`${lifecycle.name} component does not support distributed operator`)
+  if (!componentNameImplements([DISTRIBUTED_OPERATOR_FACADE_NAME], lifecycle.name)) {
     return EMPTY;
   }
 
-  const distributedOperatorFacade = component.FACADES[DISTRIBUTED_OPERATOR_FACADE_NAME] as DistributedOperatorFacade<AllComponentConfigurations>;
+  // Look up the config name to find the component
+  const componentFacades = AllComponentsLookup[lifecycle.name];
+  const distributedOperatorFacade = componentFacades[DISTRIBUTED_OPERATOR_FACADE_NAME] as DistributedOperatorFacade<AllComponentConfigurations>;
   return distributedOperatorFacade.distributedOperatorFunction(
     {
       nodeId,
