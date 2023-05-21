@@ -7,11 +7,12 @@ import { Config, ConfigFolder, FullyQualifiedPath } from './config';
 import { dispatchConfigFolderChanges } from './utils/dispatch-config-folder-changes';
 import { MetadataDispatcherInterface } from '../../types/metadata-dispatcher-interface';
 import { DistributedCommitLogInterface } from '../../types/distributed-commit-log-interface';
-import { allComponentDistributedOperator } from '../../operators/all-component-distributed-operator';
-import { ComponentName } from '../../components/scaffolding/component-name';
-import { AllComponentConfigurations } from '../../components/scaffolding/all-component-configurations';
 import { Refine } from '../../types/refine';
 import { AnyRequest } from '../../routing/requests/any-request';
+import {
+  AnyComponentConfiguration,
+  AnyComponentDistributedOperator
+} from '../../components/any-component-configuration';
 
 const onlyIncludeWhenLeading = (
   isLeader$: Observable<boolean>,
@@ -34,7 +35,7 @@ export class MetadataDispatcher implements MetadataDispatcherInterface {
     nodeId: string,
     path: FullyQualifiedPath,
     processManager: ProcessManager,
-    metadataCommitLog: DistributedCommitLogInterface<AllComponentConfigurations>,
+    metadataCommitLog: DistributedCommitLogInterface<AnyComponentConfiguration>,
     rpcInterface: RpcInterface<AnyRequest>,
     nodes$: Observable<string[]>,
   ): Promise<MetadataDispatcher> {
@@ -47,11 +48,17 @@ export class MetadataDispatcher implements MetadataDispatcherInterface {
 
   private readonly currentConfig$ = new BehaviorSubject(Config.empty());
 
+  private readonly operator = new AnyComponentDistributedOperator(
+    this.nodes$,
+    this,
+    this.rpcInterface,
+  );
+
   private constructor(
     private readonly nodeId: string,
     private readonly path: FullyQualifiedPath,
     private readonly processManager: ProcessManager,
-    private readonly metadataCommitLog: DistributedCommitLogInterface<AllComponentConfigurations>,
+    private readonly metadataCommitLog: DistributedCommitLogInterface<AnyComponentConfiguration>,
     private readonly rpcInterface: RpcInterface<AnyRequest>,
     private readonly nodes$: Observable<string[]>,
   ) {
@@ -71,16 +78,7 @@ export class MetadataDispatcher implements MetadataDispatcherInterface {
         // filterRelevantChanges(this.nodeId, this.isLeader$),
         // Only select changes if we are the leader
         onlyIncludeWhenLeading(this.isLeader$),
-        dispatchConfigFolderChanges([], lifecycle => allComponentDistributedOperator(
-          {
-            nodeId: this.nodeId,
-            nodes$: this.nodes$,
-            processManager: this.processManager,
-            rpcInterface: this.rpcInterface,
-            metadataDispatcher: this,
-          },
-          lifecycle,
-        )),
+        dispatchConfigFolderChanges([], this.operator),
       ).subscribe()
     );
   }
@@ -106,25 +104,28 @@ export class MetadataDispatcher implements MetadataDispatcherInterface {
     return this.isLeader$.getValue() && this.containsPath(path);
   }
 
-  async getEntry(path: FullyQualifiedPath): Promise<AllComponentConfigurations | undefined> {
+  async getEntry(path: FullyQualifiedPath): Promise<AnyComponentConfiguration | undefined> {
     return this.findEntry(path);
   }
 
-  async getEntryAs<N extends ComponentName>(path: FullyQualifiedPath, name: N): Promise<Refine<AllComponentConfigurations, { NAME: N }>> {
+  async getEntryAs<N extends AnyComponentConfiguration['name']>(
+    path: FullyQualifiedPath,
+    name: N,
+  ): Promise<Refine<AnyComponentConfiguration, { name: N }>> {
     const entry = await this.getEntry(path);
     if (!entry) {
       throw new Error(`Could not find config entry at path: ${path.join('/')}, on node: ${this.nodeId}`);
     }
 
-    if (entry.NAME !== name) {
-      throw new Error(`Tried to get a config entry as the incorrect type. Config type: ${entry.NAME}, expected type: ${name}, node id: ${this.nodeId}`);
+    if (entry.name !== name) {
+      throw new Error(`Tried to get a config entry as the incorrect type. Config type: ${entry.name}, expected type: ${name}, node id: ${this.nodeId}`);
     }
 
     // We have to use a cast here because Typescript can't correctly infer the type with a generic parameter
-    return entry as Refine<AllComponentConfigurations, { NAME: N }>;
+    return entry as Refine<AnyComponentConfiguration, { name: N }>;
   }
 
-  async putEntry(path: FullyQualifiedPath, entry: AllComponentConfigurations): Promise<void> {
+  async putEntry(path: FullyQualifiedPath, entry: AnyComponentConfiguration): Promise<void> {
     return this.metadataCommitLog.write(path, entry);
   }
 
@@ -132,7 +133,7 @@ export class MetadataDispatcher implements MetadataDispatcherInterface {
     this.allSubscriptions.unsubscribe();
   }
 
-  private findEntry(path: FullyQualifiedPath): AllComponentConfigurations | undefined {
+  private findEntry(path: FullyQualifiedPath): AnyComponentConfiguration | undefined {
     const config = this.currentConfig$.getValue()
     let [nextPathSegment, ...remainingPath] = path;
     if (!nextPathSegment) {

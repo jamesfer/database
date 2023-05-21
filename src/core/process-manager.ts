@@ -33,10 +33,4 @@ export class ProcessManager {
       return process as Refine<Process, { type: T }>;
     }
   }
-
-  // getAllProcessesByFlag<F extends FacadeDictionaryKey>(flag: F): FacadeDictionary[F][] {
-  //   return Object.values(this.processes)
-  //     .map(instance => castFacade(instance, flag))
-  //     .flatMap(instance => instance ? [instance] : []);
-  // }
 }

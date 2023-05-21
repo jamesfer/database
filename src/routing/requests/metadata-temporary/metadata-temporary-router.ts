@@ -6,17 +6,18 @@ import {
 import { MetadataManager } from '../../../core/metadata-state/metadata-manager';
 import { MetadataDispatcher } from '../../../core/metadata-state/metadata-dispatcher';
 import { FullyQualifiedPath } from '../../../core/metadata-state/config';
-import { ConfigEntryCodec } from '../../../core/commit-log/config-entry-codec';
 import { DistributedCommitLogFactory } from '../../../types/distributed-commit-log-factory';
 import { ProcessManager } from '../../../core/process-manager';
 import { RpcInterface } from '../../../rpc/rpc-interface';
 import { Observable } from 'rxjs';
 import { assertNever } from '../../../utils/assert-never';
-import { AllComponentsLookup, componentConfigurationImplements } from '../../../components/scaffolding/all-components-lookup';
-import { SERIALIZABLE_FACADE_FLAG, SerializableFacade } from '../../../facades/serializable-facade';
 import { assert } from '../../../utils/assert';
-import { AllComponentConfigurations } from '../../../components/scaffolding/all-component-configurations';
 import { AnyRequest } from '../any-request';
+import {
+  AnyComponentConfiguration,
+  AnyComponentImplementations
+} from '../../../components/any-component-configuration';
+import { parse, stringify } from 'fp-ts/Json';
 
 function getMetadataDispatcher(
   metadataManager: MetadataManager,
@@ -37,13 +38,11 @@ function getMetadataDispatcher(
 export function makeMetadataTemporaryRouter(
   nodeId: string,
   metadataManager: MetadataManager,
-  distributedCommitLogFactory: DistributedCommitLogFactory<AllComponentConfigurations>,
+  distributedCommitLogFactory: DistributedCommitLogFactory<AnyComponentConfiguration>,
   processManager: ProcessManager,
   rpcInterface: RpcInterface<AnyRequest>,
   nodes$: Observable<string[]>,
 ): RequestRouter<MetadataTemporaryRequest> {
-  const configEntryCodec = new ConfigEntryCodec();
-
   return async (request) => {
     switch (request.action) {
       case MetadataTemporaryAction.Get: {
@@ -52,20 +51,16 @@ export function makeMetadataTemporaryRouter(
           return '';
         }
 
-        assert(
-          componentConfigurationImplements([SERIALIZABLE_FACADE_FLAG], entry),
-          `Cannot return ${entry.NAME} component as it does not implement the serializable facade`,
-        );
-        const serializer: SerializableFacade<AllComponentConfigurations> = AllComponentsLookup[entry.NAME].FACADES[SERIALIZABLE_FACADE_FLAG];
-        return serializer.serialize(entry);
+        const json = AnyComponentImplementations.serialize(entry);
+        return stringify(json);
       }
 
       case MetadataTemporaryAction.Put: {
-        const deserializedConfig = await configEntryCodec.deserialize(request.entry);
-        if (!deserializedConfig) {
-          throw new Error(`Could not deserialize config entry: ${request.entry}`);
-        }
-        await getMetadataDispatcher(metadataManager, request.path).putEntry(request.path, deserializedConfig);
+        const json = parse(request.entry);
+        assert(json._tag === 'Right', `Failed to parse json: ${request.entry}`);
+
+        const config = AnyComponentImplementations.deserialize(json.right);
+        await getMetadataDispatcher(metadataManager, request.path).putEntry(request.path, config);
         break;
       }
 

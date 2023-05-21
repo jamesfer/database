@@ -1,6 +1,6 @@
 import { RpcInterface } from '../../../rpc/rpc-interface';
 import { RequestRouter } from '../../types/request-router';
-import { ConfigAddressedRequest } from './config-addressed-request';
+import { AnyConfigAddressedRequest } from './any-config-addressed-request';
 import { MetadataManager } from '../../../core/metadata-state/metadata-manager';
 import { ConfigAddressedGroupName } from './base-config-addressed-request';
 import { KEY_VALUE_CONFIG_REQUEST_ROUTER_FACADE_NAME } from '../../../facades/key-value-config-request-handler';
@@ -17,7 +17,7 @@ import { COMPONENT_STATE_CONFIG_REQUEST_HANDLER_FACADE } from '../../../facades/
 async function handleRequestOnConfig(
   rpcInterface: RpcInterface<AnyRequest>,
   metadataManager: MetadataManager,
-  request: ConfigAddressedRequest,
+  request: AnyConfigAddressedRequest,
   config: AllComponentConfigurations,
 ): Promise<Response> {
   const component = AllComponentsLookup[config.NAME];
@@ -66,7 +66,7 @@ async function handleRequestOnConfig(
 export const configAddressedRequestRouter = (
   rpcInterface: RpcInterface<AnyRequest>,
   metadataManager: MetadataManager,
-): RequestRouter<ConfigAddressedRequest> => async (request) => {
+): RequestRouter<AnyConfigAddressedRequest> => async (request) => {
   // Find the metadata dispatcher
   const metadataDispatcher = metadataManager.getClosestDispatcherMatching(request.target);
   if (!metadataDispatcher) {

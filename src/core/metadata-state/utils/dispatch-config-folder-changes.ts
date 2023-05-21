@@ -1,26 +1,23 @@
-import { ConfigFolder, ConfigFolderItem, FullyQualifiedPath } from '../config';
+import { ConfigFolder, FullyQualifiedPath } from '../config';
 import { Observable, Subject } from 'rxjs';
 import { concatMap, ignoreElements, mergeMap, pairwise, startWith } from 'rxjs/operators';
-import { AllComponentsLookup } from '../../../components/scaffolding/all-components-lookup';
-import { EQUALS_FACADE_NAME } from '../../../facades/equals-facade';
-import {
-  ConfigLifecycle,
-  DistributedOperatorContext,
-  DistributedOperatorFunction
-} from '../../../facades/distributed-operator-facade';
-import { AllComponentConfigurations } from '../../../components/scaffolding/all-component-configurations';
 import { assert } from '../../../utils/assert';
+import { DistributedOperator } from '../../../interfaces/distributed-operator';
+import {
+  AnyComponentConfiguration,
+  AnyComponentImplementations
+} from '../../../components/any-component-configuration';
 
 interface ConfigCreate {
   type: 'create';
   path: FullyQualifiedPath;
-  entry: AllComponentConfigurations;
+  entry: AnyComponentConfiguration;
 }
 
 interface ConfigUpdate {
   type: 'update';
   path: FullyQualifiedPath;
-  entry: AllComponentConfigurations;
+  entry: AnyComponentConfiguration;
 }
 
 interface ConfigDelete {
@@ -30,18 +27,10 @@ interface ConfigDelete {
 
 type ConfigChange = ConfigCreate | ConfigUpdate | ConfigDelete;
 
-function entryItemsAreEqual(
-  previousEntry: ConfigFolderItem,
-  nextEntry: ConfigFolderItem,
-): boolean {
-  if (nextEntry.item.NAME !== previousEntry.item.NAME) {
-    return false;
-  }
-
-  const equalsFacade = AllComponentsLookup[nextEntry.item.NAME].FACADES[EQUALS_FACADE_NAME];
-  // The type casts are required to satisfy Typescript. We confirmed that the two entries are the same type
-  // in the above if condition.
-  return equalsFacade.equals(previousEntry.item as any, nextEntry.item as any);
+interface ConfigLifecycle<C extends AnyComponentConfiguration> {
+  path: FullyQualifiedPath,
+  name: C['name'];
+  events$: Observable<C>;
 }
 
 function * compareFolders(
@@ -55,7 +44,7 @@ function * compareFolders(
       const nextEntry = next.entries[key];
       if (nextEntry) {
         // Emit an update for this entry if it has changed
-        if (!entryItemsAreEqual(previousEntry, nextEntry)) {
+        if (!AnyComponentImplementations.equals(nextEntry.item, previousEntry.item)) {
           yield { type: 'update', entry: nextEntry.item, path: [...parentPath, key] };
         }
 
@@ -95,11 +84,11 @@ const mapEventsToLifecycle = (
   basePath: FullyQualifiedPath
 ) => (
   changes$: Observable<ConfigChange>,
-): Observable<ConfigLifecycle<AllComponentConfigurations>> => {
-  const storage: { [k: string]: [AllComponentConfigurations['NAME'], Subject<AllComponentConfigurations>] } = {};
+): Observable<ConfigLifecycle<AnyComponentConfiguration>> => {
+  const storage: { [k: string]: [AnyComponentConfiguration['name'], Subject<AnyComponentConfiguration>] } = {};
 
   return changes$.pipe(
-    concatMap((configChange): [ConfigLifecycle<AllComponentConfigurations>] | [] => {
+    concatMap((configChange): [ConfigLifecycle<AnyComponentConfiguration>] | [] => {
       const configChangeId = configChange.path.join('/');
 
       // Check if this id is new
@@ -112,11 +101,11 @@ const mapEventsToLifecycle = (
 
         // Create and return a new observable
         const subject = new Subject<any>();
-        storage[configChangeId] = [configChange.entry.NAME, subject];
+        storage[configChangeId] = [configChange.entry.name, subject];
 
         return [{
           path: [...basePath, ...configChange.path],
-          name: configChange.entry.NAME,
+          name: configChange.entry.name,
           events$: subject.pipe(startWith(configChange.entry))
         }];
       }
@@ -129,7 +118,7 @@ const mapEventsToLifecycle = (
         subject.complete();
         delete storage[configChangeId];
       } else {
-        if (configChange.entry.NAME !== name) {
+        if (configChange.entry.name !== name) {
           console.error(`Incorrect entry type for ${configChangeId}`);
         } else {
           subject.next(configChange.entry);
@@ -144,7 +133,7 @@ const mapEventsToLifecycle = (
 
 export const dispatchConfigFolderChanges = (
   basePath: FullyQualifiedPath,
-  componentOperator: (lifecycle: ConfigLifecycle<AllComponentConfigurations>) => Observable<void>,
+  componentOperator: DistributedOperator<AnyComponentConfiguration>,
 ) => (
   configFolder$: Observable<ConfigFolder>,
 ): Observable<never> => {
@@ -154,7 +143,9 @@ export const dispatchConfigFolderChanges = (
     // Store an internal state of each config entry
     mapEventsToLifecycle(basePath),
     // Emit the changes to each state entry to a configured handler based on the entry type
-    mergeMap(componentOperator),
+    mergeMap(lifecycle => {
+      return componentOperator.distributedOperator(lifecycle.path, lifecycle.events$);
+    }),
     ignoreElements(),
   );
 }

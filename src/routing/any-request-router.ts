@@ -10,8 +10,8 @@ import { MetadataManager } from '../core/metadata-state/metadata-manager';
 import { DistributedCommitLogFactory } from '../types/distributed-commit-log-factory';
 import { Observable } from 'rxjs';
 import { RequestRouter } from './types/request-router';
-import { AllComponentConfigurations } from '../components/scaffolding/all-component-configurations';
 import { AnyRequest } from './requests/any-request';
+import { AnyComponentConfiguration } from '../components/any-component-configuration';
 
 const wrapWithDiagnostics = (requestRouter: RequestRouter<AnyRequest>): RequestRouter<AnyRequest> => async (request: AnyRequest) => {
   try {
@@ -29,7 +29,7 @@ export const anyRequestRouter = (
   rpcInterface: RpcInterface<AnyRequest>,
   processManager: ProcessManager,
   metadataManager: MetadataManager,
-  distributedCommitLogFactory: DistributedCommitLogFactory<AllComponentConfigurations>,
+  distributedCommitLogFactory: DistributedCommitLogFactory<AnyComponentConfiguration>,
   nodes$: Observable<string[]>,
 ): RequestRouter<AnyRequest> => wrapWithDiagnostics(switchRouter('category')({
   [RequestCategory.ConfigAction]: configAddressedRequestRouter(rpcInterface, metadataManager),

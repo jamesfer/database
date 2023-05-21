@@ -1,10 +1,10 @@
-import { AllComponentConfigurations } from '../../components/scaffolding/all-component-configurations';
+import { AnyComponentConfiguration } from '../../components/any-component-configuration';
 
 export type FullyQualifiedPath = string[];
 
 export class ConfigFolderItem {
   constructor(
-    public readonly item: AllComponentConfigurations,
+    public readonly item: AnyComponentConfiguration,
     public readonly children: ConfigFolder,
   ) {}
 }
